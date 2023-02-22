@@ -1,0 +1,87 @@
+{% extends "jobs/layout.html" %}
+
+{% block content %}
+<script type="text/javascript">
+    function checkSize(max_file_size)
+        {
+            const max_file_size = 200000; //200KB
+            var input = document.getElementById("upload_report_file");
+            // check for browser support (may need to be modified)
+            if(input.files && input.files.length == 1)
+            {           
+                if (input.files[0].size > max_file_size) 
+                {
+                    alert("The file size must be less than " + (input.files[0].size) + "KB");
+                    return false;
+                }
+            }
+            return true;
+    }
+
+
+    function checkFileType() {
+      var input = document.getElementById("upload_report_file")
+      var ext = input.value.match(/\.([^\.]+)$/)[1];
+      switch (ext) {
+        //allowed file types, no action needs taking
+        case 'txt':
+        case 'csv':
+        case 'docx':
+        case 'xlsx':
+          break;
+        default:
+          alert('This file type may not be uploaded: ' + ext);
+          input.value = '';
+      }
+    };
+
+    function validateUploadedFile() {
+        checkSize();
+        checkFileType();
+    }
+</script>
+<style>
+    .btn{background-color: blue;}
+    .btn:active{background-color: red;}
+</style>
+<div class="jumbotron" style="background-color:PowderBlue">
+    <h1>{% block nav %}{% block title %}
+        {{main_title}}
+        {% endblock %}{% endblock %}
+    </h1>
+</div>
+<h3>The {{ NumJobs }} jobs in the {{main_title}}</h3>
+<p>{% autoescape off %}{{main_intro}}{% endautoescape %}</p>
+    &nbsp; <b>{{SameJobWarning}}</b>
+<table cellspacing="3" bgcolor="#000000">
+    <tr>
+        <th>Subject</th>
+        <th>QC report 1</th>
+        <th>QC report 2</th>
+        <th>Segmentation 1</th>
+        <th>Segmentation 2</th>
+    </tr>
+    {% autoescape off %} {{ JobTable }} {% endautoescape %}
+</table>
+<b>{{SameJobWarning}}</b>
+    {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li><b>{{ message }}</b></li>
+    {% endfor %}
+</ul>
+        {% endif %}
+<hr class="rounded">
+<h3>Jobs in the {{main_title}} assigned to you.</h3>
+<p>{% autoescape off %}{{indiv_intro}}{% endautoescape %}</p>
+<p>{{FourJobsWarning}}</p>
+        {% autoescape off %} {{ IndividualJobTable }}{% endautoescape %}
+
+    {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li><b>{{ message }}</b></li>
+    {% endfor %}
+</ul>
+    {% endif %}
+{% endblock %}

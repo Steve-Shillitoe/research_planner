@@ -1,0 +1,84 @@
+{% extends "jobs/layout.html" %}
+
+{% block content %}
+<script>
+function deleteDBCheck() {
+        confirm("Are you sure you want to delete all the data in the database?");
+};
+
+function deleteReportCheck() {
+        confirm("Are you sure you want to delete this report?");
+    };
+
+function deleteAllReportsCheck() {
+        confirm("Are you sure you want to delete all the reports? You should only do this after you have deleted the database.");
+};
+</script>
+
+<style>
+    /* Populate database title style */
+    .header {
+        padding: 8px;
+        text-align: left;
+        background: #78aec8;
+        color: white;
+        font-size: 16px;
+    }
+
+    .buttonStyle {
+        background-color: green;
+        border: 1px solid green;
+        padding: 5px;
+        border-radius: 2px;
+        cursor: pointer;
+    }
+</style>
+
+<div class="header"> Database Administration for {% block nav %}{% block title %}
+        {{main_title}}
+        {% endblock %}{% endblock %}</div>
+<br />
+<form method="post">
+    {% csrf_token %}
+    <p>This function does not delete the users. Users have to be manually deleted using the Admin function.</p>
+    <label for="deleteDatabase">Delete Database:</label>
+    <input type="submit" name="deleteDatabase" value="Delete Database" class="buttonStyle" title="This will remove ALL data from the database" onclick="deleteDBCheck()">
+</form>
+<p>{{delete_db_message }}</p>
+<hr class="solid">
+<form method="post">
+    {% csrf_token %}
+    <label for="deleteAllReports">Delete All Reports:</label>
+    <input type="submit" name="deleteAllReports" value="Delete All Reports" class="buttonStyle" title="This will remove ALL reports from the media\reports folder" onclick="deleteAllReportsCheck()">
+</form>
+<p>{{delete_reports_message }}</p>
+<hr class="solid">
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="file">Choose Excel spreadsheet to populate/update database:</label>
+    <input type="file" id="excel_file" name="excel_file" accept=".xls,.xlsx" required="required" class="buttonStyle" title="Select the excel spreadsheet containing the data to populate the database">
+    <br>
+    <input type="submit" name="uploadFile" value="Populate/Update Database" class="buttonStyle" title="Click to populate/update the database with the data in the selected Excel spreadsheet">
+</form>
+<p>{{ upload_message }}</p>
+<hr class="solid">
+<label for="download_jobs">Download Jobs in an Excel spreadsheet</label>
+<a href="{% url 'download_jobs' %}" name="download_jobs" title="Click link to download job data in an Excel spreadsheet" class="buttonStyle" alt="link to download the jobs in the database">Download Jobs Spreadsheet</a>
+<hr class="solid">
+<strong>Uploaded Reports</strong>
+<br>
+{% autoescape off %} {{ reports }} {% endautoescape %}
+<p>{{ delete_message }}</p>
+    {% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li><b>{{ message }}</b></li>
+    {% endfor %}
+</ul>
+    {% endif %}
+
+{% endblock %}
+<hr class="solid">
+
+
+

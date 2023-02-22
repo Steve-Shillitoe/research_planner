@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <Name>research_planner</Name>
+    <RootNamespace>research_planner</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>bdb5bef1-ce10-4adf-bae8-b3b15928605e</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <StartupFile>manage.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <WebBrowserUrl>http://localhost</WebBrowserUrl>
+    <LaunchProvider>Django launcher</LaunchProvider>
+    <DjangoSettingsModule>research_planner.settings</DjangoSettingsModule>
+    <OutputPath>.</OutputPath>
+    <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="jobs\forms.py" />
+    <Compile Include="jobs\migrations\0001_initial.py" />
+    <Compile Include="jobs\models.py" />
+    <Compile Include="jobs\modules\DatabaseOperations.py" />
+    <Compile Include="jobs\modules\SendEmail.py" />
+    <Compile Include="jobs\modules\__init__.py" />
+    <Compile Include="jobs\views.py" />
+    <Compile Include="jobs\__init__.py" />
+    <Compile Include="jobs\migrations\__init__.py" />
+    <Compile Include="manage.py" />
+    <Compile Include="research_planner\__init__.py" />
+    <Compile Include="research_planner\settings.py" />
+    <Compile Include="research_planner\urls.py" />
+    <Compile Include="research_planner\wsgi.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="jobs\" />
+    <Folder Include="jobs\migrations\" />
+    <Folder Include="jobs\modules\" />
+    <Folder Include="jobs\modules\__pycache__\" />
+    <Folder Include="jobs\static\" />
+    <Folder Include="jobs\static\app\" />
+    <Folder Include="jobs\static\app\content\" />
+    <Folder Include="jobs\static\app\fonts\" />
+    <Folder Include="jobs\static\app\scripts\" />
+    <Folder Include="jobs\templates\" />
+    <Folder Include="jobs\templates\admin\" />
+    <Folder Include="jobs\templates\jobs\" />
+    <Folder Include="jobs\templates\jobs\password\" />
+    <Folder Include="research_planner\" />
+    <Folder Include="static\" />
+    <Folder Include="static\img\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="jobs\modules\__pycache__\DatabaseOperations.cpython-37.pyc" />
+    <Content Include="jobs\modules\__pycache__\SendEmail.cpython-37.pyc" />
+    <Content Include="jobs\modules\__pycache__\__init__.cpython-37.pyc" />
+    <Content Include="jobs\templates\admin\index.html" />
+    <Content Include="jobs\templates\jobs\about.html" />
+    <Content Include="jobs\templates\jobs\contact.html" />
+    <Content Include="jobs\templates\jobs\dbAdmin.html" />
+    <Content Include="jobs\templates\jobs\file_not_found.html" />
+    <Content Include="jobs\templates\jobs\index.html" />
+    <Content Include="jobs\templates\jobs\layout.html" />
+    <Content Include="jobs\templates\jobs\login.html" />
+    <Content Include="jobs\templates\jobs\loginpartial.html" />
+    <Content Include="jobs\templates\jobs\password\password_reset.html" />
+    <Content Include="jobs\templates\jobs\password\password_reset_complete.html" />
+    <Content Include="jobs\templates\jobs\password\password_reset_confirm.html" />
+    <Content Include="jobs\templates\jobs\password\password_reset_done.html" />
+    <Content Include="jobs\templates\jobs\password\password_reset_email.txt" />
+    <Content Include="jobs\templates\jobs\register.html" />
+    <Content Include="requirements.txt" />
+    <Content Include="db.sqlite3" />
+    <Content Include="jobs\static\app\content\bootstrap.css" />
+    <Content Include="jobs\static\app\content\bootstrap.min.css" />
+    <Content Include="jobs\static\app\content\site.css" />
+    <Content Include="jobs\static\app\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="jobs\static\app\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="jobs\static\app\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="jobs\static\app\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="jobs\static\app\scripts\bootstrap.js" />
+    <Content Include="jobs\static\app\scripts\bootstrap.min.js" />
+    <Content Include="jobs\static\app\scripts\jquery-1.10.2.intellisense.js" />
+    <Content Include="jobs\static\app\scripts\jquery-1.10.2.js" />
+    <Content Include="jobs\static\app\scripts\jquery-1.10.2.min.js" />
+    <Content Include="jobs\static\app\scripts\jquery-1.10.2.min.map" />
+    <Content Include="jobs\static\app\scripts\jquery.validate-vsdoc.js" />
+    <Content Include="jobs\static\app\scripts\jquery.validate.js" />
+    <Content Include="jobs\static\app\scripts\jquery.validate.min.js" />
+    <Content Include="jobs\static\app\scripts\jquery.validate.unobtrusive.js" />
+    <Content Include="jobs\static\app\scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="jobs\static\app\scripts\modernizr-2.6.2.js" />
+    <Content Include="jobs\static\app\scripts\respond.js" />
+    <Content Include="jobs\static\app\scripts\respond.min.js" />
+    <Content Include="jobs\static\app\scripts\_references.js" />
+    <Content Include="research_planner\.env" />
+    <Content Include="static\img\favicon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="readme.html">
+      <SubType>WebBrowser</SubType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Django.targets" />
+  <!-- Specify pre- and post-build commands in the BeforeBuild and 
+       AfterBuild targets below. -->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <AutoAssignPort>True</AutoAssignPort>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
