@@ -23,7 +23,7 @@ class DatabaseOperations:
         """Database function"""
         jobs = Job.objects.filter(deadline_date__lt=date.today())
         jobs.update(status ='Available',
-                    student_id_id = None,
+                    user_id = None,
                     start_date = None,
                     deadline_date = None,
                     reminder_sent= 'no')

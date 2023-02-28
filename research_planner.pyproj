@@ -108,6 +108,7 @@
     <Content Include="jobs\static\app\scripts\respond.js" />
     <Content Include="jobs\static\app\scripts\respond.min.js" />
     <Content Include="jobs\static\app\scripts\_references.js" />
+    <Content Include="researchPlannerData.xlsx" />
     <Content Include="research_planner\.env" />
     <Content Include="static\img\favicon.ico" />
   </ItemGroup>

@@ -12,12 +12,12 @@ from jobs.models import Configuration, Job
 class SendEmail:
     """This class contains methods that send emails"""
 
-    def report_uploaded_user_email(self, request, jobID, patient_id, dataset_name):
+    def report_uploaded_user_email(self, request, jobID, patient_id, task_name):
         """Email the user confirmation of their successful report upload"""
         try:
             report_uploader_name = request.user.first_name + " " + request.user.last_name
             email_message = ('Hi {}, \n you successfully uploaded a report at {} on {} for job {}, patient {} & dataset {}'
-                             .format(report_uploader_name, datetime.now().strftime("%H:%M:%S"), date.today(), jobID, patient_id, dataset_name))
+                             .format(report_uploader_name, datetime.now().strftime("%H:%M:%S"), date.today(), jobID, patient_id, task_name))
             send_mail(
                         subject = '{} report uploaded'.format(Configuration.objects.get(id=1).main_title),
                         message = email_message,
@@ -67,7 +67,7 @@ class SendEmail:
         for a job they have allocated to themselves."""
         tomorrow = date.today() + timedelta(days=1)
         jobs = Job.objects.filter(deadline_date=tomorrow, reminder_sent='no', status ='In Progress').values_list(
-            'id', 'student_id', 'patient_id', 'dataset_name')
+            'id', 'user_id', 'patient_id', 'task_name')
         if jobs:
             for job in jobs:
                 #get student email

@@ -105,12 +105,12 @@ def home(request):
         elif  'cancel' in request.POST:
             #Update individual job table. Cancel button clicked. Setting dates=None, gives them the value of Null
             Job.objects.filter(id=jobId).update(status ='Available', 
-                               student_id_id = "", start_date =None, deadline_date =None)
+                               user_id_id = "", start_date =None, deadline_date =None)
         elif 'upload_report' in request.POST:
             job = Job.objects.get(id=jobId)
             uploaded_report_file = request.FILES['upload_report_file']
             #Make a standard format report name
-            new_file_name = "job_" + str(jobId) + "_" + str(job.patient_id) + "_" + str(job.dataset_name)
+            new_file_name = "job_" + str(jobId) + "_" + str(job.patient_id) + "_" + str(job.task_name)
             new_file_name = new_file_name.replace(" ", "")
             #Get file extension of uploaded report
             _, file_extension = os.path.splitext(uploaded_report_file.name)
@@ -121,7 +121,7 @@ def home(request):
             Job.objects.filter(id=jobId).update(status ='Received', report_name=new_file_name, submission_date=date.today())
             #Email admins about uploaded report
             sendEmail.report_uploaded_admins_email(new_file_name, request)
-            sendEmail.report_uploaded_user_email(request, str(jobId), str(job.patient_id), str(job.dataset_name))
+            sendEmail.report_uploaded_user_email(request, str(jobId), str(job.patient_id), str(job.task_name))
             
     return render(
         request,
@@ -157,15 +157,15 @@ def select_job(request, jobId, sendEmail):
     numJobs = len(jobs)
     #Make sure this student has not already selected the same patient and dataset
     job = Job.objects.get(id=jobId)
-    same_patient_dataset_job = Job.objects.filter(student_id_id = request.user, 
-                            dataset_name = job.dataset_name, patient_id = job.patient_id)
+    same_patient_dataset_job = Job.objects.filter(user_id = request.user, 
+                            task_name = job.task_name, patient_id = job.patient_id)
     if same_patient_dataset_job.exists():
         sameJobWarning = "You may only select the same patient-dataset type combination once."
     #check student does not already have 4 jobs assigned to them
     elif numJobs < 4:
         deadline_date = date.today() + timedelta(7)
         Job.objects.filter(id=jobId).update(status ='In Progress', 
-                                            student_id_id = request.user,
+                                            user_id = request.user,
                                             start_date = date.today(),
                                             deadline_date = deadline_date)
         job = Job.objects.filter(id=jobId)
@@ -213,55 +213,55 @@ def buildIndividualJobTable(request):
     Build interface function
     Builds a HTML table with the headings Subject,Dataset,Dataset Type,Job Status,Deadline Date"""
     try:
-        strRows = ""
-        if request.user:
-            jobs = Job.objects.filter(student_id=request.user).order_by('patient_id_id')
-            if jobs:
-                strTable = "<table cellspacing=" + chr(34) + "3" + chr(34) + "><tr><th>Subject</th><th>Dataset</th><th>Dataset Type</th>" \
-                    + "<th>Job Status</th><th>Deadline Date</th><th></th><th></th><th>Submission Date</th><th>Report</th></tr>"
-                for job in jobs:
-                        strSubject = "<td>" + job.patient_id_id + "</td>"
-                        strDataset = "<td>" + job.dataset_name_id + "</td>"
-                        dataset = Dataset.objects.get(pk=job.dataset_name_id)
-                        strDbType = "<td>" +dataset.type + "</td>"
-                        strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
+        #strRows = ""
+        #if request.user:
+        #    jobs = Job.objects.filter(student_id=request.user).order_by('patient_id_id')
+        #    if jobs:
+        #        strTable = "<table cellspacing=" + chr(34) + "3" + chr(34) + "><tr><th>Subject</th><th>Dataset</th><th>Dataset Type</th>" \
+        #            + "<th>Job Status</th><th>Deadline Date</th><th></th><th></th><th>Submission Date</th><th>Report</th></tr>"
+        #        for job in jobs:
+        #                strSubject = "<td>" + job.patient_id_id + "</td>"
+        #                strDataset = "<td>" + job.dataset_name_id + "</td>"
+        #                dataset = Dataset.objects.get(pk=job.dataset_name_id)
+        #                strDbType = "<td>" +dataset.type + "</td>"
+        #                strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
     
-                        if job.status == "In Progress": 
-                            strHiddenJobID = "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
-                            "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job.id) + chr(34) +"/>"
+        #                if job.status == "In Progress": 
+        #                    strHiddenJobID = "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
+        #                    "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job.id) + chr(34) +"/>"
                             
-                            csrf_token = get_token(request)
-                            csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
+        #                    csrf_token = get_token(request)
+        #                    csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
                             
-                            strCancelButton = "<td>" + str(job.deadline_date) + "</td><td>" + \
-                            "<form method="+ chr(34) +"post"+ chr(34) +">"  + \
-                            strHiddenJobID + csrf_token_html + \
-                            "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel" + chr(34) + \
-                            "value="+ chr(34) + "Cancel"+ chr(34) + " title=" + chr(34) + "Click to make this job available again to other users" + chr(34) +  "></form></td><td>\n" + \
-                            "<form method="+ chr(34) +"post"+ chr(34) + " enctype=" + chr(34) + "multipart/form-data" + chr(34)  + ">"  + \
-                            strHiddenJobID + csrf_token_html +\
-                            "<input type=" + chr(34) + "file" + chr(34) + "id=" + chr(34) + "upload_report_file" + chr(34) + "onChange=" + chr(34) + "return validateUploadedFile()" + chr(34) + \
-                            "name=" + chr(34) + "upload_report_file" + chr(34)  + \
-                            " accept="+ chr(34) + ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, .xlsx, application/vnd.ms-excel, .csv, .txt" + chr(34) + \
-                            " required=" + chr(34) + "required" + chr(34) + "class=" + chr(34) + "buttonStyle"+ chr(34) +">" + \
-                            "<input type="+ chr(34) + "submit"  + chr(34) + " name=" + chr(34) + "upload_report" + chr(34) + \
-                            " title=" + chr(34) + "Click to select your report" + chr(34) + \
-                            " value="+ chr(34) + "Upload Report"+ chr(34) + "class=" + chr(34) + "btn" + chr(34) +\
-                            " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">\n" + \
-                            "</form></td>" 
+        #                    strCancelButton = "<td>" + str(job.deadline_date) + "</td><td>" + \
+        #                    "<form method="+ chr(34) +"post"+ chr(34) +">"  + \
+        #                    strHiddenJobID + csrf_token_html + \
+        #                    "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel" + chr(34) + \
+        #                    "value="+ chr(34) + "Cancel"+ chr(34) + " title=" + chr(34) + "Click to make this job available again to other users" + chr(34) +  "></form></td><td>\n" + \
+        #                    "<form method="+ chr(34) +"post"+ chr(34) + " enctype=" + chr(34) + "multipart/form-data" + chr(34)  + ">"  + \
+        #                    strHiddenJobID + csrf_token_html +\
+        #                    "<input type=" + chr(34) + "file" + chr(34) + "id=" + chr(34) + "upload_report_file" + chr(34) + "onChange=" + chr(34) + "return validateUploadedFile()" + chr(34) + \
+        #                    "name=" + chr(34) + "upload_report_file" + chr(34)  + \
+        #                    " accept="+ chr(34) + ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, .xlsx, application/vnd.ms-excel, .csv, .txt" + chr(34) + \
+        #                    " required=" + chr(34) + "required" + chr(34) + "class=" + chr(34) + "buttonStyle"+ chr(34) +">" + \
+        #                    "<input type="+ chr(34) + "submit"  + chr(34) + " name=" + chr(34) + "upload_report" + chr(34) + \
+        #                    " title=" + chr(34) + "Click to select your report" + chr(34) + \
+        #                    " value="+ chr(34) + "Upload Report"+ chr(34) + "class=" + chr(34) + "btn" + chr(34) +\
+        #                    " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">\n" + \
+        #                    "</form></td>" 
                             
-                            link_to_report ="<td>&nbsp;</td>"
-                        else:
-                            report_href = chr(34) +  "/download_report/?report=" + str(job.report_name) + chr(34)
-                            link_to_report = "<td><a href=" +  report_href +  " name=" + chr(39) + "download_report" + chr(39) + ">" + str(job.report_name) + "</a></td>"
-                            strCancelButton = "<td>"+ str(job.deadline_date) +"</td><td>&nbsp;</td><td>&nbsp;</td><td>" + str(job.submission_date) + "</td>"
-                        strRow = "<TR>" + strSubject + strDataset + strDbType + strStatus + strCancelButton + link_to_report + "</TR>\n"
-                        strRows += strRow
-                individualJobs = strTable + strRows + "</TABLE>"
-            else:
-                individualJobs = "<p>There are no jobs are assigned to you at the moment.</p>"
+        #                    link_to_report ="<td>&nbsp;</td>"
+        #                else:
+        #                    report_href = chr(34) +  "/download_report/?report=" + str(job.report_name) + chr(34)
+        #                    link_to_report = "<td><a href=" +  report_href +  " name=" + chr(39) + "download_report" + chr(39) + ">" + str(job.report_name) + "</a></td>"
+        #                    strCancelButton = "<td>"+ str(job.deadline_date) +"</td><td>&nbsp;</td><td>&nbsp;</td><td>" + str(job.submission_date) + "</td>"
+        #                strRow = "<TR>" + strSubject + strDataset + strDbType + strStatus + strCancelButton + link_to_report + "</TR>\n"
+        #                strRows += strRow
+        #        individualJobs = strTable + strRows + "</TABLE>"
+        #    else:
+        #        individualJobs = "<p>There are no jobs are assigned to you at the moment.</p>"
 
-        return individualJobs
+        return "<p>There are no jobs are assigned to you at the moment.</p>" #individualJobs
     except TypeError as te:
         print ("Type Error {}".format(te))
         return ''
@@ -287,7 +287,7 @@ def build_status_list(request, strStatus, strHiddenJobID):
 def build_report_table(request):
     """This function builds the table of uploaded reports"""
     jobs = Job.objects.all().exclude(status='Available').exclude(status='In Progress').values_list(
-        'id', 'student_id', 'patient_id', 'dataset_name', 'status', 'report_name', 'submission_date')
+        'id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'submission_date')
     if len(jobs) == 0:
         returnStr =  "<p>There are no reports uploaded to the database</p>"
     else:
@@ -432,7 +432,7 @@ def download_jobs(dummy):
         #add date to the header row
         todays_date = "  Report Date: " + str(date.today())
         ws.write(row_num, len(columns)+1, todays_date, font_style)
-        jobs = Job.objects.all().values_list('id', 'student_id', 'patient_id', 'dataset_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
+        jobs = Job.objects.all().values_list('id', 'student_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
         for job in jobs:
             row_num +=1
             for col_num in range(len(job)):
