@@ -1,4 +1,4 @@
-from ..models import Job, Dataset, Patient, Configuration
+from ..models import Job, Task, Patient, Configuration
 from .SendEmail import SendEmail
 from django.contrib.auth.models import User
 from datetime import date
@@ -72,8 +72,9 @@ class DatabaseOperations:
         for row_num, row in enumerate(wsDataset.iter_rows()):
             #Ignore header row
             if row_num > 0:
-                dataset, _ = Dataset.objects.update_or_create(name =row[0].value, type=row[1].value)
-                dataset.save()
+                pass
+               # dataset, _ = Dataset.objects.update_or_create(name =row[0].value, type=row[1].value)
+               #  dataset.save()
 
 
     def populate_patient_table(self, wb):

@@ -9,30 +9,25 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class Dataset(models.Model):
-    """Model representing a dataset."""
-    TYPE_OF_DATASET = [
-        ('QC', 'QC'),
-        ('seg', 'Segmentation'),] 
+class Task(models.Model):
+    """Model representing a task performed on a dataset."""
     objects = models.Manager() #Not necessary but without it this function fails PyLint
-    name = models.CharField('Dataset Name',primary_key=True, max_length=30, blank=False)
-    type = models.CharField('Dataset Type', max_length=3, blank=False,  choices=TYPE_OF_DATASET)
+    task_name = models.CharField('Task Name', primary_key=True, max_length=50, blank=False, null=False)
+    repetitions = models.IntegerField(default=1)
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.name}' # This always returns string even if self.name is None
+        return f'{self.task_name}' # This always returns string even if self.name is None
 
 
 class Patient(models.Model):
     """Model representing a patient."""
     objects = models.Manager() #Not necessary but without it this function fails PyLint
-    id = models.CharField(primary_key=True, max_length=12, blank=False)
-    QC_dataset_name = models.OneToOneField('Dataset', on_delete=models.PROTECT, related_name='+',)
-    Seg_dataset_name = models.OneToOneField('Dataset', on_delete=models.PROTECT, related_name='+',)
+    patient_id = models.CharField(primary_key=True, max_length=30, blank=False)
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{ self.id}'
+        return f'{ self.patient_id}'
 
 
 class Job(models.Model):
@@ -44,12 +39,12 @@ class Job(models.Model):
         ('Approved', 'Approved'), ]
     YES_NO = [('yes','yes'), ('no','no')]
     id = models.AutoField(primary_key=True)
-    student_id = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user_id = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
     patient_id = models.ForeignKey('Patient', on_delete=models.PROTECT)
-    dataset_name = models.ForeignKey('Dataset', on_delete=models.PROTECT)
+    task_name = models.ForeignKey('Task', on_delete=models.PROTECT)
+    repetition_num = models.IntegerField(default=1)
     status = models.CharField(max_length=13, choices=TYPE_OF_STATUS, default='Available')
     report_name = models.CharField(max_length=52, null=True, blank=True)
-    #report_file = models.FileField(upload_to ='reports/', null=True, blank=True)
     start_date = models.DateField(blank=True, null=True)
     deadline_date = models.DateField(blank=True, null=True)
     submission_date = models.DateField(blank=True, null=True)
@@ -57,10 +52,10 @@ class Job(models.Model):
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.id}, {self.patient_id}, {self.dataset_name}'
+        return f'{self.job_id}, {self.patient_id}, {self.task_name}, {self.repetition_num}'
 
     class Meta:
-        ordering = ['patient_id', 'dataset_name']
+        ordering = ['patient_id', 'task_name']
         verbose_name_plural = "Jobs"
 
 

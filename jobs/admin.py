@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
-from .models import Job, Dataset, Patient,  Configuration
+from .models import Job, Patient, Task, Configuration
 
 # Register your models here.
-@admin.register(Dataset)
-class DatasetAdmin(admin.ModelAdmin):
-    list_display = ("name", "type")
-    list_filter = ('type', )
+@admin.register(Task)
+class TaskAdmin(admin.ModelAdmin):
+    list_display = ("task_name", "repetitions")
+    list_filter = ('task_name', )
     #exclude = ('field name', )
     
     #def show_type(self, obj):
@@ -18,12 +18,14 @@ class DatasetAdmin(admin.ModelAdmin):
 
 @admin.register(Patient)
 class PatientAdmin(admin.ModelAdmin):
-    list_display = ("id", "QC_dataset_name", "Seg_dataset_name")
+    pass
+    #list_display = ("patient_id")
+
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ("id","patient_id", "dataset_name", "status")
-    ordering =("id","patient_id", "dataset_name")
+    list_display = ("id","patient_id", "task_name", "repetition_num", "status")
+    ordering =("id","patient_id", "task_name", "repetition_num")
 
 
 @admin.register(Configuration)

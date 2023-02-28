@@ -28,7 +28,7 @@ import xlwt
 from xlwt import Workbook
 import os
 from pathlib import Path
-from jobs.models import Job, Dataset, Configuration
+from jobs.models import Job, Configuration
 from .modules.SendEmail import SendEmail
 import environ
 env = environ.Env()
