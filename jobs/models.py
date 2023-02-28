@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 class Task(models.Model):
     """Model representing a task performed on a dataset."""
     objects = models.Manager() #Not necessary but without it this function fails PyLint
-    task_name = models.CharField('Task Name', primary_key=True, max_length=50, blank=False, null=False)
+    task_name = models.CharField( primary_key=True, max_length=50, blank=False, null=False)
     repetitions = models.IntegerField(default=1)
 
     def __str__(self):
@@ -23,7 +23,7 @@ class Task(models.Model):
 class Patient(models.Model):
     """Model representing a patient."""
     objects = models.Manager() #Not necessary but without it this function fails PyLint
-    patient_id = models.CharField(primary_key=True, max_length=30, blank=False)
+    patient_id = models.CharField(primary_key=True, max_length=30, default="patient_1")
 
     def __str__(self):
         """String for representing the Model object."""
@@ -41,7 +41,7 @@ class Job(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
     patient_id = models.ForeignKey('Patient', on_delete=models.PROTECT)
-    task_name = models.ForeignKey('Task', on_delete=models.PROTECT)
+    task_name = models.ForeignKey('Task', on_delete=models.PROTECT, null=True, blank=True)
     repetition_num = models.IntegerField(default=1)
     status = models.CharField(max_length=13, choices=TYPE_OF_STATUS, default='Available')
     report_name = models.CharField(max_length=52, null=True, blank=True)
