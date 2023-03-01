@@ -28,7 +28,7 @@ import xlwt
 from xlwt import Workbook
 import os
 from pathlib import Path
-from jobs.models import Job, Patient, Configuration
+from jobs.models import Job, Patient, Task, Configuration
 from .modules.SendEmail import SendEmail
 import environ
 env = environ.Env()
@@ -153,7 +153,7 @@ def save_uploaded_file_to_disc(file, new_file_name):
 def select_job(request, jobId, sendEmail):
     fourJobsWarning = ""
     sameJobWarning = ""
-    jobs = Job.objects.filter(student_id_id = request.user, status ='In Progress')
+    jobs = Job.objects.filter(user_id = request.user, status ='In Progress')
     numJobs = len(jobs)
     #Make sure this student has not already selected the same patient and dataset
     job = Job.objects.get(id=jobId)
@@ -184,10 +184,20 @@ def buildJobsTable(request):
     strRows = ""
     patients = Patient.objects.all()
     #patients = Job.objects.values('patient_id_id').distinct('patient_id_id') #=SQL DISTINCT ON patient_id_id
-    task_list = Job.objects.filter(patient_id=patients[0].patient_id)
+    task_list_from_jobs = Job.objects.filter(patient_id=patients[0].patient_id)
+    #Build colgroups
+    task_list = Task.objects.all()
+    strColGroup = "<colgroup><col span=1 style=background-color:#66ccfd>"
+    for i, task in enumerate(task_list):
+        num_cols = str(task.repetitions)
+        if (i % 2) == 0:
+            strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#0099e6" + chr(34) + ">"
+        else:
+            strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#66ccff" + chr(34) + ">"
+    strColGroup += "</colgroup>"
     #Build table header row
     strHeader = "<TR><TH>Subject</TH>"
-    for task in task_list:
+    for task in task_list_from_jobs:
         strHeader += "<TH>" + str(task.task_name) + "</TH>"
     strHeader += "</TR>"
     for patient in patients:
@@ -211,19 +221,18 @@ def buildJobsTable(request):
         strRow = strPatient + strStatus + "</TR>"
         #strStatus = ""
         strRows +=strRow 
-    return strHeader + strRows
+    return strColGroup + strHeader + strRows
 
 
 def buildIndividualJobTable(request):
     """
-    Build interface function
     Builds a HTML table with the headings Subject,Dataset,Dataset Type,Job Status,Deadline Date"""
     try:
         #strRows = ""
         #if request.user:
         #    jobs = Job.objects.filter(student_id=request.user).order_by('patient_id_id')
         #    if jobs:
-        #        strTable = "<table cellspacing=" + chr(34) + "3" + chr(34) + "><tr><th>Subject</th><th>Dataset</th><th>Dataset Type</th>" \
+        #        strTable = "<table cellspacing=" + chr(34) + "3" + chr(34) + "><tr><th>Subject</th><th>Task</th>" \
         #            + "<th>Job Status</th><th>Deadline Date</th><th></th><th></th><th>Submission Date</th><th>Report</th></tr>"
         #        for job in jobs:
         #                strSubject = "<td>" + job.patient_id_id + "</td>"
