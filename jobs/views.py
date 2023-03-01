@@ -28,7 +28,7 @@ import xlwt
 from xlwt import Workbook
 import os
 from pathlib import Path
-from jobs.models import Job, Configuration
+from jobs.models import Job, Patient, Configuration
 from .modules.SendEmail import SendEmail
 import environ
 env = environ.Env()
@@ -182,12 +182,18 @@ def buildJobsTable(request):
     strRow = ""
     strPatient = ""
     strRows = ""
-    patients = Job.objects.values('patient_id_id').distinct('patient_id_id') #=SQL DISTINCT ON patient_id_id
+    patients = Patient.objects.all()
+    #patients = Job.objects.values('patient_id_id').distinct('patient_id_id') #=SQL DISTINCT ON patient_id_id
+    task_list = Job.objects.filter(patient_id=patients[0].patient_id)
+    #Build table header row
+    strHeader = "<TR><TH>Subject</TH>"
+    for task in task_list:
+        strHeader += "<TH>" + str(task.task_name) + "</TH>"
+    strHeader += "</TR>"
     for patient in patients:
-        patient_id = list(patient.values())[0]
-        strPatient = "\n<TR>\n<TD>" + str(patient_id) + "</TD>"
+        strPatient = "\n<TR>\n<TD>" + str(patient.patient_id) + "</TD>"
         strStatus = ""  
-        jobs = Job.objects.filter(patient_id_id=patient_id).order_by('id','dataset_name_id')
+        jobs = Job.objects.filter(patient_id=patient.patient_id).order_by('id')
         for job in jobs:
             if job.status == "Available":
                 csrf_token = get_token(request)
@@ -202,10 +208,10 @@ def buildJobsTable(request):
                     " value="+ chr(34) + "AVAILABLE"+ chr(34) + "></form></td>" 
             else:
                 strStatus += "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
-            strRow = strPatient + strStatus + "</TR>"
-        strStatus = ""
+        strRow = strPatient + strStatus + "</TR>"
+        #strStatus = ""
         strRows +=strRow 
-    return strRows
+    return strHeader + strRows
 
 
 def buildIndividualJobTable(request):
