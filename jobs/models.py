@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 class Task(models.Model):
     """Model representing a task performed on a dataset."""
     objects = models.Manager() #Not necessary but without it this function fails PyLint
-    task_name = models.CharField( primary_key=True, max_length=50, blank=False, null=False)
+    task_name = models.CharField(primary_key=True, max_length=50, blank=False, null=False)
     repetitions = models.IntegerField(default=1)
 
     def __str__(self):

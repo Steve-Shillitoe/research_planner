@@ -33,61 +33,30 @@ class DatabaseOperations:
         """Build Database function"""
         Job.objects.all().delete()
         Patient.objects.all().delete()
-        Dataset.objects.all().delete()
+        Task.objects.all().delete()
 
 
-    def populate_user_table(self, wb):
-        """Build Database function"""
-        sendEmail = SendEmail()
-        wsDataset = wb["User"]
+    def populate_task_table(self, wb):
+        """Populate the Task table using the data in an Excel spreadsheet"""
+        wsTask = wb["Tasks"]
         # iterating over the rows and
         # getting value from each cell in row
-        for row_num, row in enumerate(wsDataset.iter_rows()):
-            #ignore header row
-            if row_num > 0:
-                user_name = row[0].value
-                #Only create a User if they do not already exist
-                if  User.objects.filter(username=user_name).count() == 0:
-                    first_name = row[1].value
-                    last_name = row[2].value
-                    password = row[3].value
-                    email = row[4].value
-                    email_message = "Hi " + first_name + ",\n" + \
-                                     "Welcome to the iBeat Study. \n" + \
-                            "Your username is " + user_name + " and your password is " + password 
-                    user = User.objects.create_user(user_name, email, password)   
-                    user.first_name = first_name
-                    user.last_name = last_name
-                    user.is_active = True
-                    user.save()
-                    #Send login information to the user
-                    sendEmail.send_email_new_user(email, email_message)
-
-
-    def populate_dataset_table(self, wb):
-        """Build Database function"""
-        wsDataset = wb["Dataset"]
-        # iterating over the rows and
-        # getting value from each cell in row
-        for row_num, row in enumerate(wsDataset.iter_rows()):
+        for row_num, row in enumerate(wsTask.iter_rows()):
             #Ignore header row
             if row_num > 0:
-                pass
-               # dataset, _ = Dataset.objects.update_or_create(name =row[0].value, type=row[1].value)
-               #  dataset.save()
+                task, _ = Task.objects.update_or_create(task_name =row[0].value, repetitions=row[1].value)
+                task.save()
 
 
     def populate_patient_table(self, wb):
-        """Build Database function"""
-        wsPatient = wb["Patient"]
+        """Populate the Patient table using the data in an Excel spreadsheet"""
+        wsPatient = wb["Patients"]
         # iterating over the rows and
         # getting value from each cell in row
         for row_num, row in enumerate(wsPatient.iter_rows()):
             #Ignore header row
             if row_num > 0:
-                QC_Dataset = Dataset.objects.get(name=row[1].value)
-                Seg_Dataset = Dataset.objects.get(name=row[2].value)
-                patient, _ = Patient.objects.update_or_create(id =row[0].value, QC_dataset_name = QC_Dataset, Seg_dataset_name = Seg_Dataset)
+                patient, _ = Patient.objects.update_or_create(patient_id =row[0].value)
                 patient.save()
 
 
@@ -101,22 +70,16 @@ class DatabaseOperations:
 
 
     def populate_job_table(self):
-        """Build Database function"""
+        """Populate the Job table using the data in the Task & Patient tables"""
         #self._reset_job_id_in_jobs_table()
         patient_list = Patient.objects.all()
+        task_list = Task.objects.all()
+        task_counter = 1
         for patient in patient_list:
-            patientID = Patient.objects.get(id=patient.id)
-            QCDataset = Dataset.objects.get(name=patient.QC_dataset_name )
-            SegDataset = Dataset.objects.get(name=patient.Seg_dataset_name)
-            if not Job.objects.filter(patient_id=patientID, dataset_name=QCDataset).exists():
-                job = Job(patient_id=patientID, dataset_name=QCDataset)
-                job.save()
-                job = Job(patient_id=patientID, dataset_name=QCDataset)
-                job.save()
-            if not Job.objects.filter(patient_id=patientID, dataset_name=SegDataset).exists():
-                job = Job(patient_id=patientID, dataset_name=SegDataset)
-                job.save()
-                job = Job(patient_id=patientID, dataset_name=SegDataset)
-                job.save()
+            for task in task_list:
+                num_repetions = task.repetitions
+                for i in range(num_repetions):
+                    job = Job(patient_id=patient, task_name=task, repetition_num=i+1)
+                    job.save()
 
     

@@ -451,8 +451,7 @@ def populate_database(request):
     """Build Database function"""
     excel_file = request.FILES['excel_file']
     wb = openpyxl.load_workbook(excel_file)
-    #dbOps.populate_user_table(wb)
-    dbOps.populate_dataset_table(wb)
+    dbOps.populate_task_table(wb)
     dbOps.populate_patient_table(wb)
     #create job table
     dbOps.populate_job_table()
