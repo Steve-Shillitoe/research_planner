@@ -53,9 +53,9 @@
 <h3>The {{ NumJobs }} jobs in the {{main_title}}</h3>
 <p>{% autoescape off %}{{main_intro}}{% endautoescape %}</p>
     &nbsp; <b>{{SameJobWarning}}</b>
-<table cellspacing="3" bgcolor="#000000">
+
     {% autoescape off %} {{ JobTable }} {% endautoescape %}
-</table>
+
 <b>{{SameJobWarning}}</b>
     {% if messages %}
 <ul class="messages">

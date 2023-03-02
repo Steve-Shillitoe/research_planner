@@ -52,7 +52,7 @@ class Job(models.Model):
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.job_id}, {self.patient_id}, {self.task_name}, {self.repetition_num}'
+        return f'{self.id}, {self.patient_id}, {self.task_name}, {self.repetition_num}'
 
     class Meta:
         ordering = ['patient_id', 'task_name']

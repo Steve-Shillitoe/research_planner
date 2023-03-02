@@ -3,7 +3,7 @@ from .SendEmail import SendEmail
 from django.contrib.auth.models import User
 from datetime import date
 from django.conf import settings
-#import sqlite3
+from django.db import connection
 import os
 
 class DatabaseOperations:
@@ -32,6 +32,7 @@ class DatabaseOperations:
     def clear_database(self):
         """Build Database function"""
         Job.objects.all().delete()
+        #Job.objects.raw("ALTER Sequence jobs_job_id_seq RESTART with 1;") does not work
         Patient.objects.all().delete()
         Task.objects.all().delete()
 

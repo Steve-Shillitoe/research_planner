@@ -111,8 +111,8 @@ class SendEmail:
                 messages.error(request,"Invalid email header found.")
                 print("Invalid email header found.")
         except SMTPException as se:
-            messages.error(request,"Could not send an email acknowledging job allocation to The System Administrator due to {} error".format(str(se)))
-            print("Could not send an email acknowledging job allocation to The System Administrator due to {} error".format(str(se)))
+            messages.error(request,"Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email,str(se)))
+            print("Could not send an email acknowledging job allocation to The {} due to {} error".format(request.user.email, str(se)))
         except Exception as e:
-            messages.error(request,"Could not send an email acknowledging job allocation to The System Administrator due to {} error".format(str(e)))
-            print("Could not send an email acknowledging job allocation to The System Administrator due to {} error".format(str(e)))
+            messages.error(request,"Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email, str(e)))
+            print("Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email, str(e)))

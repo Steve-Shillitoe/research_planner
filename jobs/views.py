@@ -183,103 +183,108 @@ def buildJobsTable(request):
     strPatient = ""
     strRows = ""
     patients = Patient.objects.all()
-    #patients = Job.objects.values('patient_id_id').distinct('patient_id_id') #=SQL DISTINCT ON patient_id_id
-    task_list_from_jobs = Job.objects.filter(patient_id=patients[0].patient_id)
-    #Build colgroups
-    task_list = Task.objects.all()
-    strColGroup = "<colgroup><col span=1 style=background-color:#66ccfd>"
-    for i, task in enumerate(task_list):
-        num_cols = str(task.repetitions)
-        if (i % 2) == 0:
-            strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#0099e6" + chr(34) + ">"
-        else:
-            strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#66ccff" + chr(34) + ">"
-    strColGroup += "</colgroup>"
-    #Build table header row
-    strHeader = "<TR><TH>Subject</TH>"
-    for task in task_list_from_jobs:
-        strHeader += "<TH>" + str(task.task_name) + "</TH>"
-    strHeader += "</TR>"
-    for patient in patients:
-        strPatient = "\n<TR>\n<TD>" + str(patient.patient_id) + "</TD>"
-        strStatus = ""  
-        jobs = Job.objects.filter(patient_id=patient.patient_id).order_by('id')
-        for job in jobs:
-            if job.status == "Available":
-                csrf_token = get_token(request)
-                csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-                strStatus += "<td>" + \
-                    "<form method="+ chr(34) +"post"+ chr(34) +">"  + csrf_token_html + \
-                    "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
-                    "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + \
-                    "value="  + chr(34) + str(job.id) + chr(34) +"/>" +\
-                    "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "select_job" + chr(34) +\
-                    " title=" + chr(34) + "Click to select this job" + chr(34) + \
-                    " value="+ chr(34) + "AVAILABLE"+ chr(34) + "></form></td>" 
+    if patients:
+        #the database is populated, so build the jobs table
+        task_list_from_jobs = Job.objects.filter(patient_id=patients[0].patient_id)
+        #Build colgroups
+        task_list = Task.objects.all()
+        strTable = "<table cellspacing=3 bgcolor=#000000>"
+        strColGroup = "<colgroup><col span=1 style=background-color:#66ccfd>"
+        for i, task in enumerate(task_list):
+            num_cols = str(task.repetitions)
+            if (i % 2) == 0:
+                strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#0099e6" + chr(34) + ">"
             else:
-                strStatus += "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
-        strRow = strPatient + strStatus + "</TR>"
-        #strStatus = ""
-        strRows +=strRow 
-    return strColGroup + strHeader + strRows
+                strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#66ccff" + chr(34) + ">"
+        strColGroup += "</colgroup>"
+        #Build table header row
+        strHeader = "<TR><TH>Subject</TH>"
+        for task in task_list_from_jobs:
+            strHeader += "<TH>" + str(task.task_name) + "</TH>"
+        strHeader += "</TR>"
+        for patient in patients:
+            strPatient = "\n<TR>\n<TD>" + str(patient.patient_id) + "</TD>"
+            strStatus = ""  
+            jobs = Job.objects.filter(patient_id=patient.patient_id).order_by('id')
+            for job in jobs:
+                if job.status == "Available":
+                    csrf_token = get_token(request)
+                    csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
+                    strStatus += "<td>" + \
+                        "<form method="+ chr(34) +"post"+ chr(34) +">"  + csrf_token_html + \
+                        "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
+                        "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + \
+                        "value="  + chr(34) + str(job.id) + chr(34) +"/>" +\
+                        "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "select_job" + chr(34) +\
+                        " title=" + chr(34) + "Click to select this job" + chr(34) + \
+                        " value="+ chr(34) + "AVAILABLE"+ chr(34) + "></form></td>" 
+                else:
+                    strStatus += "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
+            strRow = strPatient + strStatus + "</TR>"
+            #strStatus = ""
+            strRows +=strRow 
+        returnString = strTable + "\n" + strColGroup + "\n" + strHeader + "\n" + strRows + "\n" + "</TABLE>"
+    else:
+        returnString = "<p>There is no data in the database"
+    return returnString
 
 
 def buildIndividualJobTable(request):
     """
     Builds a HTML table with the headings Subject,Dataset,Dataset Type,Job Status,Deadline Date"""
     try:
-        #strRows = ""
-        #if request.user:
-        #    jobs = Job.objects.filter(student_id=request.user).order_by('patient_id_id')
-        #    if jobs:
-        #        strTable = "<table cellspacing=" + chr(34) + "3" + chr(34) + "><tr><th>Subject</th><th>Task</th>" \
-        #            + "<th>Job Status</th><th>Deadline Date</th><th></th><th></th><th>Submission Date</th><th>Report</th></tr>"
-        #        for job in jobs:
-        #                strSubject = "<td>" + job.patient_id_id + "</td>"
-        #                strDataset = "<td>" + job.dataset_name_id + "</td>"
-        #                dataset = Dataset.objects.get(pk=job.dataset_name_id)
-        #                strDbType = "<td>" +dataset.type + "</td>"
-        #                strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
+        strRows = ""
+        if request.user:
+            jobs = Job.objects.filter(user_id=request.user).order_by('patient_id')
+            if jobs:
+                strTable = "<table cellspacing=" + chr(34) + "3" + chr(34) + "><tr><th>Subject</th><th>Task</th>" \
+                    + "<th>Job Status</th><th>Deadline Date</th><th></th><th></th><th>Submission Date</th><th>Report</th></tr>"
+                for job in jobs:
+                        strSubject = "<td>" + str(job.patient_id) + "</td>"
+                        strTask = "<td>" + str(job.task_name) + "</td>"
+                        strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + str(job.status) + "</TD>"
     
-        #                if job.status == "In Progress": 
-        #                    strHiddenJobID = "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
-        #                    "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job.id) + chr(34) +"/>"
+                        if job.status == "In Progress": 
+                            strHiddenJobID = "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
+                            "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job.id) + chr(34) +"/>"
                             
-        #                    csrf_token = get_token(request)
-        #                    csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
+                            csrf_token = get_token(request)
+                            csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
                             
-        #                    strCancelButton = "<td>" + str(job.deadline_date) + "</td><td>" + \
-        #                    "<form method="+ chr(34) +"post"+ chr(34) +">"  + \
-        #                    strHiddenJobID + csrf_token_html + \
-        #                    "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel" + chr(34) + \
-        #                    "value="+ chr(34) + "Cancel"+ chr(34) + " title=" + chr(34) + "Click to make this job available again to other users" + chr(34) +  "></form></td><td>\n" + \
-        #                    "<form method="+ chr(34) +"post"+ chr(34) + " enctype=" + chr(34) + "multipart/form-data" + chr(34)  + ">"  + \
-        #                    strHiddenJobID + csrf_token_html +\
-        #                    "<input type=" + chr(34) + "file" + chr(34) + "id=" + chr(34) + "upload_report_file" + chr(34) + "onChange=" + chr(34) + "return validateUploadedFile()" + chr(34) + \
-        #                    "name=" + chr(34) + "upload_report_file" + chr(34)  + \
-        #                    " accept="+ chr(34) + ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, .xlsx, application/vnd.ms-excel, .csv, .txt" + chr(34) + \
-        #                    " required=" + chr(34) + "required" + chr(34) + "class=" + chr(34) + "buttonStyle"+ chr(34) +">" + \
-        #                    "<input type="+ chr(34) + "submit"  + chr(34) + " name=" + chr(34) + "upload_report" + chr(34) + \
-        #                    " title=" + chr(34) + "Click to select your report" + chr(34) + \
-        #                    " value="+ chr(34) + "Upload Report"+ chr(34) + "class=" + chr(34) + "btn" + chr(34) +\
-        #                    " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">\n" + \
-        #                    "</form></td>" 
+                            strCancelButton = "<td>" + str(job.deadline_date) + "</td><td>" + \
+                            "<form method="+ chr(34) +"post"+ chr(34) +">"  + \
+                            strHiddenJobID + csrf_token_html + \
+                            "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel" + chr(34) + \
+                            "value="+ chr(34) + "Cancel"+ chr(34) + " title=" + chr(34) + "Click to make this job available again to other users" + chr(34) +  "></form></td><td>\n" + \
+                            "<form method="+ chr(34) +"post"+ chr(34) + " enctype=" + chr(34) + "multipart/form-data" + chr(34)  + ">"  + \
+                            strHiddenJobID + csrf_token_html +\
+                            "<input type=" + chr(34) + "file" + chr(34) + "id=" + chr(34) + "upload_report_file" + chr(34) + "onChange=" + chr(34) + "return validateUploadedFile()" + chr(34) + \
+                            "name=" + chr(34) + "upload_report_file" + chr(34)  + \
+                            " accept="+ chr(34) + ".doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, .xlsx, application/vnd.ms-excel, .csv, .txt" + chr(34) + \
+                            " required=" + chr(34) + "required" + chr(34) + "class=" + chr(34) + "buttonStyle"+ chr(34) +">" + \
+                            "<input type="+ chr(34) + "submit"  + chr(34) + " name=" + chr(34) + "upload_report" + chr(34) + \
+                            " title=" + chr(34) + "Click to select your report" + chr(34) + \
+                            " value="+ chr(34) + "Upload Report"+ chr(34) + "class=" + chr(34) + "btn" + chr(34) +\
+                            " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">\n" + \
+                            "</form></td>" 
                             
-        #                    link_to_report ="<td>&nbsp;</td>"
-        #                else:
-        #                    report_href = chr(34) +  "/download_report/?report=" + str(job.report_name) + chr(34)
-        #                    link_to_report = "<td><a href=" +  report_href +  " name=" + chr(39) + "download_report" + chr(39) + ">" + str(job.report_name) + "</a></td>"
-        #                    strCancelButton = "<td>"+ str(job.deadline_date) +"</td><td>&nbsp;</td><td>&nbsp;</td><td>" + str(job.submission_date) + "</td>"
-        #                strRow = "<TR>" + strSubject + strDataset + strDbType + strStatus + strCancelButton + link_to_report + "</TR>\n"
-        #                strRows += strRow
-        #        individualJobs = strTable + strRows + "</TABLE>"
-        #    else:
-        #        individualJobs = "<p>There are no jobs are assigned to you at the moment.</p>"
+                            link_to_report ="<td>&nbsp;</td>"
+                        else:
+                            report_href = chr(34) +  "/download_report/?report=" + str(job.report_name) + chr(34)
+                            link_to_report = "<td><a href=" +  report_href +  " name=" + chr(39) + "download_report" + chr(39) + ">" + str(job.report_name) + "</a></td>"
+                            strCancelButton = "<td>"+ str(job.deadline_date) +"</td><td>&nbsp;</td><td>&nbsp;</td><td>" + str(job.submission_date) + "</td>"
+                        strRow = "<TR>" + strSubject + strTask  + strStatus + strCancelButton + link_to_report + "</TR>\n"
+                        strRows += strRow
+                individualJobs = strTable + strRows + "</TABLE>"
+            else:
+                individualJobs = "<p>There are no jobs are assigned to you at the moment.</p>"
 
-        return "<p>There are no jobs are assigned to you at the moment.</p>" #individualJobs
+        return  individualJobs
     except TypeError as te:
-        print ("Type Error {}".format(te))
+        print ("Function buildIndividualJobTable - Type Error {}".format(te))
         return ''
+    except Exception as e:
+       print ("Function buildIndividualJobTable - Error {}".format(e))
 
 
 def build_status_list(request, strStatus, strHiddenJobID):
@@ -440,14 +445,14 @@ def download_jobs(dummy):
         font_style = xlwt.XFStyle()
         font_style.font.bold = True
         #set up column header
-        columns = ['id', 'Student ID', 'Patient ID', 'Dataset Name', 'Status', 'Report Name', 'Start Date', 'Deadline Date', 'Submission Date', 'Reminder_Sent']
+        columns = ['id', 'User ID', 'Patient ID', 'Task', 'Status', 'Report Name', 'Start Date', 'Deadline Date', 'Submission Date', 'Reminder_Sent']
         for col_num in range(len(columns)):
             ws.write(row_num, col_num, columns[col_num], font_style)
         font_style = xlwt.XFStyle()
         #add date to the header row
         todays_date = "  Report Date: " + str(date.today())
         ws.write(row_num, len(columns)+1, todays_date, font_style)
-        jobs = Job.objects.all().values_list('id', 'student_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
+        jobs = Job.objects.all().values_list('id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
         for job in jobs:
             row_num +=1
             for col_num in range(len(job)):
