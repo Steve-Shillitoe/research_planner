@@ -446,14 +446,14 @@ def download_jobs(dummy):
         font_style = xlwt.XFStyle()
         font_style.font.bold = True
         #set up column header
-        columns = ['id', 'User Name', 'Patient ID', 'Task', 'Status', 'Report Name', 'Start Date', 'Deadline Date', 'Submission Date', 'Reminder_Sent']
+        columns = ['job id', 'User Name', 'Patient ID', 'Task', 'Status', 'Report Name', 'Start Date', 'Deadline Date', 'Submission Date', 'Reminder_Sent']
         for col_num in range(len(columns)):
             ws.write(row_num, col_num, columns[col_num], font_style)
         font_style = xlwt.XFStyle()
         #add date to the header row
         todays_date = "  Report Date: " + str(date.today())
         ws.write(row_num, len(columns)+1, todays_date, font_style)
-        jobs = Job.objects.all().values_list('job id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
+        jobs = Job.objects.all().values_list('id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
         for job in jobs:
             row_num +=1
             for col_num in range(len(job)):
@@ -464,6 +464,7 @@ def download_jobs(dummy):
                         cursor.execute("SELECT first_name, last_name FROM public.auth_user WHERE id =" + str(job[1]))
                         querySet = cursor.fetchall()
                         user_name = querySet[0][0] + ' ' + querySet[0][1]
+                        connection.close()
                     else:
                         user_name = ''
                     cell_content = str(user_name)
