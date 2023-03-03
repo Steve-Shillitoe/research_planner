@@ -16,7 +16,7 @@ class SendEmail:
         """Email the user confirmation of their successful report upload"""
         try:
             report_uploader_name = request.user.first_name + " " + request.user.last_name
-            email_message = ('Hi {}, \n you successfully uploaded a report at {} on {} for job {}, patient {} & dataset {}'
+            email_message = ('Hi {}, \n you successfully uploaded a report at {} on {} for job {}, patient {} & Task {}'
                              .format(report_uploader_name, datetime.now().strftime("%H:%M:%S"), date.today(), jobID, patient_id, task_name))
             send_mail(
                         subject = '{} report uploaded'.format(Configuration.objects.get(id=1).main_title),
@@ -74,7 +74,7 @@ class SendEmail:
                 user = User.objects.get(id=job[1])
                 email_address = user.email
                 details =list(job)
-                email_message = "The report for job {}, patient {}, dataset {} is due to be submitted tomorrow.".format(details[0], details[2], details[3])
+                email_message = "The report for job {}, patient {}, Task {} is due to be submitted tomorrow.".format(details[0], details[2], details[3])
                 try:
                     send_mail(
                                 subject = '{} Job report deadline reminder'.format(Configuration.objects.get(id=1).main_title),
