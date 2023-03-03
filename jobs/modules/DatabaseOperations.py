@@ -30,11 +30,15 @@ class DatabaseOperations:
 
 
     def clear_database(self):
-        """Build Database function"""
+        """Delete all data in the database to create empty tables"""
         Job.objects.all().delete()
-        #Job.objects.raw("ALTER Sequence jobs_job_id_seq RESTART with 1;") does not work
         Patient.objects.all().delete()
         Task.objects.all().delete()
+        #Reset the auto-increment primary key id field back to an initial value of 1
+        cursor = connection.cursor()
+        cursor.execute("ALTER Sequence jobs_job_id_seq RESTART with 1;")
+        connection.commit()
+        connection.close()
 
 
     def populate_task_table(self, wb):
