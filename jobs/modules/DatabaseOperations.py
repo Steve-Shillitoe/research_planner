@@ -7,7 +7,7 @@ from django.db import connection
 import os
 
 class DatabaseOperations:
-    """description of class"""
+    """Functions that directly operate on the database"""
 
     def populate_Configuration_table(self):
         if Configuration.objects.filter(id=1).first() is None:
@@ -16,7 +16,6 @@ class DatabaseOperations:
             main_intro = 'initial value',
             indiv_intro = 'initial value')
            first_table_row.save()
-
 
 
     def deadline_passed_set_job_available(self):
@@ -63,15 +62,6 @@ class DatabaseOperations:
             if row_num > 0:
                 patient, _ = Patient.objects.update_or_create(patient_id =row[0].value)
                 patient.save()
-
-
-    #def _reset_job_id_in_jobs_table(self):
-    #    """Build Database function"""
-    #    con = sqlite3.connect(os.path.join(settings.BASE_DIR, 'db.sqlite3'))
-    #    cur = con.cursor()
-    #    cur.execute("UPDATE sqlite_sequence SET seq = 0 WHERE sqlite_sequence.name = 'app_job'")
-    #    con.commit()
-    #    con.close()
 
 
     def populate_job_table(self):

@@ -29,6 +29,7 @@ from xlwt import Workbook
 import os
 from pathlib import Path
 from jobs.models import Job, Patient, Task, Configuration
+from django.db import connection
 from .modules.SendEmail import SendEmail
 import environ
 env = environ.Env()
@@ -445,18 +446,29 @@ def download_jobs(dummy):
         font_style = xlwt.XFStyle()
         font_style.font.bold = True
         #set up column header
-        columns = ['id', 'User ID', 'Patient ID', 'Task', 'Status', 'Report Name', 'Start Date', 'Deadline Date', 'Submission Date', 'Reminder_Sent']
+        columns = ['id', 'User Name', 'Patient ID', 'Task', 'Status', 'Report Name', 'Start Date', 'Deadline Date', 'Submission Date', 'Reminder_Sent']
         for col_num in range(len(columns)):
             ws.write(row_num, col_num, columns[col_num], font_style)
         font_style = xlwt.XFStyle()
         #add date to the header row
         todays_date = "  Report Date: " + str(date.today())
         ws.write(row_num, len(columns)+1, todays_date, font_style)
-        jobs = Job.objects.all().values_list('id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
+        jobs = Job.objects.all().values_list('job id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
         for job in jobs:
             row_num +=1
             for col_num in range(len(job)):
-                cell_content = str(job[col_num])
+                if col_num == 1:
+                    if job[1]:
+                        #If a job is allocated to a user, get their full name
+                        cursor = connection.cursor()
+                        cursor.execute("SELECT first_name, last_name FROM public.auth_user WHERE id =" + str(job[1]))
+                        querySet = cursor.fetchall()
+                        user_name = querySet[0][0] + ' ' + querySet[0][1]
+                    else:
+                        user_name = ''
+                    cell_content = str(user_name)
+                else:
+                    cell_content = str(job[col_num])
                 if cell_content.lower() == 'none': cell_content = ''
                 ws.write(row_num, col_num, cell_content, font_style)
         wb.save(response)
