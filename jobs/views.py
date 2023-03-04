@@ -158,10 +158,10 @@ def select_job(request, jobId, sendEmail):
     numJobs = len(jobs)
     #Make sure this student has not already selected the same patient and dataset
     job = Job.objects.get(id=jobId)
-    same_patient_dataset_job = Job.objects.filter(user_id = request.user, 
+    same_patient_task_job = Job.objects.filter(user_id = request.user, 
                             task_name = job.task_name, patient_id = job.patient_id)
-    if same_patient_dataset_job.exists():
-        sameJobWarning = "You may only select the same patient-dataset type combination once."
+    if same_patient_task_job.exists():
+        sameJobWarning = "You may only select the same patient-task combination once."
     #check student does not already have 4 jobs assigned to them
     elif numJobs < 4:
         deadline_date = date.today() + timedelta(7)
@@ -169,17 +169,14 @@ def select_job(request, jobId, sendEmail):
                                             user_id = request.user,
                                             start_date = date.today(),
                                             deadline_date = deadline_date)
-        job = Job.objects.filter(id=jobId)
-        job_details =list(job)
-        
-        sendEmail.job_allocation_email(job_details, deadline_date, request)
+        sendEmail.job_allocation_email(jobId, deadline_date, request)
     else:
         fourJobsWarning = "You may only have a maximum of 4 jobs in progress."
     return  fourJobsWarning, sameJobWarning 
 
 
 def buildJobsTable(request):
-    """Build interface function"""
+    """Builds the main HTML table of jobs"""
     strRow = ""
     strPatient = ""
     strRows = ""
@@ -232,7 +229,7 @@ def buildJobsTable(request):
 
 def buildIndividualJobTable(request):
     """
-    Builds a HTML table with the headings Subject,Dataset,Dataset Type,Job Status,Deadline Date"""
+    Builds a HTML table of the jobs the user has assigned to themselves."""
     try:
         strRows = ""
         if request.user:
@@ -342,7 +339,7 @@ def build_report_table(request):
 
 
 def download_report(request):
-    """Build interface function"""
+    """Prepares a report for download from a link"""
     try:
         report = request.GET.get('report')
         path_to_report = settings.BASE_DIR + '/media/reports/' + report

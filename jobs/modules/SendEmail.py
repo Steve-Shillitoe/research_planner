@@ -95,10 +95,12 @@ class SendEmail:
                     print("Could not send an email deadline reminder due to {} error".format(str(e)))
 
 
-    def job_allocation_email(self, job_details, deadline_date, request):
+    def job_allocation_email(self, jobId, deadline_date, request):
         """Sends an email to the user with details of a job they have just allocated to themselves."""
         try:
-                email_message = ('You have allocated a job {} to yourself. Please complete it by {}'
+                job = Job.objects.get(id=jobId)
+                job_details = "Job ID={}, patient={}, task={}".format(job.id, job.patient_id_id, job.task_name_id) 
+                email_message = ('You have allocated a job, {} to yourself. Please complete it by {}'
                                 .format(job_details, datetime.strptime(str(deadline_date), "%Y-%m-%d").strftime("%d/%m/%Y")))
                 send_mail(
                         subject = '{} Job allocation'.format(Configuration.objects.get(id=1).main_title),
