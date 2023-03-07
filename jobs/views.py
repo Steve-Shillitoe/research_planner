@@ -111,7 +111,7 @@ def home(request):
             job = Job.objects.get(id=jobId)
             uploaded_report_file = request.FILES['upload_report_file']
             #Make a standard format report name
-            new_file_name = "job_" + str(jobId) + "_" + str(job.patient_id) + "_" + str(job.task_name)
+            new_file_name = "job_" + str(jobId) + "_" + str(job.patient_id) + "_" + str(job.task_id)
             new_file_name = new_file_name.replace(" ", "")
             #Get file extension of uploaded report
             _, file_extension = os.path.splitext(uploaded_report_file.name)
@@ -122,7 +122,8 @@ def home(request):
             Job.objects.filter(id=jobId).update(status ='Received', report_name=new_file_name, submission_date=date.today())
             #Email admins about uploaded report
             sendEmail.report_uploaded_admins_email(new_file_name, request)
-            sendEmail.report_uploaded_user_email(request, str(jobId), str(job.patient_id), str(job.task_name))
+            #Email user about thier uploaded report
+            sendEmail.report_uploaded_user_email(request, job)
             
     return render(
         request,
@@ -159,7 +160,7 @@ def select_job(request, jobId, sendEmail):
     #Make sure this student has not already selected the same patient and dataset
     job = Job.objects.get(id=jobId)
     same_patient_task_job = Job.objects.filter(user_id = request.user, 
-                            task_name = job.task_name, patient_id = job.patient_id)
+                            task_id = job.task_id, patient_id = job.patient_id)
     if same_patient_task_job.exists():
         sameJobWarning = "You may only select the same patient-task combination once."
     #check student does not already have 4 jobs assigned to them
@@ -198,7 +199,7 @@ def buildJobsTable(request):
         #Build table header row
         strHeader = "<TR><TH>Subject</TH>"
         for task in task_list_from_jobs:
-            strHeader += "<TH>" + str(task.task_name) + "</TH>"
+            strHeader += "<TH>" + str(task.task_id) + "</TH>"
         strHeader += "</TR>"
         for patient in patients:
             strPatient = "\n<TR>\n<TD>" + str(patient.patient_id) + "</TD>"
@@ -239,7 +240,7 @@ def buildIndividualJobTable(request):
                     + "<th>Job Status</th><th>Deadline Date</th><th></th><th></th><th>Submission Date</th><th>Report</th></tr>"
                 for job in jobs:
                         strSubject = "<td>" + str(job.patient_id) + "</td>"
-                        strTask = "<td>" + str(job.task_name) + "</td>"
+                        strTask = "<td>" + str(job. task_id) + "</td>"
                         strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + str(job.status) + "</TD>"
     
                         if job.status == "In Progress": 
@@ -305,7 +306,7 @@ def build_status_list(request, strStatus, strHiddenJobID):
 def build_report_table(request):
     """This function builds the table of uploaded reports"""
     jobs = Job.objects.all().exclude(status='Available').exclude(status='In Progress').values_list(
-        'id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'submission_date')
+        'id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'submission_date')
     if len(jobs) == 0:
         returnStr =  "<p>There are no reports uploaded to the database</p>"
     else:
@@ -450,7 +451,7 @@ def download_jobs(dummy):
         #add date to the header row
         todays_date = "  Report Date: " + str(date.today())
         ws.write(row_num, len(columns)+1, todays_date, font_style)
-        jobs = Job.objects.all().values_list('id', 'user_id', 'patient_id', 'task_name', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
+        jobs = Job.objects.all().values_list('id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
         for job in jobs:
             row_num +=1
             for col_num in range(len(job)):
@@ -478,9 +479,10 @@ def download_jobs(dummy):
 
 
 def populate_database(request):
-    """Build Database function"""
+    """Deletes the contents of the database and then repopulates it"""
     excel_file = request.FILES['excel_file']
     wb = openpyxl.load_workbook(excel_file)
+    dbOps.clear_database()
     dbOps.populate_task_table(wb)
     dbOps.populate_patient_table(wb)
     #create job table
@@ -509,7 +511,7 @@ def contact(request):
         'jobs/contact.html',
         {
             'title':'Contact',
-            'message':'Your contact page.',
+            'message':'QIB Sheffield',
             'year':datetime.now().year,
         }
     )

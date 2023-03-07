@@ -36,6 +36,7 @@ class DatabaseOperations:
         #Reset the auto-increment primary key id field back to an initial value of 1
         cursor = connection.cursor()
         cursor.execute("ALTER Sequence jobs_job_id_seq RESTART with 1;")
+        cursor.execute("ALTER Sequence jobs_task_task_id_seq RESTART with 1;")
         connection.commit()
         connection.close()
 
@@ -48,7 +49,13 @@ class DatabaseOperations:
         for row_num, row in enumerate(wsTask.iter_rows()):
             #Ignore header row
             if row_num > 0:
-                task, _ = Task.objects.update_or_create(task_name =row[0].value, repetitions=row[1].value)
+                new_task_name =row[0].value
+                if row[1].value is None:
+                    new_repetitions= 1
+                else:
+                    new_repetitions=row[1].value
+
+                task, _ = Task.objects.update_or_create(task_name=new_task_name, repetitions=new_repetitions)
                 task.save()
 
 
@@ -66,7 +73,6 @@ class DatabaseOperations:
 
     def populate_job_table(self):
         """Populate the Job table using the data in the Task & Patient tables"""
-        #self._reset_job_id_in_jobs_table()
         patient_list = Patient.objects.all()
         task_list = Task.objects.all()
         task_counter = 1
@@ -74,7 +80,7 @@ class DatabaseOperations:
             for task in task_list:
                 num_repetions = task.repetitions
                 for i in range(num_repetions):
-                    job = Job(patient_id=patient, task_name=task, repetition_num=i+1)
+                    job = Job(patient_id=patient, task_id=task, repetition_num=i+1)
                     job.save()
 
     

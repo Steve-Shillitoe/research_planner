@@ -10,6 +10,10 @@ function deleteReportCheck() {
         confirm("Are you sure you want to delete this report?");
     };
 
+function populateDBCheck() {
+        confirm("This action will delete all the existing data in the database. Do you wish to continue?");
+};
+
 function deleteAllReportsCheck() {
         confirm("Are you sure you want to delete all the reports? You should only do this after you have deleted the database.");
 };
@@ -55,10 +59,13 @@ function deleteAllReportsCheck() {
 <hr class="solid">
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <label for="file">Choose Excel spreadsheet to populate/update database:</label>
+    <p>This action will delete all existing data in the database before populating it with the data in the selected Excel spreadsheet.
+    If users have allocated themselves jobs and uploaded reports, this information will be lost.
+    </p>
+    <label for="file">Choose an Excel spreadsheet to populate the database:</label>
     <input type="file" id="excel_file" name="excel_file" accept=".xls,.xlsx" required="required" class="buttonStyle" title="Select the excel spreadsheet containing the data to populate the database">
     <br>
-    <input type="submit" name="uploadFile" value="Populate/Update Database" class="buttonStyle" title="Click to populate/update the database with the data in the selected Excel spreadsheet">
+    <input type="submit" name="uploadFile" value="Populate Database" class="buttonStyle" title="Click to populate the database with the data in the selected Excel spreadsheet" onclick="populateDBCheck()">
 </form>
 <p>{{ upload_message }}</p>
 <hr class="solid">

@@ -12,7 +12,8 @@ from django.contrib.auth.models import User
 class Task(models.Model):
     """Model representing a task performed on a dataset."""
     objects = models.Manager() #Not necessary but without it this function fails PyLint
-    task_name = models.CharField(primary_key=True, max_length=50, blank=False, null=False)
+    task_id = models.AutoField(primary_key=True)
+    task_name = models.CharField(max_length=50, blank=False, null=False)
     repetitions = models.IntegerField(default=1)
 
     def __str__(self):
@@ -41,7 +42,7 @@ class Job(models.Model):
     id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)
     patient_id = models.ForeignKey('Patient', on_delete=models.PROTECT)
-    task_name = models.ForeignKey('Task', on_delete=models.PROTECT, null=True, blank=True)
+    task_id = models.ForeignKey('Task', on_delete=models.PROTECT, null=True, blank=True)
     repetition_num = models.IntegerField(default=1)
     status = models.CharField(max_length=13, choices=TYPE_OF_STATUS, default='Available')
     report_name = models.CharField(max_length=52, null=True, blank=True)
@@ -52,10 +53,11 @@ class Job(models.Model):
 
     def __str__(self):
         """String for representing the Model object."""
-        return f'{self.id}, {self.patient_id}, {self.task_name}, {self.repetition_num}'
+        #task = Task.objects.get(task_id=self.task_id)
+        return f'{self.id}, {self.patient_id}, {self.task_id}, {self.repetition_num}'
 
     class Meta:
-        ordering = ['patient_id', 'task_name']
+        ordering = ['patient_id', 'task_id']
         verbose_name_plural = "Jobs"
 
 

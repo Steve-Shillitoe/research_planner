@@ -7,7 +7,7 @@ from .models import Job, Patient, Task, Configuration
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = ("task_name", "repetitions")
-    list_filter = ('task_name', )
+    #list_filter = ('task_name', )
     #exclude = ('field name', )
     
     #def show_type(self, obj):
@@ -24,8 +24,8 @@ class PatientAdmin(admin.ModelAdmin):
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ("id","patient_id", "task_name", "repetition_num", "status")
-    ordering =("id","patient_id", "task_name", "repetition_num")
+    list_display = ("id","patient_id", "task_id", "repetition_num", "status")
+    ordering =("id","patient_id", "task_id", "repetition_num")
 
 
 @admin.register(Configuration)
