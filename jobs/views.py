@@ -435,6 +435,10 @@ def delete_report(request):
 
 
 def download_jobs(dummy):
+    """This function writes the contents of the Jobs table to an Excel spreadsheet
+    for download.
+
+    This function is executed when the 'Download Jobs Spreadsheet' link is clicked. """
     try:
         response = HttpResponse(content_type='application/ms-excel')
         response['Content-Disposition'] = 'attachment; filename=jobs.xls'
@@ -467,6 +471,8 @@ def download_jobs(dummy):
                         user_name = ''
                     cell_content = str(user_name)
                 elif col_num == 3:
+                    #The jobs table only contains the task_id, 
+                    #so get the name of the task from the Task table.
                     cell_content = str(Task.objects.get(task_id=str(job[3])).task_name)
                 else:
                     cell_content = str(job[col_num])

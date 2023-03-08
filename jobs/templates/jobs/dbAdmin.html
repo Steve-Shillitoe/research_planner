@@ -59,6 +59,8 @@ function deleteAllReportsCheck() {
 <hr class="solid">
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+    <h3>Populate Database</h3>
+    <h4>Populate the database from the data in an Excel spreadsheet.</h4>
     <p>This action will delete all existing data in the database before populating it with the data in the selected Excel spreadsheet.
     If users have allocated themselves jobs and uploaded reports, this information will be lost.
     </p>
