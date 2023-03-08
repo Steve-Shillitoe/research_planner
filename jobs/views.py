@@ -451,7 +451,7 @@ def download_jobs(dummy):
         #add date to the header row
         todays_date = "  Report Date: " + str(date.today())
         ws.write(row_num, len(columns)+1, todays_date, font_style)
-        jobs = Job.objects.all().values_list('id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent')
+        jobs = Job.objects.all().values_list('id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'start_date', 'deadline_date', 'submission_date', 'reminder_sent').order_by('id')
         for job in jobs:
             row_num +=1
             for col_num in range(len(job)):
@@ -466,6 +466,8 @@ def download_jobs(dummy):
                     else:
                         user_name = ''
                     cell_content = str(user_name)
+                elif col_num == 3:
+                    cell_content = str(Task.objects.get(task_id=str(job[3])).task_name)
                 else:
                     cell_content = str(job[col_num])
                 if cell_content.lower() == 'none': cell_content = ''
