@@ -157,12 +157,12 @@ def select_job(request, jobId, sendEmail):
     sameJobWarning = ""
     jobs = Job.objects.filter(user_id = request.user, status ='In Progress')
     numJobs = len(jobs)
-    #Make sure this student has not already selected the same patient and dataset
+    #Make sure this student has not already selected the same subject and task
     job = Job.objects.get(id=jobId)
     same_patient_task_job = Job.objects.filter(user_id = request.user, 
                             task_id = job.task_id, patient_id = job.patient_id)
     if same_patient_task_job.exists():
-        sameJobWarning = "You may only select the same patient-task combination once."
+        sameJobWarning = "You may only select the same subject-task combination once."
     #check student does not already have 4 jobs assigned to them
     elif numJobs < 4:
         deadline_date = date.today() + timedelta(7)
