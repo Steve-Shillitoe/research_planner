@@ -37,7 +37,7 @@ environ.Env.read_env()
 from .modules.DatabaseOperations import DatabaseOperations
 dbOps = DatabaseOperations()
 
-
+#Link status to a colour
 TYPE_OF_STATUS = {'Available': "green",'Not Available': "red",'In Progress': "yellow",'Received': "Magenta",
                     'Approved': "SkyBlue" }
 
