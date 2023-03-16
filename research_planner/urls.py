@@ -10,8 +10,6 @@ from django.contrib.auth import views as auth_views
 from jobs import forms, views
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.staticfiles.storage import staticfiles_storage
-from django.views.generic.base import RedirectView
 # Use include() to add URLS from the  authentication system
 from django.urls import include
 
@@ -19,9 +17,8 @@ admin.site.site_header = "Research Planner Administration"
 admin.site.site_title = "Research Planner Admin"
 admin.site.index_title = "Welcome to the Research Planner Administration Page"
 
-    
+      
 urlpatterns = [
-    path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/favicon.ico'))),
     path('download_report/', views.download_report, name='download_report'),
     path('download_jobs', views.download_jobs, name='download_jobs'),
     path('dbAdmin/', views.dbAdmin, name='dbAdmin'),
@@ -54,4 +51,4 @@ urlpatterns = [
  #   path('accounts/', include('django.contrib.auth.urls')),]
 
 #if settings.DEBUG:
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
