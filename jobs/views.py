@@ -313,7 +313,7 @@ def build_report_table(request):
         #make table
         strRows = ""
         tableHeader = ("<table><tr><th>Job ID</th><th>User</th><th>Patient ID</th>" +
-                "<th>Dataset Name</th><th>Status</th><th>Report</th><th>Submission Date</th><th></th></tr>")
+                "<th>Task</th><th>Status</th><th>Report</th><th>Submission Date</th><th></th></tr>")
         for job in jobs: 
             user = User.objects.get(id=job[1])
             user_name = user.first_name + " " + user.last_name
@@ -331,9 +331,9 @@ def build_report_table(request):
                             "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "delete" + chr(34) + "onclick="+ chr(34) + "deleteReportCheck()" + chr(34) + \
                             "value="+ chr(34) + "Delete Report"+ chr(34) + " title=" + chr(34) + "Click to delete this report and make this job available again" + chr(34) + ">" + \
                             "</form></td>"
-           
+            task = Task.objects.get(task_id=job[3])
             strRows += ("<tr><td>" + str(job[0]) + "</td><td>" + user_name + "</td><td>" + str(job[2]) +
-                       "</td><td>" + str(job[3]) + "</td><td>" +  build_status_list(request,str(job[4]), strHiddenJobID) + "</td><td>" +  link_to_report + "</td><td>" + str(job[6]) + "</td>" +
+                       "</td><td>" + task.task_name + "</td><td>" +  build_status_list(request,str(job[4]), strHiddenJobID) + "</td><td>" +  link_to_report + "</td><td>" + str(job[6]) + "</td>" +
                          strDeleteButton + "</tr>\n")
             returnStr = tableHeader + strRows + "</table>"
         return returnStr 
