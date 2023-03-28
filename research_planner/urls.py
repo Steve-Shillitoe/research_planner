@@ -13,6 +13,7 @@ from django.conf.urls.static import static
 #from django.views.static import serve 
 # Use include() to add URLS from the  authentication system
 from django.urls import include
+from jobs.models import Configuration
 
 admin.site.site_header = "Research Planner Administration"
 admin.site.site_title = "Research Planner Admin"
@@ -34,6 +35,7 @@ urlpatterns = [
              authentication_form=forms.BootstrapAuthenticationForm,
              extra_context=
              {
+                 'main_title':Configuration.objects.get(id=1).main_title,
                  'title': 'Log in',
                  'year' : datetime.now().year,
              }
