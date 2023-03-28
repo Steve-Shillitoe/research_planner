@@ -367,6 +367,7 @@ def download_report(request):
 
 
 @csrf_protect #Require Cross Site Request Forgery protection
+@login_required   #If the user is not logged in, redirect to Login form
 def dbAdmin(request):  
    """View function linked to template dbAdmin.html"""
    try:
