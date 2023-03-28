@@ -69,7 +69,8 @@ def password_reset_request(request):
 						return HttpResponse('Invalid header found.')
 					return redirect ("/password_reset/done/")
 	password_reset_form = PasswordResetForm()
-	return render(request=request, template_name="jobs/password/password_reset.html", context={"password_reset_form":password_reset_form})
+	return render(request=request, template_name="jobs/password/password_reset.html", context={'main_title':Configuration.objects.get(id=1).main_title,
+                                                                                            'password_reset_form':password_reset_form})
 
 
 def register_request(request):
@@ -80,7 +81,8 @@ def register_request(request):
 			return redirect("login") #successful registration, redirect to login page
 		messages.error(request, "Unsuccessful registration. Invalid information.")
 	form = NewUserForm()
-	return render (request=request, template_name="jobs/register.html", context={"register_form":form})
+	return render (request=request, template_name="jobs/register.html", context={'main_title':Configuration.objects.get(id=1).main_title,
+                                                                              'register_form':form})
 
 
 @csrf_protect #Require Cross Site Request Forgery protection

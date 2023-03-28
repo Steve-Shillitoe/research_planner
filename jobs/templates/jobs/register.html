@@ -1,11 +1,27 @@
-{% extends "jobs/layout.html" %}
+
 
 {% block content %} 
 
-{% load crispy_forms_tags %}         
+{% load crispy_forms_tags %}  
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block metatitle %}{{ main_title }}{% endblock %}</title>
+    
+    {% load static %}
+    <link rel="icon" href="{% static 'app/img/favicon.ico' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/bootstrap.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'app/content/site.css' %}" />
+    <script src="{% static 'app/scripts/modernizr-2.6.2.js' %}"></script>
+</head>
+
+<body style="background-color:powderblue;">       
 
 <!--Register--> 
 <div class="container py-5">
+	<h1>{% block title %}{{ main_title }}{% endblock %}</h1>
 	<h1>Register</h1>
 	<form method="POST">
 		{% csrf_token %}
@@ -22,3 +38,6 @@
 	</ul>
 {% endif %}
 {% endblock %}
+
+</body>
+</html>
