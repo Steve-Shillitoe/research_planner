@@ -7,6 +7,7 @@ from datetime import datetime
 from datetime import timedelta
 from django.contrib.auth.models import User
 from jobs.models import Configuration, Job, Task
+from django.template.loader import render_to_string
 
 
 class SendEmail:
@@ -124,31 +125,25 @@ class SendEmail:
 
     def new_user_email(self):
         """Sends an email to the user when they register."""
-        tomorrow = date.today() + timedelta(days=1)
-        jobs = Job.objects.filter(deadline_date=tomorrow, reminder_sent='no', status ='In Progress').values_list(
-            'id', 'user_id', 'patient_id', 'task_id')
-        if jobs:
-            for job in jobs:
-                #get student email
-                user = User.objects.get(id=job[1])
-                email_address = user.email
-                details =list(job)
-                email_message = "The report for job {}, patient {}, Task {} is due to be submitted tomorrow.".format(details[0], details[2], details[3])
-                try:
-                    send_mail(
-                                subject = '{} Job report deadline reminder'.format(Configuration.objects.get(id=1).main_title),
-                                message = email_message,
-                                from_email = settings.EMAIL_HOST_USER,   # This will have no effect is you have set DEFAULT_FROM_EMAIL in settings.py
-                                recipient_list = [email_address],    # This is a list
-                                fail_silently = False     # Set this to False so that you will be notified if any exception raised
-                            )
-                    Job.objects.filter(id=job[0]).update(reminder_sent='yes')
-                except BadHeaderError:
-                    #messages.error(request, "Invalid email header found.")
-                    print("Invalid email header found.")
-                except SMTPException as e:
-                    #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
-                    print("Could not send an email deadline reminder due to {} error".format(str(e)))
-                except Exception as e:
-                    #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
-                    print("Could not send an email deadline reminder due to {} error".format(str(e)))
+        subject = "Password Reset Requested"
+        email_template_name = "new_user_welcome_email.txt"
+		#c = {
+		#"email":user.email,
+		#'domain':env('DOMAIN'),
+		#'site_name': 'Website',
+		#"uid": urlsafe_base64_encode(force_bytes(user.pk)),
+		#"user": user,
+		#'token': default_token_generator.make_token(user),
+		#'protocol': 'http',
+		#}
+		#email = render_to_string(email_template_name, c)
+		#try:
+		#	send_mail(subject, email, settings.EMAIL_HOST_USER , [user.email], fail_silently=False)
+		#except BadHeaderError:
+		#	return HttpResponse('Invalid header found.')
+  #      except SMTPException as e:
+  #          #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
+  #          print("Could not send an email deadline reminder due to {} error".format(str(e)))
+  #      except Exception as e:
+  #          #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
+  #          print("Could not send an email deadline reminder due to {} error".format(str(e)))

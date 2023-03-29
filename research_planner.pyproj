@@ -84,6 +84,7 @@
     <Folder Include="static\app\scripts\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="jobs\modules\new_user_welcome_email.txt" />
     <Content Include="jobs\modules\__pycache__\DatabaseOperations.cpython-37.pyc" />
     <Content Include="jobs\modules\__pycache__\SendEmail.cpython-37.pyc" />
     <Content Include="jobs\modules\__pycache__\__init__.cpython-37.pyc" />
