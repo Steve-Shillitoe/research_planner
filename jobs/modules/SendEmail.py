@@ -123,27 +123,22 @@ class SendEmail:
             messages.error(request,"Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email, str(e)))
             print("Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email, str(e)))
 
-    def new_user_email(self):
+    def new_user_email(self, first_name, username, email):
         """Sends an email to the user when they register."""
-        subject = "Password Reset Requested"
-        email_template_name = "new_user_welcome_email.txt"
-		#c = {
-		#"email":user.email,
-		#'domain':env('DOMAIN'),
-		#'site_name': 'Website',
-		#"uid": urlsafe_base64_encode(force_bytes(user.pk)),
-		#"user": user,
-		#'token': default_token_generator.make_token(user),
-		#'protocol': 'http',
-		#}
-		#email = render_to_string(email_template_name, c)
-		#try:
-		#	send_mail(subject, email, settings.EMAIL_HOST_USER , [user.email], fail_silently=False)
-		#except BadHeaderError:
-		#	return HttpResponse('Invalid header found.')
-  #      except SMTPException as e:
-  #          #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
-  #          print("Could not send an email deadline reminder due to {} error".format(str(e)))
-  #      except Exception as e:
-  #          #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
-  #          print("Could not send an email deadline reminder due to {} error".format(str(e)))
+        project_name = Configuration.objects.get(id=1).main_title
+        subject = "Welcome to the {} research project".format(project_name)
+        email_template_name = "jobs/register/new_user_welcome_email.txt"
+        context={"name":first_name,
+            "username":username,
+            "title":project_name
+           }
+        message = render_to_string(email_template_name, context)
+        try:
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [email], fail_silently=False) 
+        except BadHeaderError:
+            return HttpResponse('New User Welcome Email - Invalid header found.')
+        except SMTPException as e:
+            return HttpResponse('New User Welcome Email - SMTP Error {}'.format(e))
+        except Exception as e:
+            return HttpResponse('New User Welcome Email Error {}'.format(e))
+

@@ -35,4 +35,8 @@ class NewUserForm(UserCreationForm):
 		if commit:
 			user.save()
 			#send the new user a welcome email
+			sendEmail = SendEmail()
+			sendEmail.new_user_email(self.cleaned_data['first_name'], 
+							self.cleaned_data["username"], 
+							self.cleaned_data['email'])
 		return user

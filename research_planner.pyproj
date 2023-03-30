@@ -59,6 +59,7 @@
     <Folder Include="jobs\templates\" />
     <Folder Include="jobs\templates\admin\" />
     <Folder Include="jobs\templates\jobs\" />
+    <Folder Include="jobs\templates\jobs\register\" />
     <Folder Include="jobs\templates\jobs\password\" />
     <Folder Include="research_planner\" />
     <Folder Include="static\" />
@@ -84,7 +85,7 @@
     <Folder Include="static\app\scripts\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="jobs\modules\new_user_welcome_email.txt" />
+    <Content Include="jobs\templates\jobs\register\new_user_welcome_email.txt" />
     <Content Include="jobs\modules\__pycache__\DatabaseOperations.cpython-37.pyc" />
     <Content Include="jobs\modules\__pycache__\SendEmail.cpython-37.pyc" />
     <Content Include="jobs\modules\__pycache__\__init__.cpython-37.pyc" />

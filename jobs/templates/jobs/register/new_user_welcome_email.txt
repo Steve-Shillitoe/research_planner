@@ -7,13 +7,14 @@ Your username is {{username}}.
 You may select upto 4 subject-task combinations to work on at one time. 
 
 When you select a subject-task combination or job, you will be sent an email advising you of your 
-selection and the deadline for the submission of your report.  You have 7 days to complete and
-submit your report.
+selection and the deadline for the submission of your report.  
+
+You have 7 days to complete and submit your report.
 
 On the home page, the jobs you have selected will appear in a table below the main table
 of jobs. In this table there is a file selection button for you to upload your completed report.
 
 Yours Sincerely,
-The {{title}} project Admin Team
+The {{title}} Project Admin Team
 
 {% endautoescape %}
