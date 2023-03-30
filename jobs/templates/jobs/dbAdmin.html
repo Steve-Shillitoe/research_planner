@@ -3,19 +3,19 @@
 {% block content %}
 <script>
 function deleteDBCheck() {
-        confirm("Are you sure you want to delete all the data in the database?");
+      return  confirm("Are you sure you want to delete all the data in the database?");
 };
 
 function deleteReportCheck() {
-        confirm("Are you sure you want to delete this report?");
+      return  confirm("Are you sure you want to delete this report?");
     };
 
 function populateDBCheck() {
-        confirm("This action will delete all the existing data in the database. Do you wish to continue?");
+       return confirm("This action will delete all the existing data in the database. Do you wish to continue?");
 };
 
 function deleteAllReportsCheck() {
-        confirm("Are you sure you want to delete all the reports? You should only do this after you have deleted the database.");
+        return confirm("Are you sure you want to delete all the reports? You should only do this after you have deleted the database.");
 };
 </script>
 
@@ -46,14 +46,14 @@ function deleteAllReportsCheck() {
     {% csrf_token %}
     <p>This function does not delete the users. Users have to be manually deleted using the Admin function.</p>
     <label for="deleteDatabase">Delete Database:</label>
-    <input type="submit" name="deleteDatabase" value="Delete Database" class="buttonStyle" title="This will remove ALL data from the database" onclick="deleteDBCheck()">
+    <input type="submit" name="deleteDatabase" value="Delete Database" class="buttonStyle" title="This will remove ALL data from the database" onclick="return deleteDBCheck();">
 </form>
 <p>{{delete_db_message }}</p>
 <hr class="solid">
 <form method="post">
     {% csrf_token %}
     <label for="deleteAllReports">Delete All Reports:</label>
-    <input type="submit" name="deleteAllReports" value="Delete All Reports" class="buttonStyle" title="This will remove ALL reports from the media\reports folder" onclick="deleteAllReportsCheck()">
+    <input type="submit" name="deleteAllReports" value="Delete All Reports" class="buttonStyle" title="This will remove ALL reports from the media\reports folder" onclick="return deleteAllReportsCheck();">
 </form>
 <p>{{delete_reports_message }}</p>
 <hr class="solid">
@@ -67,7 +67,7 @@ function deleteAllReportsCheck() {
     <label for="file">Choose an Excel spreadsheet to populate the database:</label>
     <input type="file" id="excel_file" name="excel_file" accept=".xls,.xlsx" required="required" class="buttonStyle" title="Select the excel spreadsheet containing the data to populate the database">
     <br>
-    <input type="submit" name="uploadFile" value="Populate Database" class="buttonStyle" title="Click to populate the database with the data in the selected Excel spreadsheet" onclick="populateDBCheck()">
+    <input type="submit" name="uploadFile" value="Populate Database" class="buttonStyle" title="Click to populate the database with the data in the selected Excel spreadsheet" onclick="return populateDBCheck();">
 </form>
 <p>{{ upload_message }}</p>
 <hr class="solid">
@@ -75,8 +75,11 @@ function deleteAllReportsCheck() {
 <a href="{% url 'download_jobs' %}" name="download_jobs" title="Click link to download job data in an Excel spreadsheet" class="buttonStyle" alt="link to download the jobs in the database">Download Jobs Spreadsheet</a>
 <hr class="solid">
 <strong>Uploaded Reports</strong>
-<br>
-{% autoescape off %} {{ reports }} {% endautoescape %}
+<p>Uploaded reports awaiting approval.</p>
+{% autoescape off %} {{ received_reports }} {% endautoescape %}
+<br />
+<p>Uploaded reports approved.</p>
+{% autoescape off %} {{ approved_reports }} {% endautoescape %}
 <p>{{ delete_message }}</p>
     {% if messages %}
 <ul class="messages">

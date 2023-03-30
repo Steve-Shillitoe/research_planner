@@ -37,7 +37,7 @@ class Job(models.Model):
         ('Not Available', 'Not Available'),
         ('In Progress', 'In Progress'),
         ('Received', 'Received'),
-        ('Approved', 'Approved'), ]
+        ('Approved', 'Approved')]
     YES_NO = [('yes','yes'), ('no','no')]
     id = models.AutoField(primary_key=True)
     user_id = models.ForeignKey(User, on_delete=models.PROTECT, null=True, blank=True)

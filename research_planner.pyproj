@@ -61,6 +61,8 @@
     <Folder Include="jobs\templates\jobs\" />
     <Folder Include="jobs\templates\jobs\register\" />
     <Folder Include="jobs\templates\jobs\password\" />
+    <Folder Include="media\" />
+    <Folder Include="media\reports\" />
     <Folder Include="research_planner\" />
     <Folder Include="static\" />
     <Folder Include="jobs\static\app\img\" />
@@ -104,6 +106,14 @@
     <Content Include="jobs\templates\jobs\password\password_reset_done.html" />
     <Content Include="jobs\templates\jobs\password\password_reset_email.txt" />
     <Content Include="jobs\templates\jobs\register.html" />
+    <Content Include="media\reports\job_110_Patient0007_Task2.xlsx" />
+    <Content Include="media\reports\job_128_Patient0008_Task2.xlsx" />
+    <Content Include="media\reports\job_19_Patient0002_Task1.xlsx" />
+    <Content Include="media\reports\job_1_Patient0001_Task1.xlsx" />
+    <Content Include="media\reports\job_37_Patient0003_Task1.xlsx" />
+    <Content Include="media\reports\job_56_Patient0004_Task2.xlsx" />
+    <Content Include="media\reports\job_74_Patient0005_Task2.xlsx" />
+    <Content Include="media\reports\job_92_Patient0006_Task2.xlsx" />
     <Content Include="research_planner\.env" />
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />

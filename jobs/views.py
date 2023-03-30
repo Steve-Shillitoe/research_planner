@@ -134,8 +134,8 @@ def home(request):
                  'main_intro':Configuration.objects.get(id=1).main_intro,
                  'indiv_intro':Configuration.objects.get(id=1).indiv_intro,
                  'NumJobs':Job.objects.all().count(),
-                 'JobTable': buildJobsTable(request),
-                 'IndividualJobTable': buildIndividualJobTable(request),
+                 'JobTable': buildMainJobsTable(request),
+                 'UsersJobTable': buildUsersJobTable(request),
                 'FourJobsWarning': FourJobsWarning,
                 'SameJobWarning': SameJobWarning}
                 )
@@ -178,8 +178,8 @@ def select_job(request, jobId, sendEmail):
     return  fourJobsWarning, sameJobWarning 
 
 
-def buildJobsTable(request):
-    """Builds the main HTML table of jobs"""
+def buildMainJobsTable(request):
+    """Builds the main HTML table of jobs for display on the home page"""
     strRow = ""
     strPatient = ""
     strRows = ""
@@ -230,7 +230,7 @@ def buildJobsTable(request):
     return returnString
 
 
-def buildIndividualJobTable(request):
+def buildUsersJobTable(request):
     """
     Builds a HTML table of the jobs the user has assigned to themselves."""
     try:
@@ -282,16 +282,16 @@ def buildIndividualJobTable(request):
 
         return  individualJobs
     except TypeError as te:
-        print ("Function buildIndividualJobTable - Type Error {}".format(te))
+        print ("Function buildUsersJobTable - Type Error {}".format(te))
         return ''
     except Exception as e:
-       print ("Function buildIndividualJobTable - Error {}".format(e))
+       print ("Function buildUsersJobTable - Error {}".format(e))
 
 
 def build_status_list(request, strStatus, strHiddenJobID):
     csrf_token = get_token(request)
     csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-    status_list = ['Available', 'Not Available', 'In Progress', 'Received', 'Approved']
+    status_list = ['Available', 'Not Available', 'In Progress', 'Received', 'Approved', 'Not Approved']
     start = "<form method=" + chr(34) + "POST" + chr(34) + "> " + strHiddenJobID + " " + csrf_token_html +" <select name=" + chr(34) + "status" + chr(34) + ">\n" 
     options = ''
     for status in status_list:
@@ -305,12 +305,12 @@ def build_status_list(request, strStatus, strHiddenJobID):
     return start + options + end
     
 
-def build_report_table(request):
-    """This function builds the table of uploaded reports"""
-    jobs = Job.objects.all().exclude(status='Available').exclude(status='In Progress').values_list(
+def build_uploaded_report_table(request, status_type):
+    """This function builds the table of uploaded reports whose status is status"""
+    jobs = Job.objects.filter(status = status_type).values_list(
         'id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'submission_date')
     if len(jobs) == 0:
-        returnStr =  "<p>There are no reports uploaded to the database</p>"
+        returnStr =  "<p>There are no reports uploaded to the database with status " + status_type + "</p>"
     else:
         #make table
         strRows = ""
@@ -330,7 +330,7 @@ def build_report_table(request):
                             "jobId" + chr(34) + " name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job[0]) + chr(34) +"/>"
 
             strDeleteButton = "<td><form method="+ chr(34) +"post"+ chr(34) +">" +  strHiddenJobID  + csrf_token_html + \
-                            "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "delete" + chr(34) + "onclick="+ chr(34) + "deleteReportCheck()" + chr(34) + \
+                            "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "delete" + chr(34) + " onclick="+ chr(34) + "return deleteReportCheck();" + chr(34) + \
                             "value="+ chr(34) + "Delete Report"+ chr(34) + " title=" + chr(34) + "Click to delete this report and make this job available again" + chr(34) + ">" + \
                             "</form></td>"
             task = Task.objects.get(task_id=job[3])
@@ -379,7 +379,8 @@ def dbAdmin(request):
                 return render(request,
                     template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,
                                                                     'delete_db_message':"Database deleted",
-                                                                    'reports':"<p>There are no reports uploaded to the database</p>"})
+                                                                    'received_reports':"<p>There are no reports uploaded to the database</p>",
+                                                                    'approved_reports':"<p>There are no approved reports in the database</p>"})
             elif "deleteAllReports"  in request.POST:
                 #delete all the reports uploaded to the server
                 [f.unlink() for f in Path(settings.MEDIA_ROOT + '/reports/').glob("*") if f.is_file()] 
@@ -387,40 +388,57 @@ def dbAdmin(request):
                     template_name =  'jobs/dbAdmin.html',
                     context={'main_title':Configuration.objects.get(id=1).main_title,
                              'delete_reports_message':"All reports deleted",
-                            'reports':"<p>There are no reports uploaded to the database</p>"})
+                            'received_reports':"<p>There are no reports uploaded to the database</p>",
+                            'approved_reports':"<p>There are no approved reports in the database</p>"})
             elif 'uploadFile' in request.POST:
                 #populate database from data in a spreadsheet
                 populate_database(request)
-                reports = build_report_table(request)
+                received_reports = build_uploaded_report_table(request, 'Received')
+                approved_reports = build_uploaded_report_table(request, 'Approved')
                 return render(request,
                     template_name =  'jobs/dbAdmin.html',
                     context={'main_title':Configuration.objects.get(id=1).main_title,
                              'upload_message':"Data successfully uploaded to database",
-                                                                    'reports':reports})
+                             'received_reports':received_reports,
+                             'approved_reports':approved_reports })
             elif 'delete' in request.POST:
                 #delete an uploaded report
                 report_to_delete = delete_report(request)
-                reports = build_report_table(request)
+                received_reports = build_uploaded_report_table(request, 'Received')
+                approved_reports = build_uploaded_report_table(request, 'Approved')
                 return render(request,
                     template_name =  'jobs/dbAdmin.html',
                     context={'main_title':Configuration.objects.get(id=1).main_title,
                              'delete_message':"Report {} deleted".format(report_to_delete),  
-                             'reports':reports})
+                             'received_reports':received_reports,
+                             'approved_reports':approved_reports})
             
             elif 'updateStatus' in request.POST:
                  #update status of an uploaded report
                  jobId = request.POST['jobId']
                  new_status = request.POST['status']
                  job = Job.objects.get(id=jobId)
-                 Job.objects.filter(id=jobId).update(status = new_status)
-                 reports = build_report_table(request)
+                 if new_status == 'Not Approved':
+                     #delete physical report
+                     report_to_delete = delete_report(request)
+                     Job.objects.filter(id=jobId).update(status = 'Available', report_name ='', submission_date=None, start_date=None, deadline_date=None, user_id=None)
+                 else:
+                    Job.objects.filter(id=jobId).update(status = new_status)
+
+                 received_reports = build_uploaded_report_table(request, 'Received')
+                 approved_reports = build_uploaded_report_table(request, 'Approved')
                  return render(request,
-                    template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,'reports':reports})
+                    template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,
+                                                                  'received_reports':received_reports,
+                                                                  'approved_reports':approved_reports})
         else:
-            reports = build_report_table(request)
+            received_reports = build_uploaded_report_table(request, 'Received')
+            approved_reports = build_uploaded_report_table(request, 'Approved')
             return render(
             request,
-            template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,'reports':reports})
+            template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,
+                                                          'received_reports':received_reports,
+                                                          'approved_reports':approved_reports})
    except FileNotFoundError:
         print('File does not exist')
    except Exception as e:

@@ -2,7 +2,7 @@
 
 {% block content %}
 <script type="text/javascript">
-    function checkSize(max_file_size)
+    function checkSize()
         {
             const max_file_size = 200000; //200KB
             var input = document.getElementById("upload_report_file");
@@ -12,6 +12,7 @@
                 if (input.files[0].size > max_file_size) 
                 {
                     alert("The file size must be less than " + (input.files[0].size) + "KB");
+                    input.value = "";
                     return false;
                 }
             }
@@ -24,20 +25,28 @@
       var ext = input.value.match(/\.([^\.]+)$/)[1];
       switch (ext) {
         //allowed file types, no action needs taking
-        case 'txt':
+          case 'txt': 
         case 'csv':
         case 'docx':
         case 'xlsx':
-          break;
+        case 'pdf':
+          return true; break;
         default:
           alert('This file type may not be uploaded: ' + ext);
-          input.value = '';
+              input.value = '';
+              return false
       }
     };
 
     function validateUploadedFile() {
-        checkSize();
-        checkFileType();
+        file_Size_OK = checkSize();
+        if (file_Size_OK) {
+         return checkFileType();
+        } else {
+            return false;
+        }
+        
+        
     }
 </script>
 <style>
@@ -75,7 +84,7 @@ You can have a maximum of 4 'In Progress' jobs at one time. <br/>
     You may cancel a job and make it available again here.</p>
 <p>{% autoescape off %}{{indiv_intro}}{% endautoescape %}</p>
 <p>{{FourJobsWarning}}</p>
-        {% autoescape off %} {{ IndividualJobTable }}{% endautoescape %}
+        {% autoescape off %} {{ UsersJobTable }}{% endautoescape %}
 
     {% if messages %}
 <ul class="messages">
