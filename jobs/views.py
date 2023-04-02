@@ -111,21 +111,24 @@ def home(request):
                                user_id_id = "", start_date =None, deadline_date =None)
         elif 'upload_report' in request.POST:
             job = Job.objects.get(id=jobId)
-            uploaded_report_file = request.FILES['upload_report_file']
-            #Make a standard format report name
-            new_file_name = "job_" + str(jobId) + "_" + str(job.patient_id) + "_" + str(job.task_id)
-            new_file_name = new_file_name.replace(" ", "")
-            #Get file extension of uploaded report
-            _, file_extension = os.path.splitext(uploaded_report_file.name)
-            #Make new report name with original file extension
-            new_file_name = new_file_name + file_extension
-            #Save uploaded report to \media\reports in the web app folder structure
-            save_uploaded_file_to_disc(uploaded_report_file,  new_file_name)
-            Job.objects.filter(id=jobId).update(status ='Received', report_name=new_file_name, submission_date=date.today())
-            #Email admins about uploaded report
-            sendEmail.report_uploaded_admins_email(new_file_name, request)
-            #Email user about thier uploaded report
-            sendEmail.report_uploaded_user_email(request, job)
+            if job.status == "In Progress":
+                #The above check prevents a report being uploaded twice by
+                #refreshing the screen or using the back button
+                uploaded_report_file = request.FILES['upload_report_file']
+                #Make a standard format report name
+                new_file_name = "job_" + str(jobId) + "_" + str(job.patient_id) + "_" + str(job.task_id)
+                new_file_name = new_file_name.replace(" ", "")
+                #Get file extension of uploaded report
+                _, file_extension = os.path.splitext(uploaded_report_file.name)
+                #Make new report name with original file extension
+                new_file_name = new_file_name + file_extension
+                #Save uploaded report to \media\reports in the web app folder structure
+                save_uploaded_file_to_disc(uploaded_report_file,  new_file_name)
+                Job.objects.filter(id=jobId).update(status ='Received', report_name=new_file_name, submission_date=date.today())
+                #Email admins about uploaded report
+                sendEmail.report_uploaded_admins_email(new_file_name, request)
+                #Email user about thier uploaded report
+                sendEmail.report_uploaded_user_email(request, job)
             
     return render(
         request,
