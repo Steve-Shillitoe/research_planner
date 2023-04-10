@@ -32,7 +32,5 @@ class JobAdmin(admin.ModelAdmin):
 class AdminConfiguration(admin.ModelAdmin):
        formfield_overrides = {
         models.CharField: {'widget': TextInput(attrs={'size':'50'})},
-        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':40})},
-    } 
-#Unregister models here
-#admin.site.unregister(Group)
+        models.TextField: {'widget': Textarea(attrs={'rows':4, 'cols':40})}
+    }

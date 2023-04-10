@@ -14,7 +14,9 @@ class DatabaseOperations:
            #empty table, so populate it
            first_table_row = Configuration(main_title = 'initial value',
             main_intro = 'initial value',
-            indiv_intro = 'initial value')
+            indiv_intro = 'initial value',
+            number_days_to_complete=7,
+            max_num_jobs=4)
            first_table_row.save()
 
 

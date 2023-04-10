@@ -33,6 +33,9 @@
   <ItemGroup>
     <Compile Include="jobs\admin.py" />
     <Compile Include="jobs\forms.py" />
+    <Compile Include="jobs\migrations\0001_initial.py" />
+    <Compile Include="jobs\migrations\0002_alter_configuration_number_days_to_complete.py" />
+    <Compile Include="jobs\migrations\0003_configuration_max_num_jobs.py" />
     <Compile Include="jobs\models.py" />
     <Compile Include="jobs\modules\DatabaseOperations.py" />
     <Compile Include="jobs\modules\SendEmail.py" />

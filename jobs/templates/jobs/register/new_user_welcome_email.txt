@@ -4,7 +4,7 @@ Thank you for registering to help on the {{title}} project.
 
 Your username is {{username}}.
 
-You may select upto 4 subject-task combinations to work on at one time. 
+You may select upto {{max_jobs}} subject-task combinations to work on at one time. 
 
 When you select a subject-task combination or job, you will be sent an email advising you of your 
 selection and the deadline for the submission of your report.  

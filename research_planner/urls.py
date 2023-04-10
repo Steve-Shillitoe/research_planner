@@ -35,7 +35,7 @@ urlpatterns = [
              authentication_form=forms.BootstrapAuthenticationForm,
              extra_context=
              {
-                 'main_title':Configuration.objects.get(id=1).main_title,
+                 'main_title':'Research Planner',
                  'title': 'Log in',
                  'year' : datetime.now().year,
              }

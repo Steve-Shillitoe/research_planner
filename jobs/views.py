@@ -136,6 +136,7 @@ def home(request):
         context={'main_title':Configuration.objects.get(id=1).main_title,
                  'main_intro':Configuration.objects.get(id=1).main_intro,
                  'indiv_intro':Configuration.objects.get(id=1).indiv_intro,
+                 'max_jobs':Configuration.objects.get(id=1).max_num_jobs,
                  'NumJobs':Job.objects.all().count(),
                  'JobTable': buildMainJobsTable(request),
                  'UsersJobTable': buildUsersJobTable(request),
@@ -168,16 +169,17 @@ def select_job(request, jobId, sendEmail):
                             task_id = job.task_id, patient_id = job.patient_id)
     if same_patient_task_job.exists():
         sameJobWarning = "You may only select the same subject-task combination once."
-    #check student does not already have 4 jobs assigned to them
-    if numJobs < 4:
-        deadline_date = date.today() + timedelta(7)
+    #check student does not already have the maximum number of jobs assigned to them
+    max_num_jobs = Configuration.objects.get(id=1).max_num_jobs
+    if numJobs < max_num_jobs:
+        deadline_date = date.today() + timedelta(Configuration.objects.get(id=1).number_days_to_complete)
         Job.objects.filter(id=jobId).update(status ='In Progress', 
                                             user_id = request.user,
                                             start_date = date.today(),
                                             deadline_date = deadline_date)
         sendEmail.job_allocation_email(jobId, deadline_date, request)
-    if numJobs == 4:
-        fourJobsWarning = "You may only have a maximum of 4 jobs in progress."
+    if numJobs == max_num_jobs:
+        fourJobsWarning = "You may only have a maximum of {} jobs in progress.".format(max_num_jobs)
     return  fourJobsWarning, sameJobWarning 
 
 

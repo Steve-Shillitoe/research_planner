@@ -67,12 +67,13 @@ class Configuration(models.Model):
     main_title = models.CharField(max_length=50, blank=False, null=False, default="string stored in database")
     main_intro =  models.TextField(blank=True, null=True, default="")
     indiv_intro = models.TextField(blank=True, null=True, default="")
-    
+    number_days_to_complete = models.IntegerField(default=7, verbose_name="Number of days to complete a job")
+    max_num_jobs = models.IntegerField(default=4, verbose_name="Maximum number of active jobs per user")
     def __str__(self):
         """String for representing the Model object."""
         return f'{self.main_title}'
 
     class Meta:
-        verbose_name_plural = 'Interface Configuration'
+        verbose_name_plural = 'Configuration'
 
      

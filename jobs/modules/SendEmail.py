@@ -126,11 +126,14 @@ class SendEmail:
     def new_user_email(self, first_name, username, email):
         """Sends an email to the user when they register."""
         project_name = Configuration.objects.get(id=1).main_title
+        max_num_jobs = Configuration.objects.get(id=1).max_num_jobs
         subject = "Welcome to the {} research project".format(project_name)
         email_template_name = "jobs/register/new_user_welcome_email.txt"
         context={"name":first_name,
             "username":username,
-            "title":project_name
+            "title":project_name,
+            "max_jobs":max_num_jobs
+
            }
         message = render_to_string(email_template_name, context)
         try:
