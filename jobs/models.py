@@ -64,9 +64,9 @@ class Job(models.Model):
 class Configuration(models.Model):
     objects = models.Manager() #Not necessary but without it this function fails PyLint
     id = models.AutoField(primary_key=True)
-    main_title = models.CharField(max_length=50, blank=False, null=False, default="string stored in database")
-    main_intro =  models.TextField(blank=True, null=True, default="")
-    indiv_intro = models.TextField(blank=True, null=True, default="")
+    main_title = models.CharField(max_length=50, blank=False, null=False, default="string stored in database", verbose_name="Project title")
+    main_intro =  models.TextField(blank=True, null=True, default="", verbose_name="Main table text")
+    indiv_intro = models.TextField(blank=True, null=True, default="", verbose_name="Individual user table text")
     number_days_to_complete = models.IntegerField(default=7, verbose_name="Number of days to complete a job")
     max_num_jobs = models.IntegerField(default=4, verbose_name="Maximum number of active jobs per user")
     def __str__(self):
