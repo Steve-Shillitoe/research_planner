@@ -19,7 +19,7 @@ class SendEmail:
             job_id = str(job.id), 
             patient_id = str(job.patient_id)
             report_uploader_name = request.user.first_name + " " + request.user.last_name
-            email_message = ('Hi {}, \n you successfully uploaded a report at {} on {} for job {}, patient {} & Task {}'
+            email_message = ('Hi {}, \n you successfully uploaded a report at {} on {} for job {}, subject {} & Task {}'
                              .format(report_uploader_name, datetime.now().strftime("%H:%M:%S"), date.today(), job_id, patient_id, str(job.task_id)))
             send_mail(
                         subject = '{} report uploaded'.format(Configuration.objects.get(id=1).main_title),
@@ -77,7 +77,7 @@ class SendEmail:
                 user = User.objects.get(id=job[1])
                 email_address = user.email
                 details =list(job)
-                email_message = "The report for job {}, patient {}, Task {} is due to be submitted tomorrow.".format(details[0], details[2], details[3])
+                email_message = "The report for job {}, subject {}, Task {} is due to be submitted tomorrow.".format(details[0], details[2], details[3])
                 try:
                     send_mail(
                                 subject = '{} Job report deadline reminder'.format(Configuration.objects.get(id=1).main_title),
@@ -100,7 +100,7 @@ class SendEmail:
         try:
                 job = Job.objects.get(id=job_id)
                 task = Task.objects.get(task_id=int(job.task_id_id)).task_name
-                job_details = "Job ID={}, patient={}, task={}".format(job.id, job.patient_id_id, task) 
+                job_details = "Job ID={}, subject={}, task={}".format(job.id, job.patient_id_id, task) 
                 email_message = ('You have allocated a job, {} to yourself. Please complete it by {}'
                                 .format(job_details, datetime.strptime(str(deadline_date), "%Y-%m-%d").strftime("%d/%m/%Y")))
                 send_mail(
