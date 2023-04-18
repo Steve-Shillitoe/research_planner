@@ -41,36 +41,44 @@ dbOps = DatabaseOperations()
 TYPE_OF_STATUS = {'Available': "green",'Not Available': "red",'In Progress': "yellow",'Received': "Magenta",
                     'Approved': "SkyBlue" }
 
-
 def password_reset_request(request):
-	if request.method == "POST":
-		password_reset_form = PasswordResetForm(request.POST)
-		if password_reset_form.is_valid():
-			data = password_reset_form.cleaned_data['email']
-            #Check this email belongs to an existing user
-			associated_users = User.objects.filter(Q(email=data))
-			if associated_users.exists():
-				for user in associated_users:
-					subject = "Password Reset Requested"
-					email_template_name = "jobs/password/password_reset_email.txt"
-					c = {
-					"email":user.email,
+    msg=""
+    password_reset_form = PasswordResetForm()
+    if request.method == "POST":
+        if request.POST['email']:
+            data = request.POST['email'].strip()
+            associated_users = User.objects.filter(Q(email=data))
+            if associated_users.exists() == False:
+                msg="No user found who is associated with this email address"
+            else:
+                for user in associated_users:
+                    subject = "Password Reset Requested"
+                    email_template_name = "jobs/password/password_reset_email.txt"
+                    c = {"email":user.email,
 					'domain':env('DOMAIN'),
 					'site_name': 'Website',
 					"uid": urlsafe_base64_encode(force_bytes(user.pk)),
 					"user": user,
 					'token': default_token_generator.make_token(user),
-					'protocol': 'http',
-					}
-					email = render_to_string(email_template_name, c)
-					try:
-						send_mail(subject, email, settings.EMAIL_HOST_USER , [user.email], fail_silently=False)
-					except BadHeaderError:
-						return HttpResponse('Invalid header found.')
-					return redirect ("/password_reset/done/")
-	password_reset_form = PasswordResetForm()
-	return render(request=request, template_name="jobs/password/password_reset.html", context={'main_title':Configuration.objects.get(id=1).main_title,
-                                                                                            'password_reset_form':password_reset_form})
+					'protocol': 'http'}
+                    email = render_to_string(email_template_name, c)
+                    try:    
+                        send_mail(subject, email, settings.EMAIL_HOST_USER,[user.email], fail_silently=False)
+                        return redirect ("/password_reset/done/")
+                    except BadHeaderError:
+                        return HttpResponse("Could not send an email to the user due to an invalid email header found.")
+                    except SMTPException as e:
+                        return HttpResponse("Could not send an email to the user due to {} error".format(str(e)))
+                    except Exception as e:
+                        return HttpResponse("Could not send an email to the user due to {} error".format(str(e)))
+                       
+        else:
+            print("Form not valid")
+            msg="Entered email is not valid"
+    return render(request=request, template_name="jobs/password/password_reset.html",
+                  context={'main_title':Configuration.objects.get(id=1).main_title,
+                           'email_not_found_db':msg,
+                           'password_reset_form':password_reset_form})
 
 
 def register_request(request):

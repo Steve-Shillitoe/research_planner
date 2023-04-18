@@ -29,14 +29,14 @@ class SendEmail:
                         fail_silently = False     # Set this to False so that you will be notified if any exception raised
                     )
         except BadHeaderError:
-            messages.error(request,"Invalid email header found.")
+            messages.error(request,"Could not send an email to the user about their report upload due to an invalid email header found.")
             print("Invalid email header found.")
         except SMTPException as e:
             messages.error(request,"Could not send an email to the user about their report upload due to {} error".format(str(e)))
             print("Could not send an email to the user about their report upload due to {} error".format(str(e)))
         except Exception as e:
-                messages.error(request,"Could not send an email to the user about their report upload due to {} error".format(str(e)))
-                print("Could not send an email to the user about their report upload due to {} error".format(str(e)))
+            messages.error(request,"Could not send an email to the user about their report upload due to {} error".format(str(e)))
+            print("Could not send an email to the user about their report upload due to {} error".format(str(e)))
    
 
     def report_uploaded_admins_email(self, new_file_name, request):
@@ -54,7 +54,7 @@ class SendEmail:
                         fail_silently = False     # Set this to False so that you will be notified if any exception raised
                     )
         except BadHeaderError:
-            messages.error(request,"Invalid email header found.")
+            messages.error(request,"Could not send an email to the System Administrator about a report upload due to an invalid email header found.")
             print("Invalid email header found.")
         except SMTPException as e:
             messages.error(request,"Could not send an email to the System Administrator about a report upload due to {} error".format(str(e)))
@@ -88,13 +88,10 @@ class SendEmail:
                             )
                     Job.objects.filter(id=job[0]).update(reminder_sent='yes')
                 except BadHeaderError:
-                    #messages.error(request, "Invalid email header found.")
                     print("Invalid email header found.")
                 except SMTPException as e:
-                    #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
                     print("Could not send an email deadline reminder due to {} error".format(str(e)))
                 except Exception as e:
-                    #messages.error(request,"Could not send an email deadline reminder due to {} error".format(str(e)))
                     print("Could not send an email deadline reminder due to {} error".format(str(e)))
 
 
@@ -115,13 +112,11 @@ class SendEmail:
                     )
         except BadHeaderError:
                 messages.error(request,"Invalid email header found.")
-                print("Invalid email header found.")
         except SMTPException as se:
             messages.error(request,"Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email,str(se)))
-            print("Could not send an email acknowledging job allocation to The {} due to {} error".format(request.user.email, str(se)))
         except Exception as e:
             messages.error(request,"Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email, str(e)))
-            print("Could not send an email acknowledging job allocation to {} due to {} error".format(request.user.email, str(e)))
+            
 
     def new_user_email(self, first_name, username, email):
         """Sends an email to the user when they register."""

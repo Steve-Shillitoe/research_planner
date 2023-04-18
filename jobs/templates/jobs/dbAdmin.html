@@ -38,10 +38,18 @@ function deleteAllReportsCheck() {
     }
 </style>
 
-<div class="header"> Database Administration for {% block nav %}{% block title %}
+<div class="header"> Database Administration for 
+        {% block title %}
         {{main_title}}
-        {% endblock %}{% endblock %}</div>
+        {% endblock %}</div>
 <br />
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li><b>{{ message }}</b></li>
+    {% endfor %}
+</ul>
+    {% endif %}
 <form method="post">
     {% csrf_token %}
     <p>This function does not delete the users. Users have to be manually deleted using the Admin function.</p>
@@ -81,7 +89,8 @@ function deleteAllReportsCheck() {
 <p>Uploaded reports approved.</p>
 {% autoescape off %} {{ approved_reports }} {% endautoescape %}
 <p>{{ delete_message }}</p>
-    {% if messages %}
+
+{% if messages %}
 <ul class="messages">
     {% for message in messages %}
     <li><b>{{ message }}</b></li>
