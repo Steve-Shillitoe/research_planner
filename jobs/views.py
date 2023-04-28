@@ -80,17 +80,24 @@ def password_reset_request(request):
                            'email_not_found_db':msg,
                            'password_reset_form':password_reset_form})
 
-
 def register_request(request):
-	if request.method == "POST":
-		form = NewUserForm(request.POST)
-		if form.is_valid():
-			user = form.save()
-			return redirect("login") #successful registration, redirect to login page
-		messages.error(request, "Unsuccessful registration. Invalid information.")
-	form = NewUserForm()
-	return render (request=request, template_name="jobs/register.html", context={'main_title':Configuration.objects.get(id=1).main_title,
-                                                                              'register_form':form})
+    if request.method == "POST":
+        form = NewUserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            return redirect("login")
+        else:
+            form = NewUserForm()
+            form.fields['username'].initial = request.POST['username']
+            form.fields['email'].initial = request.POST['email']
+            form.fields['first_name'].initial = request.POST['first_name']
+            form.fields['last_name'].initial = request.POST['last_name']
+            messages.error(request, "Unsuccessful registration. Invalid password.")
+    else:
+        form = NewUserForm()
+    return render (request=request, template_name="jobs/register.html",
+                   context={'main_title':Configuration.objects.get(id=1).main_title,
+                            'register_form':form})
 
 
 @csrf_protect #Require Cross Site Request Forgery protection

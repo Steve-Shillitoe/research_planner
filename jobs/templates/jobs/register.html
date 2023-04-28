@@ -23,6 +23,13 @@
 <div class="container py-5">
 	<h1>{% block title %}{{ main_title }}{% endblock %}</h1>
 	<h1>Register</h1>
+	{% if messages %}
+	<ul class="messages">
+		{% for message in messages %}
+		<li><b>{{ message }}</b></li>
+		{% endfor %}
+	</ul>
+{% endif %}
 	<form method="POST">
 		{% csrf_token %}
 		{{ register_form|crispy }}                    
