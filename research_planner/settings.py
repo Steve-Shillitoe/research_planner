@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-import posixpath
+#import posixpath
 #use .env file to hide email configuration details
 import environ
 env = environ.Env()
@@ -177,9 +177,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 # The absolute path to the directory where collectstatic will collect static files for deployment.
-STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
+#STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 # The URL to use when referring to static files (where they will be served from)
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 
 ## For example, for a site URL at 'web-production-3640.up.railway.app'

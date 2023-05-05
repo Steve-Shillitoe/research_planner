@@ -284,7 +284,7 @@ def buildUsersJobTable(request):
                             " accept="+ chr(34) + ".pdf,.doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, .xlsx, application/vnd.ms-excel, .csv, .txt" + chr(34) + \
                             " required=" + chr(34) + "required" + chr(34) + "class=" + chr(34) + "buttonStyle"+ chr(34) +">" + \
                             "<input type="+ chr(34) + "submit"  + chr(34) + " name=" + chr(34) + "upload_report" + chr(34) + \
-                            " title=" + chr(34) + "Click to select your report" + chr(34) + \
+                            " title=" + chr(34) + "Click to upload your report" + chr(34) + \
                             " value="+ chr(34) + "Upload Report"+ chr(34) + "class=" + chr(34) + "btn" + chr(34) +\
                             " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">\n" + \
                             "</form></td>" 
