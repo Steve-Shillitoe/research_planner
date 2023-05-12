@@ -30,7 +30,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["20.108.187.94", "localhost"]
+ALLOWED_HOSTS = ["localhost"]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
 ]
 
 ROOT_URLCONF = 'research_planner.urls'
@@ -131,11 +132,11 @@ LOGIN_URL = 'login'
 
 #To send email to console
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#ADMINS = (
-#    ('Yourname', 'yourname@gmail.com'),
-#)
+ADMINS = (
+   ('Steven', 's.sourbron@sheffield.ac.uk'),
+)
 
-#MANAGERS = ADMINS
+MANAGERS = ADMINS
 
 # Gmail SMTP Server
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

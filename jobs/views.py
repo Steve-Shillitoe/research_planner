@@ -23,6 +23,7 @@ from django.conf import settings
 from .forms import NewUserForm
 from django.contrib.auth import login
 from django.contrib import messages
+from django.core.exceptions import *
 import openpyxl
 import xlwt
 from xlwt import Workbook
@@ -134,7 +135,7 @@ def home(request):
     #If the database Configuration table has not been populated
     #yet, populate it with default initial values. 
     dbOps.populate_Configuration_table()
-    #if job report deadline passed, make the job available again
+    #if job report deadline has passed, make the job available again
     dbOps.deadline_passed_set_job_available()
     #Send deadline one day away reminders
     sendEmail = SendEmail()
@@ -149,7 +150,8 @@ def home(request):
             #and status changed to 'In Progress'
             FourJobsWarning, SameJobWarning =  select_job(request, jobId, sendEmail)
         elif  'cancel' in request.POST:
-            #Update individual job table. Cancel button clicked. Setting dates=None, gives them the value of Null
+            #Update individual job table. Cancel button clicked. Setting dates=None, 
+            #gives them the value of Null
             Job.objects.filter(id=jobId).update(status ='Available', 
                                user_id_id = "", start_date =None, deadline_date =None)
         elif 'upload_report' in request.POST:
@@ -204,7 +206,11 @@ def save_uploaded_file_to_disc(file, new_file_name):
 def select_job(request, jobId, sendEmail):
     fourJobsWarning = ""
     sameJobWarning = ""
-    jobs = Job.objects.filter(user_id = request.user, status ='In Progress')
+    #Get a list of 'in progress' jobs belonging to the user
+    try:
+        jobs = Job.objects.filter(user_id = request.user, status ='In Progress')
+    except ObjectDoesNotExist:
+        return HttpResponse("Exception in function views.select_job: Error getting in progress job list for the user.")
     numJobs = len(jobs)
     #Make sure this student has not already selected the same subject and task
     job = Job.objects.get(id=jobId)
