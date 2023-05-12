@@ -37,17 +37,29 @@ environ.Env.read_env()
 from .modules.DatabaseOperations import DatabaseOperations
 dbOps = DatabaseOperations()
 
-#Link status to a colour
+#Link job status to a colour. Used to set the background colour of table cells
+#displaying the status of a job
 TYPE_OF_STATUS = {'Available': "green",'Not Available': "red",'In Progress': "yellow",'Received': "Magenta",
                     'Approved': "SkyBlue" }
 
 def password_reset_request(request):
+    """
+    This function is used to email a user a password reset link.
+
+    This function is executed when the Forgot password? link is clicked
+    on the login.html template file when displayed in a web browser.
+
+    First the email address entered by the user is checked to 
+    determine if that email address is associated with a user in
+    the database. If not a warning message is displayed on the web page,
+    otherwise an email is sent to the user. 
+    """
     msg=""
     password_reset_form = PasswordResetForm()
     if request.method == "POST":
         if request.POST['email']:
-            data = request.POST['email'].strip()
-            associated_users = User.objects.filter(Q(email=data))
+            email_address = request.POST['email'].strip()
+            associated_users = User.objects.filter(Q(email=email_address))
             if associated_users.exists() == False:
                 msg="No user found who is associated with this email address"
             else:
@@ -68,7 +80,7 @@ def password_reset_request(request):
                     except BadHeaderError:
                         return HttpResponse("Could not send an email to the user due to an invalid email header found.")
                     except SMTPException as e:
-                        return HttpResponse("Could not send an email to the user due to {} error".format(str(e)))
+                        return HttpResponse("Could not send an email to the user due to {} SMTP error".format(str(e)))
                     except Exception as e:
                         return HttpResponse("Could not send an email to the user due to {} error".format(str(e)))
                        
@@ -81,12 +93,26 @@ def password_reset_request(request):
                            'password_reset_form':password_reset_form})
 
 def register_request(request):
+    """
+    This function registers a new user in the database.
+
+    This function is executed when the Create an account link is clicked on 
+    the login.html template file when displayed in a web browser.
+
+    If all the new user data is entered correctly, a new user is saved to the database
+    and the user is redirected to the login web page.
+    Otherwise, the new user form is redisplayed for the user to try again.
+    """
     if request.method == "POST":
-        form = NewUserForm(request.POST)
+        form = NewUserForm(request.POST)  #See forms.py for the definition of this form class
         if form.is_valid():
             user = form.save()
             return redirect("login")
         else:
+            #If the data entered in the form is invalid, usually this
+            #happens when the password is not valid, then the 
+            #following code ensures that the other data entered is
+            #retained in the form when it is redisplayed.
             form = NewUserForm()
             form.fields['username'].initial = request.POST['username']
             form.fields['email'].initial = request.POST['email']
@@ -105,6 +131,8 @@ def register_request(request):
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
+    #If the database Configuration table has not been populated
+    #yet, populate it with default initial values. 
     dbOps.populate_Configuration_table()
     #if job report deadline passed, make the job available again
     dbOps.deadline_passed_set_job_available()
