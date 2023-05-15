@@ -139,7 +139,7 @@ def home(request):
     dbOps.deadline_passed_set_job_available()
     #Send deadline one day away reminders
     sendEmail = SendEmail()
-    sendEmail.deadline_reminder_email()
+    sendEmail.deadline_reminder_email(request)
 
     FourJobsWarning = ""
     SameJobWarning = ""
@@ -152,10 +152,17 @@ def home(request):
         elif  'cancel' in request.POST:
             #Update individual job table. Cancel button clicked. Setting dates=None, 
             #gives them the value of Null
-            Job.objects.filter(id=jobId).update(status ='Available', 
+            try:
+                Job.objects.filter(id=jobId).update(status ='Available', 
                                user_id_id = "", start_date =None, deadline_date =None)
+            except Exception:
+                return HttpResponse("Exception in function views.select_job: " + \
+                    "Error updating a job when a user cancels it.")
         elif 'upload_report' in request.POST:
-            job = Job.objects.get(id=jobId)
+            try:
+                job = Job.objects.get(id=jobId)
+            except ObjectDoesNotExist:
+                return HttpResponse("Exception in function views.home when uploading a report: Error getting selected job object.")
             if job.status == "In Progress":
                 #The above check prevents a report being uploaded twice by
                 #refreshing the screen or using the back button
@@ -169,7 +176,12 @@ def home(request):
                 new_file_name = new_file_name + file_extension
                 #Save uploaded report to \media\reports in the web app folder structure
                 save_uploaded_file_to_disc(uploaded_report_file,  new_file_name)
-                Job.objects.filter(id=jobId).update(status ='Received', report_name=new_file_name, submission_date=date.today())
+
+                try:
+                    Job.objects.filter(id=jobId).update(status ='Received', report_name=new_file_name, submission_date=date.today())
+                except Exception:
+                    return HttpResponse("Exception in function views.home when a report is uploaded {}:".format(str(e)))
+    
                 #Email admins about uploaded report
                 sendEmail.report_uploaded_admins_email(new_file_name, request)
                 #Email user about thier uploaded report
@@ -191,16 +203,18 @@ def home(request):
 
 
 def save_uploaded_file_to_disc(file, new_file_name):  
-    """File handling function"""
+    """
+    This function writes an uploaded report, file, to disc with the filename, new_file_name.
+    """
     try:
         new_file_path = settings.MEDIA_ROOT + '/reports/'+ new_file_name
         with open(new_file_path, 'wb+') as destination:  
             for chunk in file.chunks():  
                 destination.write(chunk)
     except FileNotFoundError:
-        print("{} does not exist".format(new_file_path))
+        return HttpResponse("Exception in function views.save_uploaded_file_to_disc: file {} does not exist".format(new_file_path))
     except Exception as e:
-        print("Error: " + str(e))
+        return HttpResponse("Exception in function views.save_uploaded_file_to_disc: {}".format(str(e)))
 
 
 def select_job(request, jobId, sendEmail):
@@ -254,7 +268,10 @@ def buildMainJobsTable(request):
     patients = Patient.objects.all()
     if patients:
         #the database is populated, so build the jobs table
-        task_list_from_jobs = Job.objects.filter(patient_id=patients[0].patient_id)
+        try:
+            task_list_from_jobs = Job.objects.filter(patient_id=patients[0].patient_id)
+        except Exception:
+            return HttpResponse("Exception in function views.buildMainJobsTable.task_list_from_jobs: {}".format(str(e)))
         #Build colgroups
         task_list = Task.objects.all()
         strTable = "<table cellspacing=3 bgcolor=#000000>"
@@ -274,7 +291,10 @@ def buildMainJobsTable(request):
         for patient in patients:
             strPatient = "\n<TR>\n<TD>" + str(patient.patient_id) + "</TD>"
             strStatus = ""  
-            jobs = Job.objects.filter(patient_id=patient.patient_id).order_by('id')
+            try:
+                jobs = Job.objects.filter(patient_id=patient.patient_id).order_by('id')
+            except Exception:
+                return HttpResponse("Exception in function views.buildMainJobsTable getting jobs for each subject: {}".format(str(e)))
             for job in jobs:
                 if job.status == "Available":
                     csrf_token = get_token(request)
@@ -290,7 +310,6 @@ def buildMainJobsTable(request):
                 else:
                     strStatus += "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
             strRow = strPatient + strStatus + "</TR>"
-            #strStatus = ""
             strRows +=strRow 
         returnString = strTable + "\n" + strColGroup + "\n" + strHeader + "\n" + strRows + "\n" + "</TABLE>"
     else:
@@ -347,13 +366,12 @@ def buildUsersJobTable(request):
                 individualJobs = strTable + strRows + "</TABLE>"
             else:
                 individualJobs = "<p>There are no jobs are assigned to you at the moment.</p>"
-
         return  individualJobs
     except TypeError as te:
         print ("Function buildUsersJobTable - Type Error {}".format(te))
         return ''
     except Exception as e:
-       print ("Function buildUsersJobTable - Error {}".format(e))
+       return HttpResponse("Error in function views.buildUsersJobTable: {}".format(te))
 
 
 def build_status_list(request, strStatus, strHiddenJobID):
@@ -374,7 +392,10 @@ def build_status_list(request, strStatus, strHiddenJobID):
     
 
 def build_uploaded_report_table(request, status_type):
-    """This function builds the table of uploaded reports whose status is status"""
+    """
+    This function builds the table of uploaded reports whose status is status
+    for display on the Database Admin page
+    """
     jobs = Job.objects.filter(status = status_type).values_list(
         'id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'submission_date')
     if len(jobs) == 0:
@@ -427,11 +448,11 @@ def download_report(request):
         else:
             return render(request, 'file_not_found.html')
     except TypeError as te:
-        print ("Error {} with file {}".format(te, path_to_report))
+        return HttpResponse("Error {} in views.download_report with file {}".format(te, path_to_report))
     except FileNotFoundError:
-        print('File {} does not exist'.format(path_to_report))
+        return HttpResponse('Error in views.download_report, file {} does not exist'.format(path_to_report))
     except Exception as e:
-       print ("Error {} with file {}".format(e, path_to_report))
+        return HttpResponse("Error {} in views.download_report with file {}".format(e, path_to_report))
 
 
 @csrf_protect #Require Cross Site Request Forgery protection
@@ -451,7 +472,10 @@ def dbAdmin(request):
                                                                     'approved_reports':"<p>There are no approved reports in the database</p>"})
             elif "deleteAllReports"  in request.POST:
                 #delete all the reports uploaded to the server
-                [f.unlink() for f in Path(settings.MEDIA_ROOT + '/reports/').glob("*") if f.is_file()] 
+                try:
+                    [f.unlink() for f in Path(settings.MEDIA_ROOT + '/reports/').glob("*") if f.is_file()] 
+                except Exception as e:
+                    return HttpResponse("Error in views.dbAdmin.deleteAllReports")
                 return render(request,
                     template_name =  'jobs/dbAdmin.html',
                     context={'main_title':Configuration.objects.get(id=1).main_title,
@@ -514,14 +538,16 @@ def dbAdmin(request):
 
 
 def delete_report(request):
-    jobId = request.POST['jobId']
-    job = Job.objects.get(id=jobId)
-    report_to_delete = settings.BASE_DIR + '/media/reports/' + str(job.report_name)
-    if os.path.exists(report_to_delete):
-        os.remove(report_to_delete)
-    Job.objects.filter(id=jobId).update(status = 'In Progress', report_name ='', submission_date = None)
-    return job.report_name
-
+    try:
+        jobId = request.POST['jobId']
+        job = Job.objects.get(id=jobId)
+        report_to_delete = settings.BASE_DIR + '/media/reports/' + str(job.report_name)
+        if os.path.exists(report_to_delete):
+            os.remove(report_to_delete)
+        Job.objects.filter(id=jobId).update(status = 'In Progress', report_name ='', submission_date = None)
+        return job.report_name
+    except Exception as e:
+        messages.error(request, 'Error {} deleting report.'.format(e))
 
 def download_jobs(dummy):
     """This function writes the contents of the Jobs table to an Excel spreadsheet
@@ -570,15 +596,19 @@ def download_jobs(dummy):
         wb.save(response)
         return response     
     except Exception as e:
-       print ("Error {}".format(e))
+       messages.error(request, 'Error {} downloading Jobs spreadsheet'.format(e))
        wb.save(response)
        return response
 
 
 def populate_database(request):
     """Deletes the contents of the database and then repopulates it"""
-    excel_file = request.FILES['excel_file']
-    wb = openpyxl.load_workbook(excel_file)
+    try:
+        excel_file = request.FILES['excel_file']
+        wb = openpyxl.load_workbook(excel_file)
+    except Exception as e:
+        return HttpResponse("Error in views.dbAdmin.populate_database opening uploaded Excel file.")
+                
     dbOps.clear_database()
     dbOps.populate_task_table(wb)
     dbOps.populate_patient_table(wb)
