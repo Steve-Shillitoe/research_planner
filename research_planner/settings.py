@@ -30,7 +30,7 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost"]
+ALLOWED_HOSTS = ["localhost", "qibsheffield.shef.ac.uk"]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
@@ -85,6 +85,7 @@ WSGI_APPLICATION = 'research_planner.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
+#Development only, comment out for production
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -95,6 +96,18 @@ DATABASES = {
         'PORT':'5432'
     }
 }
+
+#uncomment for production
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#        'NAME': 'plannerdb',
+#        'USER': 'planneruser',
+#        'PASSWORD': 'planner1234',
+#        'HOST': 'localhost',
+#        'PORT': '5432',
+#    }
+
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
