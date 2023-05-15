@@ -134,6 +134,7 @@ LOGIN_URL = 'login'
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ADMINS = (
    ('Steven', 's.sourbron@sheffield.ac.uk'),
+   ('Steve', 's.shillitoe@sheffield.ac.uk')
 )
 
 MANAGERS = ADMINS
