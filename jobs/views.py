@@ -209,23 +209,37 @@ def select_job(request, jobId, sendEmail):
     #Get a list of 'in progress' jobs belonging to the user
     try:
         jobs = Job.objects.filter(user_id = request.user, status ='In Progress')
-    except ObjectDoesNotExist:
+    except Exception:
         return HttpResponse("Exception in function views.select_job: Error getting in progress job list for the user.")
     numJobs = len(jobs)
+
     #Make sure this student has not already selected the same subject and task
-    job = Job.objects.get(id=jobId)
-    same_patient_task_job = Job.objects.filter(user_id = request.user, 
+    try:
+        job = Job.objects.get(id=jobId)
+    except ObjectDoesNotExist:
+        return HttpResponse("Exception in function views.select_job: Error getting selected job object.")
+    
+    try:
+        same_patient_task_job = Job.objects.filter(user_id = request.user, 
                             task_id = job.task_id, patient_id = job.patient_id)
+    except Exception:
+        return HttpResponse("Exception in function views.select_job: Error getting same_patient_task_job.")
+    
     if same_patient_task_job.exists():
         sameJobWarning = "You may only select the same subject-task combination once."
     #check student does not already have the maximum number of jobs assigned to them
     max_num_jobs = Configuration.objects.get(id=1).max_num_jobs
     if numJobs < max_num_jobs:
         deadline_date = date.today() + timedelta(Configuration.objects.get(id=1).number_days_to_complete)
-        Job.objects.filter(id=jobId).update(status ='In Progress', 
+        try:
+            Job.objects.filter(id=jobId).update(status ='In Progress', 
                                             user_id = request.user,
                                             start_date = date.today(),
                                             deadline_date = deadline_date)
+        except Exception:
+            return HttpResponse("Exception in function views.select_job: " + \
+                "Error allocating this job to the user.")
+    
         sendEmail.job_allocation_email(jobId, deadline_date, request)
     if numJobs == max_num_jobs:
         fourJobsWarning = "You may only have a maximum of {} jobs in progress.".format(max_num_jobs)
