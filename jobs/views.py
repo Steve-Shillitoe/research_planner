@@ -374,22 +374,49 @@ def buildUsersJobTable(request):
        messages.error(request,"Error in function views.buildUsersJobTable: {}".format(te))
 
 
-def build_status_list(request, strStatus, strHiddenJobID):
+def build_status_list(request, strJobID, strStatus, strHiddenJobID):
+    """
+    This function builds a dropdown list of status values.
+    """
     csrf_token = get_token(request)
     csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
     status_list = ['Available', 'Not Available', 'In Progress', 'Received', 'Approved', 'Not Approved']
-    start = "<form method=" + chr(34) + "POST" + chr(34) + "> " + strHiddenJobID + " " + csrf_token_html +" <select name=" + chr(34) + "status" + chr(34) + ">\n" 
+    start = "<form id=" + chr(34) + strJobID + "form" + chr(34) + " method=" + chr(34) + "POST" + chr(34) + "> " + strHiddenJobID + " " + csrf_token_html + "\n" + \
+        " <select id=" + chr(34) + strJobID + "dropdown" + chr(34) + " name=" + chr(34) + "updateStatus" + chr(34) + ">\n" 
     options = ''
     for status in status_list:
         selected = ""
         if status == strStatus:
             selected = " selected "
         options += "<option value="+ chr(34) + status +  chr(34) + selected + ">" + chr(34) + status +  chr(34) + "</option>\n"
-    
-    end = "</select>\n <input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "updateStatus" + chr(34) +  \
-                            "value="+ chr(34) + "Update Status"+ chr(34) + " title=" + chr(34) + "Click to update the status of this report" + chr(34) + "> \n </form>"  
+    end = "</select>\n  </form>\n"  
     return start + options + end
-    
+ 
+
+def build_submit_javascript(strJobID):
+    """
+    This function build the javascript necessary to make the dropdown list of 
+    status strings to cause a form submission when the selected status is changed.
+
+    This javascript function removes the need to have a submit button associated with
+    the dropdown list.
+
+    This javascript function attaches an eventlistener to each status dropdown list
+    and when a change event is triggered, a form submit event is triggered.
+    """
+    return "<script> document.getElementById(" + \
+        chr(34) + strJobID + "dropdown" + chr(34) + \
+        ").addEventListener(" + chr(34) + "change"  + chr(34) + ", function() {" + \
+        "document.getElementById(" + chr(34) + strJobID +  "form" + chr(34) + ").submit();" + \
+        "});  </script>"
+
+
+
+
+
+
+
+
 
 def build_uploaded_report_table(request, status_type):
     """
@@ -425,7 +452,8 @@ def build_uploaded_report_table(request, status_type):
                                 "</form></td>"
                 task = Task.objects.get(task_id=job[3])
                 strRows += ("<tr><td>" + str(job[0]) + "</td><td>" + user_name + "</td><td>" + str(job[2]) +
-                           "</td><td>" + task.task_name + "</td><td>" +  build_status_list(request,str(job[4]), strHiddenJobID) + "</td><td>" +  link_to_report + "</td><td>" + str(job[6]) + "</td>" +
+                           "</td><td>" + task.task_name + "</td><td>" +  build_status_list(request,str(job[0]), str(job[4]), strHiddenJobID) + " " + build_submit_javascript(str(job[0])) +
+                           "</td><td>" +  link_to_report + "</td><td>" + str(job[6]) + "</td>" +
                              strDeleteButton + "</tr>\n")
                 returnStr = tableHeader + strRows + "</table>"
             return returnStr 
@@ -512,7 +540,7 @@ def dbAdmin(request):
                 #update status of an uploaded report
                 try:
                     job_id = request.POST['jobId']
-                    new_status = request.POST['status']
+                    new_status = request.POST['updateStatus']
                     job = Job.objects.get(id=job_id)
                     if new_status == 'Not Approved':
                         #delete physical report
