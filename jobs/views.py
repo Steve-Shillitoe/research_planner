@@ -411,13 +411,6 @@ def build_submit_javascript(strJobID):
         "});  </script>"
 
 
-
-
-
-
-
-
-
 def build_uploaded_report_table(request, status_type):
     """
     This function builds the table of uploaded reports whose status is status

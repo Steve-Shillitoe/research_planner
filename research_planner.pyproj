@@ -41,6 +41,13 @@
     <Compile Include="jobs\modules\DatabaseOperations.py" />
     <Compile Include="jobs\modules\SendEmail.py" />
     <Compile Include="jobs\modules\__init__.py" />
+    <Compile Include="jobs\tests\test_templates.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="jobs\tests\tests_models.py" />
+    <Compile Include="jobs\tests\test_1.py" />
+    <Compile Include="jobs\tests\test_views.py" />
+    <Compile Include="jobs\tests\__init__.py" />
     <Compile Include="jobs\views.py" />
     <Compile Include="jobs\__init__.py" />
     <Compile Include="jobs\migrations\__init__.py" />
@@ -65,6 +72,8 @@
     <Folder Include="jobs\templates\jobs\" />
     <Folder Include="jobs\templates\jobs\register\" />
     <Folder Include="jobs\templates\jobs\password\" />
+    <Folder Include="jobs\tests\" />
+    <Folder Include="jobs\tests\__pycache__\" />
     <Folder Include="media\" />
     <Folder Include="media\reports\" />
     <Folder Include="research_planner\" />
@@ -110,6 +119,12 @@
     <Content Include="jobs\templates\jobs\password\password_reset_done.html" />
     <Content Include="jobs\templates\jobs\password\password_reset_email.txt" />
     <Content Include="jobs\templates\jobs\register.html" />
+    <Content Include="jobs\tests\__pycache__\tests_models.cpython-37.pyc" />
+    <Content Include="jobs\tests\__pycache__\tests_views.cpython-37.pyc" />
+    <Content Include="jobs\tests\__pycache__\test_1.cpython-37.pyc" />
+    <Content Include="jobs\tests\__pycache__\test_models.cpython-37.pyc" />
+    <Content Include="jobs\tests\__pycache__\test_views.cpython-37.pyc" />
+    <Content Include="jobs\tests\__pycache__\__init__.cpython-37.pyc" />
     <Content Include="research_planner\.env" />
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />
