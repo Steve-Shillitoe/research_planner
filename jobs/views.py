@@ -14,6 +14,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpRequest, HttpResponse
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -480,6 +481,13 @@ def download_report(request):
         messages.error(request,"Error {} in views.download_report with file {}".format(e, path_to_report))
 
 
+def superuser_required(view_func):
+    def test_func(user):
+        return user.is_superuser
+    decorated_view_func = user_passes_test(test_func)(view_func)
+    return decorated_view_func
+
+@superuser_required #Only superusers may access this function
 @csrf_protect #Require Cross Site Request Forgery protection
 @login_required   #If the user is not logged in, redirect to Login form
 def dbAdmin(request):  

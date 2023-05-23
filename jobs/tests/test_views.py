@@ -3,7 +3,7 @@ This file demonstrates writing tests using the unittest module. These will pass
 when you run "manage.py test".
 """
 import django
-from django.test import LiveServerTestCase, RequestFactory, TestCase
+from django.test import LiveServerTestCase, RequestFactory, TestCase, Client
 from django.core.exceptions import ValidationError
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 from django.contrib.auth.models import User, AnonymousUser
 from django.urls import resolve, reverse
 from django.http import HttpRequest
-from jobs.views import home
+from jobs.views import home, dbAdmin
 from django.contrib.auth import login
 
 # TODO: Configure your database in settings.py and sync before running tests.
@@ -48,6 +48,28 @@ class FunctionalTestCases(LiveServerTestCase):
         # Add your assertions to check the response, status code, etc.
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "initial value")
+        #The following 2 links should not be visible to an ordinary user
+        self.assertNotContains(response, 'Admin')
+        self.assertNotContains(response, 'Database Administration')
+
+
+    def test_home_view_with_super_user(self): ##NOT WORKING
+        # Create a GET request to the home view with an authenticated user
+        url = reverse('home')
+        request = self.factory.get(url)
+        request.user = self.superuser
+
+        # Use the `home` view function to handle the request
+        response = home(request)
+
+        # Add your assertions to check the response, status code, etc.
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "initial value")
+        #The following 2 links should be visible to a super user
+        print("response=",response)
+        self.assertContains(response, 'Admin')
+        self.assertContains(response, 'Database Administration')
+
 
     def test_homepage_Redirect_To_Login(self):
         # Browse to the home page as an unauthenticated user
@@ -70,9 +92,94 @@ class FunctionalTestCases(LiveServerTestCase):
         redirect_location = response.url
         # Assert that the redirect location matches the expected URL
         self.assertEqual(redirect_location, '/login/?next=/')  
+         
+    
+    def test_dbAdmin_view_with_unauthenticated_user(self):
+        # Create a GET request to the dbAdmin view with an unauthenticated user
+        url = reverse('dbAdmin')
+        request = self.factory.get(url)
+        request.user = AnonymousUser()
+
+        # Use the `dbAdmin' view function to handle the request
+        response = dbAdmin(request)
+
+        # status code = 302 means temporary redirect to another page.
+        self.assertEqual(response.status_code, 302)
+        # Get the redirect location
+        redirect_location = response.url
+        # Assert that the redirect location matches the expected URL
+        self.assertEqual(redirect_location, '/login/?next=/dbAdmin/')  
+
+    def test_dbAdmin_view_with_authenticated_user(self):
+        #This user does not have superuser status, so should not be
+        #able to access this view.
+        # Create a GET request to the dbAdmin view with an unauthenticated user
+        url = reverse('dbAdmin')
+        request = self.factory.get(url)
+        request.user = self.user
+
+        # Use the `dbAdmin` view function to handle the request
+        response = dbAdmin(request)
+
+        # status code = 302 means temporary redirect to another page.
+        self.assertEqual(response.status_code, 302)
+        # Get the redirect location
+        redirect_location = response.url
+        # Assert that the redirect location matches the expected URL
+        self.assertEqual(redirect_location, '/login/?next=/dbAdmin/')  
+
+    
+    def test_admin_access(self):
+        # Simulate logging in as a regular user
+        self.client.login(username='testuser', password='testpassword')
         
+        # Make a GET request to the admin URL
+        response = self.client.get(self.live_server_url + '/admin/')
         
-      
+        # Assert that the regular user is redirected
+        self.assertRedirects(response, '/admin/login/?next=/admin/')
+        
+        # Simulate logging in as a superuser
+        self.client.login(username='admin', password='adminpassword')
+        
+        # Make another GET request to the admin URL
+        response = self.client.get(self.live_server_url + '/admin/')
+        
+        # Assert that the superuser is allowed access
+        self.assertEqual(response.status_code, 200)
+
+
+    #def test_Admin_view_with_unauthenticated_user(self):
+    #    # Create a GET request to the Admin view with an unauthenticated user
+    #    url = self.live_server_url + '/admin/'
+    #    request = self.factory.get(url)
+    #    request.user = AnonymousUser()
+
+    #    # Use the `home` view function to handle the request
+    #    response = dbAdmin(request)
+
+    #    # status code = 302 means temporary redirect to another page.
+    #    self.assertEqual(response.status_code, 302)
+    #    # Get the redirect location
+    #    redirect_location = response.url
+    #    # Assert that the redirect location matches the expected URL
+    #    self.assertEqual(redirect_location, '/login/?next=/admin/')   
+        
+    #def test_Admin_view_with_authenticated_user(self):
+    #    # Create a GET request to the Admin view with an unauthenticated user
+    #    url = self.live_server_url + '/admin/'
+    #    request = self.factory.get(url)
+    #    request.user = self.user
+
+    #    # Use the `home` view function to handle the request
+    #    response = dbAdmin(request)
+
+    #    # status code = 302 means temporary redirect to another page.
+    #    self.assertEqual(response.status_code, 302)
+    #    # Get the redirect location
+    #    redirect_location = response.url
+    #    # Assert that the redirect location matches the expected URL
+    #    self.assertEqual(redirect_location, '/login/?next=/admin/') 
 
     #def test_home_page_returns_correct_html(self):
     #    request = HttpRequest()
