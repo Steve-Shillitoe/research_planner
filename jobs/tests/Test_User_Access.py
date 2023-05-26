@@ -1,6 +1,4 @@
 """
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
 """
 import django
 from django.test import LiveServerTestCase, RequestFactory, TestCase, Client
@@ -13,10 +11,13 @@ from django.urls import resolve, reverse
 from django.http import HttpRequest
 from jobs.views import home, dbAdmin
 from django.contrib.auth import login
+import time
+from jobs.modules.DatabaseOperations import DatabaseOperations
+
 
 # TODO: Configure your database in settings.py and sync before running tests.
 
-class FunctionalTestCases(LiveServerTestCase):
+class TestUserAccess(LiveServerTestCase):
 
     def setUp(self):
         self.browser = webdriver.Chrome()
@@ -32,12 +33,55 @@ class FunctionalTestCases(LiveServerTestCase):
             password='adminpassword'
         )
 
-    def test_root_url_resolves_to_home(self):
-        found = resolve('/')
-        self.assertEqual(found.func, home)
+
+    def tearDown(self):
+        self.browser.quit()
+
+
+    def test_home_view_with_super_user(self):
+         # Simulate logging in as a superuser
+        self.client.login(username='admin', password='adminpassword')
+        
+        # Make another GET request to the root URL
+        response = self.client.get(self.live_server_url)
+
+        # Add your assertions to check the response, status code, etc.
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "initial value")
+        #The following 2 links should be visible to a super user
+        self.assertContains(response, 'Admin')
+        self.assertContains(response, 'Database Administration')
+
+
+    #def test_home_view_with_super_user(self): ##NOT WORKING
+    #    #print("test_home_view_with_super_user")
+    #    # Create a GET request to the home view with an authenticated user
+    #    #url = reverse('home')
+    #    #request = self.factory.get(url)
+    #    #request.user = self.superuser
+
+    #     # Simulate logging in as a superuser
+    #    self.client.login(username='admin', password='adminpassword')
+        
+    #    # Make another GET request to the admin URL
+    #    response = self.client.get(self.live_server_url)
+
+    #    # Use the `home` view function to handle the request
+    #    #response = home(request)
+
+    #    # Add your assertions to check the response, status code, etc.
+    #    self.assertEqual(response.status_code, 200)
+    #    self.assertContains(response, "initial value")
+    #    #The following 2 links should be visible to a super user
+    #    print("response=",response)
+    #    self.assertContains(response, 'Admin')
+    #    self.assertContains(response, 'Database Administration')
+
 
     def test_home_view_with_authenticated_user(self):
         # Create a GET request to the home view with an authenticated user
+        #print('test_home_view_with_authenticated_user')
+       
         url = reverse('home')
         request = self.factory.get(url)
         request.user = self.user
@@ -45,30 +89,18 @@ class FunctionalTestCases(LiveServerTestCase):
         # Use the `home` view function to handle the request
         response = home(request)
 
+        ## Simulate logging in as a regular user
+        #self.client.login(username='testuser', password='testpassword')
+        
+        ## Make a GET request to the root URL
+        #response = self.client.get(self.live_server_url)
+
         # Add your assertions to check the response, status code, etc.
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "initial value")
         #The following 2 links should not be visible to an ordinary user
         self.assertNotContains(response, 'Admin')
         self.assertNotContains(response, 'Database Administration')
-
-
-    def test_home_view_with_super_user(self): ##NOT WORKING
-        # Create a GET request to the home view with an authenticated user
-        url = reverse('home')
-        request = self.factory.get(url)
-        request.user = self.superuser
-
-        # Use the `home` view function to handle the request
-        response = home(request)
-
-        # Add your assertions to check the response, status code, etc.
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "initial value")
-        #The following 2 links should be visible to a super user
-        print("response=",response)
-        self.assertContains(response, 'Admin')
-        self.assertContains(response, 'Database Administration')
 
 
     def test_homepage_Redirect_To_Login(self):
@@ -212,8 +244,7 @@ class FunctionalTestCases(LiveServerTestCase):
     #    time.sleep(5)
     #    self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',self.browser.page_source)
 
-    def tearDown(self):
-        self.browser.quit()
+    
 
 
 #class UnitTestCase(TestCase):
@@ -248,3 +279,25 @@ class FunctionalTestCases(LiveServerTestCase):
 #        self.assertContains(response, 'About', 3, 200)
 
 
+#class TestSuperUserAccess(LiveServerTestCase):
+
+#    def setUp(self):
+#        self.browser = webdriver.Chrome()
+#        self.factory = RequestFactory()
+#        self.user = User.objects.create_user(
+#            username='testuser',
+#            email='testuser@example.com',
+#            password='testpassword'
+#        )
+#        self.superuser = User.objects.create_superuser(
+#            username='admin',
+#            email='s.shillitoe@sheffield.ac.uk',
+#            password='adminpassword'
+#        )
+
+
+#    def tearDown(self):
+#        self.browser.quit()
+
+
+    

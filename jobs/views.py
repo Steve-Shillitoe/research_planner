@@ -188,13 +188,24 @@ def home(request):
                 #Email user about thier uploaded report
                 sendEmail.report_uploaded_user_email(request, job)
             
+    try:
+        configuration = Configuration.objects.first()
+        main_title = configuration.main_title
+        main_intro = configuration.main_intro
+        indiv_intro = configuration.indiv_intro
+        max_num_jobs = configuration.max_num_jobs
+    except ObjectDoesNotExist:
+        main_title = ""
+        main_intro = ""
+        indiv_intro = ""
+        max_num_jobs = 4
     return render(
         request,
         template_name =  'jobs/index.html',
-        context={'main_title':Configuration.objects.get(id=1).main_title,
-                 'main_intro':Configuration.objects.get(id=1).main_intro,
-                 'indiv_intro':Configuration.objects.get(id=1).indiv_intro,
-                 'max_jobs':Configuration.objects.get(id=1).max_num_jobs,
+        context={'main_title':main_title,
+                 'main_intro':main_intro,
+                 'indiv_intro':indiv_intro,
+                 'max_jobs':max_num_jobs,
                  'NumJobs':Job.objects.all().count(),
                  'JobTable': buildMainJobsTable(request),
                  'UsersJobTable': buildUsersJobTable(request),

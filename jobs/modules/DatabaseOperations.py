@@ -16,13 +16,13 @@ class DatabaseOperations:
         initial values. 
         """
         try:
-            if Configuration.objects.filter(id=1).first() is None:
-               #empty table, so populate it
+            if Configuration.objects.count() == 0:
+               #empty table, so populate it with initial values
                first_table_row = Configuration(main_title = 'initial value',
-                main_intro = 'initial value',
-                indiv_intro = 'initial value',
-                number_days_to_complete=7,
-                max_num_jobs=4)
+                    main_intro = 'initial value',
+                    indiv_intro = 'initial value',
+                    number_days_to_complete=7,
+                    max_num_jobs=4)
                first_table_row.save()
         except Exception as e:
             return HttpResponse("Error in DatabaseOperations.populate_Configuration_table {}".format(e))
