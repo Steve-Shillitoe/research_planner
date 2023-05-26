@@ -15,8 +15,6 @@ import time
 from jobs.modules.DatabaseOperations import DatabaseOperations
 
 
-# TODO: Configure your database in settings.py and sync before running tests.
-
 class TestUserAccess(LiveServerTestCase):
 
     def setUp(self):
@@ -53,31 +51,6 @@ class TestUserAccess(LiveServerTestCase):
         self.assertContains(response, 'Database Administration')
 
 
-    #def test_home_view_with_super_user(self): ##NOT WORKING
-    #    #print("test_home_view_with_super_user")
-    #    # Create a GET request to the home view with an authenticated user
-    #    #url = reverse('home')
-    #    #request = self.factory.get(url)
-    #    #request.user = self.superuser
-
-    #     # Simulate logging in as a superuser
-    #    self.client.login(username='admin', password='adminpassword')
-        
-    #    # Make another GET request to the admin URL
-    #    response = self.client.get(self.live_server_url)
-
-    #    # Use the `home` view function to handle the request
-    #    #response = home(request)
-
-    #    # Add your assertions to check the response, status code, etc.
-    #    self.assertEqual(response.status_code, 200)
-    #    self.assertContains(response, "initial value")
-    #    #The following 2 links should be visible to a super user
-    #    print("response=",response)
-    #    self.assertContains(response, 'Admin')
-    #    self.assertContains(response, 'Database Administration')
-
-
     def test_home_view_with_authenticated_user(self):
         # Create a GET request to the home view with an authenticated user
         #print('test_home_view_with_authenticated_user')
@@ -88,12 +61,6 @@ class TestUserAccess(LiveServerTestCase):
 
         # Use the `home` view function to handle the request
         response = home(request)
-
-        ## Simulate logging in as a regular user
-        #self.client.login(username='testuser', password='testpassword')
-        
-        ## Make a GET request to the root URL
-        #response = self.client.get(self.live_server_url)
 
         # Add your assertions to check the response, status code, etc.
         self.assertEqual(response.status_code, 200)
@@ -109,6 +76,7 @@ class TestUserAccess(LiveServerTestCase):
         self.browser.get(self.live_server_url)
         self.assertIn('Log in', self.browser.page_source)
         
+
     def test_home_view_with_unauthenticated_user(self):
         # Create a GET request to the home view with an unauthenticated user
         url = reverse('home')
@@ -141,6 +109,7 @@ class TestUserAccess(LiveServerTestCase):
         redirect_location = response.url
         # Assert that the redirect location matches the expected URL
         self.assertEqual(redirect_location, '/login/?next=/dbAdmin/')  
+
 
     def test_dbAdmin_view_with_authenticated_user(self):
         #This user does not have superuser status, so should not be
@@ -181,45 +150,7 @@ class TestUserAccess(LiveServerTestCase):
         self.assertEqual(response.status_code, 200)
 
 
-    #def test_Admin_view_with_unauthenticated_user(self):
-    #    # Create a GET request to the Admin view with an unauthenticated user
-    #    url = self.live_server_url + '/admin/'
-    #    request = self.factory.get(url)
-    #    request.user = AnonymousUser()
-
-    #    # Use the `home` view function to handle the request
-    #    response = dbAdmin(request)
-
-    #    # status code = 302 means temporary redirect to another page.
-    #    self.assertEqual(response.status_code, 302)
-    #    # Get the redirect location
-    #    redirect_location = response.url
-    #    # Assert that the redirect location matches the expected URL
-    #    self.assertEqual(redirect_location, '/login/?next=/admin/')   
-        
-    #def test_Admin_view_with_authenticated_user(self):
-    #    # Create a GET request to the Admin view with an unauthenticated user
-    #    url = self.live_server_url + '/admin/'
-    #    request = self.factory.get(url)
-    #    request.user = self.user
-
-    #    # Use the `home` view function to handle the request
-    #    response = dbAdmin(request)
-
-    #    # status code = 302 means temporary redirect to another page.
-    #    self.assertEqual(response.status_code, 302)
-    #    # Get the redirect location
-    #    redirect_location = response.url
-    #    # Assert that the redirect location matches the expected URL
-    #    self.assertEqual(redirect_location, '/login/?next=/admin/') 
-
-    #def test_home_page_returns_correct_html(self):
-    #    request = HttpRequest()
-    #    response = home(request)
-    #    html = response.content.decode('utf8')
-    #    #print(html)
-    #    #self.assertTrue(html.startswith('<!DOCTYPE html>'))
-    #    self.assertTrue(html.endswith('</html>'))
+    
 
 
     #def test_homepage_JobTable(self):
@@ -238,12 +169,7 @@ class TestUserAccess(LiveServerTestCase):
     #    self.browser.find_element(By.NAME,"submit").click()
     #    self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', self.browser.page_source)
     
-    #def test_hash_ajax(self):
-    #    self.browser.get(self.live_server_url)
-    #    self.browser.find_element(By.ID, 'id_text').send_keys('hello')
-    #    time.sleep(5)
-    #    self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',self.browser.page_source)
-
+    
     
 
 
