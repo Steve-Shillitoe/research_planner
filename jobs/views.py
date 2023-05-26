@@ -33,16 +33,13 @@ from pathlib import Path
 from jobs.models import Job, Patient, Task, Configuration
 from django.db import connection
 from .modules.SendEmail import SendEmail
+from .modules.ViewHelperFunctions import buildMainJobsTable, buildUsersJobTable
 import environ
 env = environ.Env()
 environ.Env.read_env()
 from .modules.DatabaseOperations import DatabaseOperations
 dbOps = DatabaseOperations()
 
-#Link job status to a colour. Used to set the background colour of table cells
-#displaying the status of a job
-TYPE_OF_STATUS = {'Available': "green",'Not Available': "red",'In Progress': "yellow",'Received': "Magenta",
-                    'Approved': "SkyBlue" }
 
 def password_reset_request(request):
     """
@@ -87,10 +84,9 @@ def password_reset_request(request):
                         return HttpResponse("Could not send an email to the user due to {} error".format(str(e)))
                        
         else:
-            print("Form not valid")
             msg="Entered email is not valid"
     return render(request=request, template_name="jobs/password/password_reset.html",
-                  context={'main_title':Configuration.objects.get(id=1).main_title,
+                  context={'main_title':Configuration.objects.first().main_title,
                            'email_not_found_db':msg,
                            'password_reset_form':password_reset_form})
 
@@ -124,8 +120,28 @@ def register_request(request):
     else:
         form = NewUserForm()
     return render (request=request, template_name="jobs/register.html",
-                   context={'main_title':Configuration.objects.get(id=1).main_title,
+                   context={'main_title':Configuration.objects.first().main_title,
                             'register_form':form})
+
+
+def process_uploaded_file(job, job_id, request, sendEmail):
+    uploaded_report_file = request.FILES['upload_report_file']
+    #Make a standard format report name
+    new_file_name = "job_" + str(job_id) + "_" + str(job.patient_id) + "_" + str(job.task_id)
+    new_file_name = new_file_name.replace(" ", "")
+    #Get file extension of uploaded report
+    _, file_extension = os.path.splitext(uploaded_report_file.name)
+    #Make new report name with original file extension
+    new_file_name = new_file_name + file_extension
+    #Save uploaded report to \media\reports in the web app folder structure
+    save_uploaded_file_to_disc(uploaded_report_file,  new_file_name)
+    
+    Job.objects.filter(id=job_id).update(status ='Received', report_name=new_file_name, submission_date=date.today())
+    
+    #Email admins about uploaded report
+    sendEmail.report_uploaded_admins_email(new_file_name, request)
+    #Email user about thier uploaded report
+    sendEmail.report_uploaded_user_email(request, job)
 
 
 @csrf_protect #Require Cross Site Request Forgery protection
@@ -167,26 +183,7 @@ def home(request):
             if job.status == "In Progress":
                 #The above check prevents a report being uploaded twice by
                 #refreshing the screen or using the back button
-                uploaded_report_file = request.FILES['upload_report_file']
-                #Make a standard format report name
-                new_file_name = "job_" + str(job_id) + "_" + str(job.patient_id) + "_" + str(job.task_id)
-                new_file_name = new_file_name.replace(" ", "")
-                #Get file extension of uploaded report
-                _, file_extension = os.path.splitext(uploaded_report_file.name)
-                #Make new report name with original file extension
-                new_file_name = new_file_name + file_extension
-                #Save uploaded report to \media\reports in the web app folder structure
-                save_uploaded_file_to_disc(uploaded_report_file,  new_file_name)
-
-                try:
-                    Job.objects.filter(id=job_id).update(status ='Received', report_name=new_file_name, submission_date=date.today())
-                except Exception:
-                    return HttpResponse("Exception in function views.home when a report is uploaded {}:".format(str(e)))
-    
-                #Email admins about uploaded report
-                sendEmail.report_uploaded_admins_email(new_file_name, request)
-                #Email user about thier uploaded report
-                sendEmail.report_uploaded_user_email(request, job)
+                process_uploaded_file(job, job_id, request, sendEmail)
             
     try:
         configuration = Configuration.objects.first()
@@ -254,9 +251,9 @@ def select_job(request, job_id, sendEmail):
     if same_patient_task_job.exists():
         sameJobWarning = "You may only select the same subject-task combination once."
     #check student does not already have the maximum number of jobs assigned to them
-    max_num_jobs = Configuration.objects.get(id=1).max_num_jobs
+    max_num_jobs = Configuration.objects.first().max_num_jobs
     if numJobs < max_num_jobs:
-        deadline_date = date.today() + timedelta(Configuration.objects.get(id=1).number_days_to_complete)
+        deadline_date = date.today() + timedelta(Configuration.objects.first().number_days_to_complete)
         try:
             Job.objects.filter(id=job_id).update(status ='In Progress', 
                                             user_id = request.user,
@@ -271,119 +268,6 @@ def select_job(request, job_id, sendEmail):
         fourJobsWarning = "You may only have a maximum of {} jobs in progress.".format(max_num_jobs)
     return  fourJobsWarning, sameJobWarning 
 
-
-def buildMainJobsTable(request):
-    """Builds the main HTML table of jobs for display on the home page"""
-    strRow = ""
-    strPatient = ""
-    strRows = ""
-    patients = Patient.objects.all()
-    if patients:
-        #the database is populated, so build the jobs table
-        try:
-            task_list_from_jobs = Job.objects.filter(patient_id=patients[0].patient_id)
-        except Exception as e:
-            messages.error(request,"Exception in function views.buildMainJobsTable.task_list_from_jobs: {}".format(str(e)))
-        #Build colgroups
-        task_list = Task.objects.all()
-        strTable = "<table cellspacing=3 bgcolor=#000000>"
-        strColGroup = "<colgroup><col span=1 style=background-color:#66ccfd>"
-        for i, task in enumerate(task_list):
-            num_cols = str(task.repetitions)
-            if (i % 2) == 0:
-                strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#0099e6" + chr(34) + ">"
-            else:
-                strColGroup += "<col span=" + chr(34) + num_cols + chr(34) + "style=" + chr(34) + "background-color:#66ccff" + chr(34) + ">"
-        strColGroup += "</colgroup>"
-        #Build table header row
-        strHeader = "<TR><TH>Subject</TH>"
-        for task in task_list_from_jobs:
-            strHeader += "<TH>" + str(task.task_id) + "</TH>"
-        strHeader += "</TR>"
-        for patient in patients:
-            strPatient = "\n<TR>\n<TD>" + str(patient.patient_id) + "</TD>"
-            strStatus = ""  
-            try:
-                jobs = Job.objects.filter(patient_id=patient.patient_id).order_by('id')
-            except Exception as e:
-                messages.error(request,"Exception in function views.buildMainJobsTable getting jobs for each subject: {}".format(str(e)))
-            for job in jobs:
-                if job.status == "Available":
-                    csrf_token = get_token(request)
-                    csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-                    strStatus += "<td>" + \
-                        "<form method="+ chr(34) +"post"+ chr(34) +">"  + csrf_token_html + \
-                        "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
-                        "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + \
-                        "value="  + chr(34) + str(job.id) + chr(34) +"/>" +\
-                        "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "select_job" + chr(34) +\
-                        " title=" + chr(34) + "Click to select this job" + chr(34) + \
-                        " value="+ chr(34) + "AVAILABLE"+ chr(34) + "></form></td>" 
-                else:
-                    strStatus += "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
-            strRow = strPatient + strStatus + "</TR>"
-            strRows +=strRow 
-        returnString = strTable + "\n" + strColGroup + "\n" + strHeader + "\n" + strRows + "\n" + "</TABLE>"
-    else:
-        returnString = "<p>There is no data in the database"
-    return returnString
-
-
-def buildUsersJobTable(request):
-    """
-    Builds a HTML table of the jobs the user has assigned to themselves."""
-    try:
-        strRows = ""
-        if request.user:
-            jobs = Job.objects.filter(user_id=request.user).order_by('patient_id')
-            if jobs:
-                strTable = "<table cellspacing=" + chr(34) + "3" + chr(34) + "><tr><th>Subject</th><th>Task</th>" \
-                    + "<th>Job Status</th><th>Deadline Date</th><th></th><th></th><th>Submission Date</th><th>Report</th></tr>"
-                for job in jobs:
-                        strSubject = "<td>" + str(job.patient_id) + "</td>"
-                        strTask = "<td>" + str(job. task_id) + "</td>"
-                        strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + str(job.status) + "</TD>"
-    
-                        if job.status == "In Progress": 
-                            strHiddenJobID = "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
-                            "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job.id) + chr(34) +"/>"
-                            
-                            csrf_token = get_token(request)
-                            csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-                            
-                            strCancelButton = "<td>" + str(job.deadline_date) + "</td><td>" + \
-                            "<form method="+ chr(34) +"post"+ chr(34) +">"  + \
-                            strHiddenJobID + csrf_token_html + \
-                            "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel" + chr(34) + \
-                            "value="+ chr(34) + "Cancel"+ chr(34) + " title=" + chr(34) + "Click to make this job available again to other users" + chr(34) +  "></form></td><td>\n" + \
-                            "<form method="+ chr(34) +"post"+ chr(34) + " enctype=" + chr(34) + "multipart/form-data" + chr(34)  + ">"  + \
-                            strHiddenJobID + csrf_token_html +\
-                            "<input type=" + chr(34) + "file" + chr(34) + "id=" + chr(34) + "upload_report_file" + chr(34) + "onChange=" + chr(34) + "return validateUploadedFile()" + chr(34) + \
-                            "name=" + chr(34) + "upload_report_file" + chr(34)  + \
-                            " accept="+ chr(34) + ".pdf,.doc,.docx,.xml,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document, .xlsx, application/vnd.ms-excel, .csv, .txt" + chr(34) + \
-                            " required=" + chr(34) + "required" + chr(34) + "class=" + chr(34) + "buttonStyle"+ chr(34) +">" + \
-                            "<input type="+ chr(34) + "submit"  + chr(34) + " name=" + chr(34) + "upload_report" + chr(34) + \
-                            " title=" + chr(34) + "Click to upload your report" + chr(34) + \
-                            " value="+ chr(34) + "Upload Report"+ chr(34) + "class=" + chr(34) + "btn" + chr(34) +\
-                            " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">\n" + \
-                            "</form></td>" 
-                            
-                            link_to_report ="<td>&nbsp;</td>"
-                        else:
-                            report_href = chr(34) +  "/download_report/?report=" + str(job.report_name) + chr(34)
-                            link_to_report = "<td><a href=" +  report_href +  " name=" + chr(39) + "download_report" + chr(39) + ">" + str(job.report_name) + "</a></td>"
-                            strCancelButton = "<td>"+ str(job.deadline_date) +"</td><td>&nbsp;</td><td>&nbsp;</td><td>" + str(job.submission_date) + "</td>"
-                        strRow = "<TR>" + strSubject + strTask  + strStatus + strCancelButton + link_to_report + "</TR>\n"
-                        strRows += strRow
-                individualJobs = strTable + strRows + "</TABLE>"
-            else:
-                individualJobs = "<p>There are no jobs are assigned to you at the moment.</p>"
-        return  individualJobs
-    except TypeError as te:
-        messages.error(request,"Function buildUsersJobTable - Type Error {}".format(te))
-        return ''
-    except Exception as e:
-       messages.error(request,"Error in function views.buildUsersJobTable: {}".format(te))
 
 
 def build_status_list(request, strJobID, strStatus, strHiddenJobID):
@@ -509,7 +393,7 @@ def dbAdmin(request):
             #clear data from the database but leave User data
             dbOps.clear_database()
             return render(request,
-                template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,
+                template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.first().main_title,
                                                                 'delete_db_message':"Database deleted",
                                                                 'received_reports':"<p>There are no reports uploaded to the database</p>",
                                                                 'approved_reports':"<p>There are no approved reports in the database</p>"})
@@ -521,7 +405,7 @@ def dbAdmin(request):
                 messages.error(request,"Error in views.dbAdmin.deleteAllReports")
             return render(request,
                 template_name =  'jobs/dbAdmin.html',
-                context={'main_title':Configuration.objects.get(id=1).main_title,
+                context={'main_title':Configuration.objects.first().main_title,
                             'delete_reports_message':"All reports deleted",
                         'received_reports':"<p>There are no reports uploaded to the database</p>",
                         'approved_reports':"<p>There are no approved reports in the database</p>"})
@@ -532,7 +416,7 @@ def dbAdmin(request):
             approved_reports = build_uploaded_report_table(request, 'Approved')
             return render(request,
                 template_name =  'jobs/dbAdmin.html',
-                context={'main_title':Configuration.objects.get(id=1).main_title,
+                context={'main_title':Configuration.objects.first().main_title,
                             'upload_message':"Data successfully uploaded to database",
                             'received_reports':received_reports,
                             'approved_reports':approved_reports })
@@ -543,7 +427,7 @@ def dbAdmin(request):
             approved_reports = build_uploaded_report_table(request, 'Approved')
             return render(request,
                 template_name =  'jobs/dbAdmin.html',
-                context={'main_title':Configuration.objects.get(id=1).main_title,
+                context={'main_title':Configuration.objects.first().main_title,
                             'delete_message':"Report {} deleted".format(report_to_delete),  
                             'received_reports':received_reports,
                             'approved_reports':approved_reports})
@@ -564,9 +448,10 @@ def dbAdmin(request):
                     approved_reports = build_uploaded_report_table(request, 'Approved')
 
                     return render(request,
-                    template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,
-                                                                    'received_reports':received_reports,
-                                                                    'approved_reports':approved_reports})
+                        template_name =  'jobs/dbAdmin.html',
+                        context={'main_title':Configuration.objects.first().main_title,
+                                'received_reports':received_reports,
+                                'approved_reports':approved_reports})
                 except Exception as e:
                     messages.error(request,'Error {} in views.dbAdmin when updating report status'.format(e))
     else:
@@ -574,7 +459,7 @@ def dbAdmin(request):
         approved_reports = build_uploaded_report_table(request, 'Approved')
         return render(
         request,
-        template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.get(id=1).main_title,
+        template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.first().main_title,
                                                         'received_reports':received_reports,
                                                         'approved_reports':approved_reports})
 

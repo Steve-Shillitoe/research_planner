@@ -40,6 +40,9 @@
     <Compile Include="jobs\models.py" />
     <Compile Include="jobs\modules\DatabaseOperations.py" />
     <Compile Include="jobs\modules\SendEmail.py" />
+    <Compile Include="jobs\modules\ViewHelperFunctions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="jobs\modules\__init__.py" />
     <Compile Include="jobs\tests\test_templates.py">
       <SubType>Code</SubType>

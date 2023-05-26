@@ -153,77 +153,18 @@ class TestUserAccess(LiveServerTestCase):
     
 
 
-    #def test_homepage_JobTable(self):
-    #    self.browser.get(self.live_server_url)
-    #    self.assertIn('{{ JobTable }}', self.browser.page_source)
+    
 
-
-    #def test_homepage_UsersJobTable(self):
-    #    self.browser.get(self.live_server_url)
-    #    self.assertIn('{{UsersJobTable}}', self.browser.page_source)
-
-    #def test_hash_of_hello(self):
-    #    self.browser.get(self.live_server_url) #'http://localhost:8000'
-    #    text = self.browser.find_element(By.ID, "id_text")
-    #    text.send_keys("hello")
-    #    self.browser.find_element(By.NAME,"submit").click()
-    #    self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', self.browser.page_source)
     
     
     
 
 
-#class UnitTestCase(TestCase):
-#    def test_homepage_Go_To_Login_First(self):
-#        response = self.client.get('/')
-#        print('response=',response)
-#        self.assertTemplateUsed(response, 'jobs/login.html')
-
-#class ViewTest(TestCase):
-#    """Tests for the application views."""
-
-#    if django.VERSION[:2] >= (1, 7):
-#        # Django 1.7 requires an explicit setup() when running tests in PTVS
-#        @classmethod
-#        def setUpClass(cls):
-#            super(ViewTest, cls).setUpClass()
-#            django.setup()
-
-#    #def test_home(self):
-#    #    """Tests the home page."""
-#    #    response = self.client.get('/')
-#    #    self.assertContains(response, 'iBeat', 1, 200)
-
-#    def test_contact(self):
-#        """Tests the contact page."""
-#        response = self.client.get('/contact')
-#        self.assertContains(response, 'Contact', 3, 200)
-
-#    def test_about(self):
-#        """Tests the about page."""
-#        response = self.client.get('/about')
-#        self.assertContains(response, 'About', 3, 200)
 
 
-#class TestSuperUserAccess(LiveServerTestCase):
-
-#    def setUp(self):
-#        self.browser = webdriver.Chrome()
-#        self.factory = RequestFactory()
-#        self.user = User.objects.create_user(
-#            username='testuser',
-#            email='testuser@example.com',
-#            password='testpassword'
-#        )
-#        self.superuser = User.objects.create_superuser(
-#            username='admin',
-#            email='s.shillitoe@sheffield.ac.uk',
-#            password='adminpassword'
-#        )
 
 
-#    def tearDown(self):
-#        self.browser.quit()
+
 
 
     
