@@ -102,6 +102,7 @@ def register_request(request):
     and the user is redirected to the login web page.
     Otherwise, the new user form is redisplayed for the user to try again.
     """
+    msg = ''
     if request.method == "POST":
         form = NewUserForm(request.POST)  #See forms.py for the definition of this form class
         if form.is_valid():
@@ -117,12 +118,13 @@ def register_request(request):
             form.fields['email'].initial = request.POST['email']
             form.fields['first_name'].initial = request.POST['first_name']
             form.fields['last_name'].initial = request.POST['last_name']
-            messages.error(request, "Unsuccessful registration. Invalid password.")
+            msg = 'Unsuccessful registration. Invalid password.'
     else:
         form = NewUserForm()
     return render (request=request, template_name="jobs/register.html",
                    context={'main_title':Configuration.objects.first().main_title,
-                            'register_form':form})
+                            'register_form':form,
+                            'warning':msg})
 
 
 @csrf_protect #Require Cross Site Request Forgery protection
@@ -208,7 +210,7 @@ def download_report(request):
             # Return the response value
             return response
         else:
-            return render(request, 'file_not_found.html')
+            return render(request, 'jobs/file_not_found.html')
     except TypeError as te:
         messages.error(request,"Error {} in views.download_report with file {}".format(te, path_to_report))
     except FileNotFoundError:

@@ -1,5 +1,5 @@
 import django
-from django.test import TestCase, RequestFactory, LiveServerTestCase
+from django.test import TestCase, RequestFactory, LiveServerTestCase, Client
 from django.core.exceptions import ValidationError
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -40,6 +40,18 @@ class UnitTestCases(TestCase):
         self.assertEqual(mail.outbox[0].subject, 'Password Reset Requested')
         self.assertEqual(mail.outbox[0].to, ['user@example.com'])
 
+        ## Get the sent email object
+        #email = mail.outbox[0]
+
+        ## Check email attributes such as subject, sender, recipient, etc.
+        #self.assertEqual(email.subject, 'Your Subject')
+        #self.assertEqual(email.from_email, 'sender@example.com')
+        #self.assertEqual(email.to, ['recipient@example.com'])
+
+        ## Check the email body or text content
+        #self.assertIn('Hello,', email.body)
+        #self.assertIn('This is the email content.', email.body)
+
 
     def test_register_request_valid_form(self):
         #Create Configuration table with data as 
@@ -78,6 +90,16 @@ class UnitTestCases(TestCase):
 
 
     def test_register_request_invalid_form(self):
+        #NEEDS MORE WORK
+        #Create Configuration table with data as 
+        #it will be needed to send an email
+        Configuration.objects.create(
+            main_title="Test Title",
+            main_intro="Test Main Intro",
+            indiv_intro="Test Individual Intro",
+            number_days_to_complete=5,
+            max_num_jobs=3
+        )
         # Create a POST request with invalid form data
         url = reverse('register')  # Replace 'register' with the actual URL name
         form_data = {
@@ -88,23 +110,30 @@ class UnitTestCases(TestCase):
             'password1': 'testpassword1',
             'password2': 'testpassword2'
         }
-        request = self.factory.post(url, form_data)
+        #request = self.factory.post(url, form_data)
+
+        client = Client()
+        #request = self.factory.get(url, {'report': report})
 
         # Call the view function
-        response = register_request(request)
+        #response = download_report(request)
+        response = client.get(url, {'report': report})
+
+        # Call the view function
+        #response = register_request(request)
 
         # Perform assertions on the response
         self.assertEqual(response.status_code, 200)  # Assuming the form is redisplayed with validation errors
 
         # Check if the form data is retained in the form
-        form = response.context_data['register_form']
+        form = response.context['register_form']
         self.assertEqual(form.initial['username'], 'testuser')
         self.assertEqual(form.initial['email'], 'test@example.com')
         self.assertEqual(form.initial['first_name'], 'Test')
         self.assertEqual(form.initial['last_name'], 'User')
 
         # Check if the error message is displayed
-        messages = list(response.context.get('messages'))
+        messages = list(response.context.get('warning'))
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), 'Unsuccessful registration. Invalid password.')
 
@@ -122,122 +151,18 @@ class UnitTestCases(TestCase):
         # Perform assertions on the response
         self.assertEqual(response.status_code, 200)  # Assuming the file is found and downloaded
         self.assertEqual(response['Content-Disposition'], 'attachment; filename={}'.format(report))
-
        
 
     def test_download_report_nonexistent_file(self):
+        client = Client()
         # Create a GET request with a non-existing report parameter
         url = reverse('download_report')  # the URL name
         report = 'nonexistent_report.pdf'  # Replace with a non-existing report file
-        request = self.factory.get(url, {'report': report})
+        #request = self.factory.get(url, {'report': report})
 
         # Call the view function
-        response = download_report(request)
-
+        #response = download_report(request)
+        response = client.get(url, {'report': report})
         # Perform assertions on the response
         self.assertEqual(response.status_code, 200)  # Assuming the 'file_not_found.html' template is rendered
-        self.assertTemplateUsed(response, 'file_not_found.html')
-
-
-#class FunctionalTestCases(LiveServerTestCase):
-
-#    def setUp(self):
-#        self.browser = webdriver.Chrome()
-
-#    def test_homepage_Go_To_Login_First(self):
-#        self.browser.get(self.live_server_url)
-#        self.assertIn('Log in', self.browser.page_source)
-
-
-    #def test_homepage_JobTable(self):
-    #    self.browser.get(self.live_server_url)
-    #    self.assertIn('{{ JobTable }}', self.browser.page_source)
-
-
-    #def test_homepage_UsersJobTable(self):
-    #    self.browser.get(self.live_server_url)
-    #    self.assertIn('{{UsersJobTable}}', self.browser.page_source)
-
-    #def test_hash_of_hello(self):
-    #    self.browser.get(self.live_server_url) #'http://localhost:8000'
-    #    text = self.browser.find_element(By.ID, "id_text")
-    #    text.send_keys("hello")
-    #    self.browser.find_element(By.NAME,"submit").click()
-    #    self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', self.browser.page_source)
-    
-    #def test_hash_ajax(self):
-    #    self.browser.get(self.live_server_url)
-    #    self.browser.find_element(By.ID, 'id_text').send_keys('hello')
-    #    time.sleep(5)
-    #    self.assertIn('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',self.browser.page_source)
-
-    #def tearDown(self):
-    #    self.browser.quit()
-
-
-#class UnitTestCase(TestCase):
-#    def test_homepage_Go_To_Login_First(self):
-#        response = self.client.get('/')
-#        print('response=',response)
-#        self.assertTemplateUsed(response, 'jobs/login.html')
-       
-
-    #def test_hash_form(self):
-    #    form = HashForm(data={'text':'hello'})
-    #    self.assertTrue(form.is_valid())
-
-    #def test_hash_func_works(self):
-    #    text_hash = hashlib.sha256('hello'.encode('utf-8')).hexdigest()
-    #    self.assertEqual('2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824', text_hash)
-    
-    #def save_hash(self):
-    #    hash = Hash()
-    #    hash.text = 'hello'
-    #    hash.hash = '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'
-    #    hash.save()
-    #    return hash
-
-    #def test_hash_object(self):
-    #    hash = self.save_hash()
-    #    pulled_hash = Hash.objects.get(hash='2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
-    #    self.assertEqual(hash.text, pulled_hash.text)
-
-    #def test_viewing_hash(self):
-    #    hash = self.save_hash()
-    #    response = self.client.get('/hash/2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824')
-    #    self.assertContains(response, 'hello')
-
-    #def test_bad_data(self):
-    #    def badHash():
-    #        hash = Hash()
-    #        hash.text = 'hello'
-    #        hash.hash = '2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362aaaaaaa'
-    #        hash.full_clean()
-    #    self.assertRaises(ValidationError, badHash())
-
-    
-#class ViewTest(TestCase):
-#    """Tests for the application views."""
-
-#    if django.VERSION[:2] >= (1, 7):
-#        # Django 1.7 requires an explicit setup() when running tests in PTVS
-#        @classmethod
-#        def setUpClass(cls):
-#            super(ViewTest, cls).setUpClass()
-#            django.setup()
-
-
-#    def test_home(self):
-#        """Tests the home page."""
-#        response = self.client.get('/')
-#        self.assertContains(response, 'Django', 1, 200)
-
-#    def test_contact(self):
-#        """Tests the contact page."""
-#        response = self.client.get('/contact')
-#        self.assertContains(response, 'Microsoft', 3, 200)
-
-#    def test_about(self):
-#        """Tests the about page."""
-#        response = self.client.get('/about')
-#        self.assertContains(response, 'About', 3, 200)
+        self.assertTemplateUsed(response, 'jobs/file_not_found.html')
