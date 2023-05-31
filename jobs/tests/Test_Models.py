@@ -50,15 +50,14 @@ class TaskModelTest(TestCase):
 
 
 class JobModelTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
+    def setUp(self):
         # Set up non-modified objects used by all test methods
-        patient = Patient.objects.create(patient_id="patient_1")
+        self.patient = Patient.objects.create(patient_id="patient_1")
         task = Task.objects.create(task_name="Task 1")
         user = User.objects.create(username="test_user")
-        job = Job.objects.create(
+        self.job = Job.objects.create(
             user_id=user,
-            patient_id=patient,
+            patient_id=self.patient,
             task_id=task,
             repetition_num=2,
             status="In Progress",
@@ -69,28 +68,39 @@ class JobModelTest(TestCase):
             reminder_sent="yes"
         )
 
-    def test_str_representation(self):
+    def test_job_str_representation(self):
         #job = Job.objects.get(repetition_num=3)
-        expected_str = '1, patient_1, Task 1, 3'
-        self.assertEqual(str(job), expected_str)
+        expected_str = str(self.job.id) + ', patient_1, Task 1, 2'
+        self.assertEqual(str(self.job), expected_str)
 
-    def test_ordering(self):
-        job1 = Job.objects.create(patient_id=Patient.objects.create(patient_id="patient_2"), repetition_num=1)
-        job2 = Job.objects.create(patient_id=Patient.objects.create(patient_id="patient_1"), repetition_num=1)
-        job3 = Job.objects.create(patient_id=Patient.objects.create(patient_id="patient_1"), repetition_num=2)
-        job4 = Job.objects.create(patient_id=Patient.objects.create(patient_id="patient_2"), repetition_num=2)
+    def test_job_ordering(self):
+        patient_A = Patient.objects.create(patient_id="patient_A")
+        patient_B = Patient.objects.create(patient_id="patient_B")
+        task_A = Task.objects.create(task_name="Task A")
+        task_B = Task.objects.create(task_name="Task B")
+        job1 = Job.objects.create(patient_id=patient_B, task_id=task_A)
+        job2 = Job.objects.create(patient_id=patient_A, task_id=task_A)
+        job3 = Job.objects.create(patient_id=patient_A, task_id=task_B)
+        job4 = Job.objects.create(patient_id=patient_B, task_id=task_B)
 
         expected_ordering = [job2, job3, job1, job4]
         actual_ordering = list(Job.objects.all())
-
         self.assertEqual(actual_ordering, expected_ordering)
+        #test default job status value of 'Available'
+        self.assertEquals(job1.status, 'Available')
+        #test default job repetition_num value of 1
+        self.assertEquals(job1.repetition_num, 1)
+        #test default task repetitions value of 1
+        self.assertEquals(task1.repetitions, 1)
 
-    def test_verbose_name_plural(self):
+
+    def test_job_verbose_name_plural(self):
         self.assertEqual(Job._meta.verbose_name_plural, "Jobs")
 
-    def test_meta_ordering(self):
+    def test_job_meta_ordering(self):
         ordering = Job._meta.ordering
         self.assertEqual(ordering, ['patient_id', 'task_id'])
+
 
 class ConfigurationModelTest(TestCase):
     @classmethod
@@ -104,15 +114,15 @@ class ConfigurationModelTest(TestCase):
             max_num_jobs=3
         )
 
-    def test_str_representation(self):
+    def test_Configuration_str_representation(self):
         configuration = Configuration.objects.get(main_title="Test Title")
         self.assertEqual(str(configuration), "Test Title")
 
-    def test_verbose_name_plural(self):
+    def test_Configuration_verbose_name_plural(self):
         verbose_name_plural = Configuration._meta.verbose_name_plural
         self.assertEqual(verbose_name_plural, "Configuration")
 
-    def test_default_values(self):
+    def test_Configuration_default_values(self):
         configuration = Configuration.objects.get(main_title="Test Title")
         self.assertEqual(configuration.number_days_to_complete, 5)
         self.assertEqual(configuration.max_num_jobs, 3)
