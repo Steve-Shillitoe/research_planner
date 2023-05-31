@@ -25,7 +25,6 @@ from .forms import NewUserForm
 from django.contrib.auth import login
 from django.contrib import messages
 from django.core.exceptions import *
-import openpyxl
 import xlwt
 from xlwt import Workbook
 import os
@@ -35,8 +34,7 @@ from django.db import connection
 from .modules.SendEmail import SendEmail
 from .modules.ViewHelperFunctions import buildMainJobsTable, buildUsersJobTable, \
             delete_report, process_uploaded_file, save_uploaded_file_to_disc, select_job, \
-            build_uploaded_report_table
-                                        
+            build_uploaded_report_table                                       
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -192,13 +190,6 @@ def home(request):
                 'FourJobsWarning': FourJobsWarning,
                 'SameJobWarning': SameJobWarning}
                 )
-
-
-
-
-
-
-
 
 
 def download_report(request):

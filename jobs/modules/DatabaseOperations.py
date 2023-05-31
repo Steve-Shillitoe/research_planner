@@ -5,7 +5,7 @@ from datetime import date
 from django.conf import settings
 from django.db import connection
 from django.contrib import messages
-import xlwt
+import openpyxl  #package to open an excel file
 import os
 
 class DatabaseOperations:
@@ -125,6 +125,6 @@ class DatabaseOperations:
             #create job table
             self.populate_job_table()
         except Exception as e:
-            messages.error(request,"Error in views.dbAdmin.populate_database opening uploaded Excel file.")
+           messages.error(request,"Error in views.dbAdmin.populate_database opening uploaded Excel file.")
                 
         
