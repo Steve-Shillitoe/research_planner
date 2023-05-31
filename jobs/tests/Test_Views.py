@@ -1,12 +1,43 @@
 import django
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.test import LiveServerTestCase
 from django.core.exceptions import ValidationError
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
+from django.urls import reverse
+from django.contrib.auth.models import User
+from django.core import mail
+from jobs.views import password_reset_request, home
 
+
+class PasswordResetRequestViewTest(TestCase):
+    def setUp(self):
+        # Set up the request factory
+        self.factory = RequestFactory()
+
+    def test_password_reset_request(self):
+        # Create a POST request with valid email
+        url = reverse('password_reset')  #URL name
+        request = self.factory.post(url, {'email': 'user@example.com'})
+
+        # Create associated user in the database
+        User.objects.create_user(username='user', email='user@example.com', password='password')
+
+        # Call the view function
+        response = password_reset_request(request)
+
+        # Perform assertions on the response
+        self.assertEqual(response.status_code, 302)  # Assuming redirect status code is expected
+        self.assertEqual(response.url, '/password_reset/done/')  # Assuming the redirect URL is '/password_reset/done/'
+
+        # Check if the email was sent
+        self.assertEqual(len(mail.outbox), 1)  # Assuming one email was sent
+        self.assertEqual(mail.outbox[0].subject, 'Password Reset Requested')
+        self.assertEqual(mail.outbox[0].to, ['user@example.com'])
+
+        # Add more assertions as needed for different scenarios and edge cases
 
 
 

@@ -44,11 +44,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="jobs\modules\__init__.py" />
-    <Compile Include="jobs\tests\test_templates.py">
+    <Compile Include="jobs\tests\Test_Views.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="jobs\tests\tests_models.py" />
-    <Compile Include="jobs\tests\test_1.py" />
+    <Compile Include="jobs\tests\Test_Models.py" />
     <Compile Include="jobs\tests\Test_URLS.py">
       <SubType>Code</SubType>
     </Compile>

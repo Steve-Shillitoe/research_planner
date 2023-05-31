@@ -60,7 +60,6 @@ class Job(models.Model):
         ordering = ['patient_id', 'task_id']
         verbose_name_plural = "Jobs"
 
-
 class Configuration(models.Model):
     objects = models.Manager() #Not necessary but without it this function fails PyLint
     id = models.AutoField(primary_key=True)

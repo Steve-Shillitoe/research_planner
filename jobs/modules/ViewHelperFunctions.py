@@ -120,3 +120,14 @@ def buildUsersJobTable(request):
     except Exception as e:
        messages.error(request,"Error in function views.buildUsersJobTable: {}".format(te))
 
+def delete_report(request):
+    try:
+        job_id = request.POST['jobId']
+        job = Job.objects.get(id=job_id)
+        report_to_delete = settings.BASE_DIR + '/media/reports/' + str(job.report_name)
+        if os.path.exists(report_to_delete):
+            os.remove(report_to_delete)
+        Job.objects.filter(id=job_id).update(status = 'In Progress', report_name ='', submission_date = None)
+        return job.report_name
+    except Exception as e:
+        messages.error(request, 'Error {} deleting report.'.format(e))

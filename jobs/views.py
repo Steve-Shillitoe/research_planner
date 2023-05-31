@@ -33,7 +33,7 @@ from pathlib import Path
 from jobs.models import Job, Patient, Task, Configuration
 from django.db import connection
 from .modules.SendEmail import SendEmail
-from .modules.ViewHelperFunctions import buildMainJobsTable, buildUsersJobTable
+from .modules.ViewHelperFunctions import buildMainJobsTable, buildUsersJobTable, delete_report
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -463,18 +463,6 @@ def dbAdmin(request):
                                                         'received_reports':received_reports,
                                                         'approved_reports':approved_reports})
 
-
-def delete_report(request):
-    try:
-        job_id = request.POST['jobId']
-        job = Job.objects.get(id=job_id)
-        report_to_delete = settings.BASE_DIR + '/media/reports/' + str(job.report_name)
-        if os.path.exists(report_to_delete):
-            os.remove(report_to_delete)
-        Job.objects.filter(id=job_id).update(status = 'In Progress', report_name ='', submission_date = None)
-        return job.report_name
-    except Exception as e:
-        messages.error(request, 'Error {} deleting report.'.format(e))
 
 def download_jobs(dummy):
     """This function writes the contents of the Jobs table to an Excel spreadsheet
