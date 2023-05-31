@@ -22,7 +22,7 @@ class SendEmail:
             email_message = ('Hi {}, \n you successfully uploaded a report at {} on {} for job {}, subject {} & Task {}'
                              .format(report_uploader_name, datetime.now().strftime("%H:%M:%S"), date.today(), job_id, patient_id, str(job.task_id)))
             send_mail(
-                        subject = '{} report uploaded'.format(Configuration.objects.get(id=1).main_title),
+                        subject = '{} report uploaded'.format(Configuration.objects.first().main_title),
                         message = email_message,
                         from_email = settings.EMAIL_HOST_USER,   # This will have no effect is you have set DEFAULT_FROM_EMAIL in settings.py
                         recipient_list = [request.user.email],    # This is a list
@@ -44,7 +44,7 @@ class SendEmail:
             report_uploader_name = request.user.first_name + " " + request.user.last_name
             email_message = ('The report  {}  was uploaded by {} on {}'.format(new_file_name, report_uploader_name, date.today()))
             send_mail(
-                        subject = '{} report uploaded'.format(Configuration.objects.get(id=1).main_title),
+                        subject = '{} report uploaded'.format(Configuration.objects.first().main_title),
                         message = email_message,
                         from_email = settings.EMAIL_HOST_USER,   # This will have no effect is you have set DEFAULT_FROM_EMAIL in settings.py
                         recipient_list = superusers_emails,    # This is a list
@@ -74,7 +74,7 @@ class SendEmail:
                 email_message = "The report for job {}, subject {}, Task {} is due to be submitted tomorrow.".format(details[0], details[2], details[3])
                 try:
                     send_mail(
-                                subject = '{} Job report deadline reminder'.format(Configuration.objects.get(id=1).main_title),
+                                subject = '{} Job report deadline reminder'.format(Configuration.objects.first().main_title),
                                 message = email_message,
                                 from_email = settings.EMAIL_HOST_USER,   # This will have no effect is you have set DEFAULT_FROM_EMAIL in settings.py
                                 recipient_list = [email_address],    # This is a list
@@ -98,7 +98,7 @@ class SendEmail:
                 email_message = ('You have allocated a job, {} to yourself. Please complete it by {}'
                                 .format(job_details, datetime.strptime(str(deadline_date), "%Y-%m-%d").strftime("%d/%m/%Y")))
                 send_mail(
-                        subject = '{} Job allocation'.format(Configuration.objects.get(id=1).main_title),
+                        subject = '{} Job allocation'.format(Configuration.objects.first().main_title),
                         message = email_message,
                         from_email = settings.EMAIL_HOST_USER,   # This will have no effect is you have set DEFAULT_FROM_EMAIL in settings.py
                         recipient_list = [request.user.email],    # This is a list
@@ -114,8 +114,8 @@ class SendEmail:
 
     def new_user_email(self, first_name, username, email):
         """Sends an email to the user when they register."""
-        project_name = Configuration.objects.get(id=1).main_title
-        max_num_jobs = Configuration.objects.get(id=1).max_num_jobs
+        project_name = Configuration.objects.first().main_title
+        max_num_jobs = Configuration.objects.first().max_num_jobs
         subject = "Welcome to the {} research project".format(project_name)
         email_template_name = "jobs/register/new_user_welcome_email.txt"
         context={"name":first_name,

@@ -33,7 +33,10 @@ from pathlib import Path
 from jobs.models import Job, Patient, Task, Configuration
 from django.db import connection
 from .modules.SendEmail import SendEmail
-from .modules.ViewHelperFunctions import buildMainJobsTable, buildUsersJobTable, delete_report
+from .modules.ViewHelperFunctions import buildMainJobsTable, buildUsersJobTable, \
+            delete_report, process_uploaded_file, save_uploaded_file_to_disc, select_job, \
+            build_uploaded_report_table
+                                        
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -124,26 +127,6 @@ def register_request(request):
                             'register_form':form})
 
 
-def process_uploaded_file(job, job_id, request, sendEmail):
-    uploaded_report_file = request.FILES['upload_report_file']
-    #Make a standard format report name
-    new_file_name = "job_" + str(job_id) + "_" + str(job.patient_id) + "_" + str(job.task_id)
-    new_file_name = new_file_name.replace(" ", "")
-    #Get file extension of uploaded report
-    _, file_extension = os.path.splitext(uploaded_report_file.name)
-    #Make new report name with original file extension
-    new_file_name = new_file_name + file_extension
-    #Save uploaded report to \media\reports in the web app folder structure
-    save_uploaded_file_to_disc(uploaded_report_file,  new_file_name)
-    
-    Job.objects.filter(id=job_id).update(status ='Received', report_name=new_file_name, submission_date=date.today())
-    
-    #Email admins about uploaded report
-    sendEmail.report_uploaded_admins_email(new_file_name, request)
-    #Email user about thier uploaded report
-    sendEmail.report_uploaded_user_email(request, job)
-
-
 @csrf_protect #Require Cross Site Request Forgery protection
 @login_required   #If the user is not logged in, redirect to Login form
 def home(request):
@@ -211,143 +194,10 @@ def home(request):
                 )
 
 
-def save_uploaded_file_to_disc(file, new_file_name):  
-    """
-    This function writes an uploaded report, file, to disc with the filename, new_file_name.
-    """
-    try:
-        new_file_path = settings.MEDIA_ROOT + '/reports/'+ new_file_name
-        with open(new_file_path, 'wb+') as destination:  
-            for chunk in file.chunks():  
-                destination.write(chunk)
-    except FileNotFoundError:
-        return HttpResponse("Exception in function views.save_uploaded_file_to_disc: file {} does not exist".format(new_file_path))
-    except Exception as e:
-        return HttpResponse("Exception in function views.save_uploaded_file_to_disc: {}".format(str(e)))
-
-
-def select_job(request, job_id, sendEmail):
-    fourJobsWarning = ""
-    sameJobWarning = ""
-    #Get a list of 'in progress' jobs belonging to the user
-    try:
-        jobs = Job.objects.filter(user_id = request.user, status ='In Progress')
-    except Exception:
-        return HttpResponse("Exception in function views.select_job: Error getting in progress job list for the user.")
-    numJobs = len(jobs)
-
-    #Make sure this student has not already selected the same subject and task
-    try:
-        job = Job.objects.get(id=job_id)
-    except ObjectDoesNotExist:
-        return HttpResponse("Exception in function views.select_job: Error getting selected job object.")
-    
-    try:
-        same_patient_task_job = Job.objects.filter(user_id = request.user, 
-                            task_id = job.task_id, patient_id = job.patient_id)
-    except Exception:
-        return HttpResponse("Exception in function views.select_job: Error getting same_patient_task_job.")
-    
-    if same_patient_task_job.exists():
-        sameJobWarning = "You may only select the same subject-task combination once."
-    #check student does not already have the maximum number of jobs assigned to them
-    max_num_jobs = Configuration.objects.first().max_num_jobs
-    if numJobs < max_num_jobs:
-        deadline_date = date.today() + timedelta(Configuration.objects.first().number_days_to_complete)
-        try:
-            Job.objects.filter(id=job_id).update(status ='In Progress', 
-                                            user_id = request.user,
-                                            start_date = date.today(),
-                                            deadline_date = deadline_date)
-        except Exception as e:
-            messages.error(request,"Exception in function views.select_job: " + \
-                "Error {} allocating this job to the user.".format(e))
-    
-        sendEmail.job_allocation_email(job_id, deadline_date, request)
-    if numJobs == max_num_jobs:
-        fourJobsWarning = "You may only have a maximum of {} jobs in progress.".format(max_num_jobs)
-    return  fourJobsWarning, sameJobWarning 
 
 
 
-def build_status_list(request, strJobID, strStatus, strHiddenJobID):
-    """
-    This function builds a dropdown list of status values.
-    """
-    csrf_token = get_token(request)
-    csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-    status_list = ['Available', 'Not Available', 'In Progress', 'Received', 'Approved', 'Not Approved']
-    start = "<form id=" + chr(34) + strJobID + "form" + chr(34) + " method=" + chr(34) + "POST" + chr(34) + "> " + strHiddenJobID + " " + csrf_token_html + "\n" + \
-        " <select id=" + chr(34) + strJobID + "dropdown" + chr(34) + " name=" + chr(34) + "updateStatus" + chr(34) + ">\n" 
-    options = ''
-    for status in status_list:
-        selected = ""
-        if status == strStatus:
-            selected = " selected "
-        options += "<option value="+ chr(34) + status +  chr(34) + selected + ">" + chr(34) + status +  chr(34) + "</option>\n"
-    end = "</select>\n  </form>\n"  
-    return start + options + end
- 
 
-def build_submit_javascript(strJobID):
-    """
-    This function build the javascript necessary to make the dropdown list of 
-    status strings to cause a form submission when the selected status is changed.
-
-    This javascript function removes the need to have a submit button associated with
-    the dropdown list.
-
-    This javascript function attaches an eventlistener to each status dropdown list
-    and when a change event is triggered, a form submit event is triggered.
-    """
-    return "<script> document.getElementById(" + \
-        chr(34) + strJobID + "dropdown" + chr(34) + \
-        ").addEventListener(" + chr(34) + "change"  + chr(34) + ", function() {" + \
-        "document.getElementById(" + chr(34) + strJobID +  "form" + chr(34) + ").submit();" + \
-        "});  </script>"
-
-
-def build_uploaded_report_table(request, status_type):
-    """
-    This function builds the table of uploaded reports whose status is status
-    for display on the Database Admin page
-    """
-    try:
-        jobs = Job.objects.filter(status = status_type).values_list(
-            'id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'submission_date')
-        if len(jobs) == 0:
-            returnStr =  "<p>There are no reports uploaded to the database with status " + status_type + "</p>"
-        else:
-            #make table
-            strRows = ""
-            tableHeader = ("<table><tr><th>Job ID</th><th>User</th><th>Patient ID</th>" +
-                    "<th>Task</th><th>Status</th><th>Report</th><th>Submission Date</th><th></th></tr>")
-            for job in jobs: 
-                user = User.objects.get(id=job[1])
-                user_name = user.first_name + " " + user.last_name
-                report_href = chr(34) +  "/download_report/?report=" + str(job[5]) + chr(34)
-
-                link_to_report = "<a href=" +  report_href +  " name=" + chr(39) + "download_report" + chr(39) + ">" + str(job[5]) + "</a>"
-
-                csrf_token = get_token(request)
-                csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-
-                strHiddenJobID = "<input type="+ chr(34) +"hidden" + chr(34) + " id=" + chr(34) + \
-                                "jobId" + chr(34) + " name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job[0]) + chr(34) +"/>"
-
-                strDeleteButton = "<td><form method="+ chr(34) +"post"+ chr(34) +">" +  strHiddenJobID  + csrf_token_html + \
-                                "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "delete" + chr(34) + " onclick="+ chr(34) + "return deleteReportCheck();" + chr(34) + \
-                                "value="+ chr(34) + "Delete Report"+ chr(34) + " title=" + chr(34) + "Click to delete this report and make this job available again" + chr(34) + ">" + \
-                                "</form></td>"
-                task = Task.objects.get(task_id=job[3])
-                strRows += ("<tr><td>" + str(job[0]) + "</td><td>" + user_name + "</td><td>" + str(job[2]) +
-                           "</td><td>" + task.task_name + "</td><td>" +  build_status_list(request,str(job[0]), str(job[4]), strHiddenJobID) + " " + build_submit_javascript(str(job[0])) +
-                           "</td><td>" +  link_to_report + "</td><td>" + str(job[6]) + "</td>" +
-                             strDeleteButton + "</tr>\n")
-                returnStr = tableHeader + strRows + "</table>"
-            return returnStr 
-    except Exception as e:
-        messages.error(request, 'Error {} building report table when status={}'.format(e, status_type))
 
 
 
@@ -411,7 +261,7 @@ def dbAdmin(request):
                         'approved_reports':"<p>There are no approved reports in the database</p>"})
         elif 'uploadFile' in request.POST:
             #populate database from data in a spreadsheet
-            populate_database(request)
+            dbOps.populate_database(request)
             received_reports = build_uploaded_report_table(request, 'Received')
             approved_reports = build_uploaded_report_table(request, 'Approved')
             return render(request,
@@ -515,20 +365,6 @@ def download_jobs(dummy):
        wb.save(response)
        return response
 
-
-def populate_database(request):
-    """Deletes the contents of the database and then repopulates it"""
-    try:
-        excel_file = request.FILES['excel_file']
-        wb = openpyxl.load_workbook(excel_file)
-    except Exception as e:
-        messages.error(request,"Error in views.dbAdmin.populate_database opening uploaded Excel file.")
-                
-    dbOps.clear_database()
-    dbOps.populate_task_table(wb)
-    dbOps.populate_patient_table(wb)
-    #create job table
-    dbOps.populate_job_table()
 
 
 def about(request):

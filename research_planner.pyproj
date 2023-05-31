@@ -44,6 +44,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="jobs\modules\__init__.py" />
+    <Compile Include="jobs\tests\Test_Forms.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="jobs\tests\Test_Views.py">
       <SubType>Code</SubType>
     </Compile>

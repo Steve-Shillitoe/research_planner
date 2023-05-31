@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from datetime import date
 from django.conf import settings
 from django.db import connection
+from django.contrib import messages
+import xlwt
 import os
 
 class DatabaseOperations:
@@ -111,4 +113,18 @@ class DatabaseOperations:
         except Exception as e:
             return HttpResponse("Error in DatabaseOperations.populate_job_table {}".format(e))
 
-    
+
+    def populate_database(self, request):
+        """Deletes the contents of the database and then repopulates it"""
+        try:
+            excel_file = request.FILES['excel_file']
+            wb = openpyxl.load_workbook(excel_file)
+            self.clear_database()
+            self.populate_task_table(wb)
+            self.populate_patient_table(wb)
+            #create job table
+            self.populate_job_table()
+        except Exception as e:
+            messages.error(request,"Error in views.dbAdmin.populate_database opening uploaded Excel file.")
+                
+        
