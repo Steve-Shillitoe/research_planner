@@ -201,7 +201,7 @@ class DbAdminViewTestCase(TestCase):
         self.user = User.objects.create_superuser('admin', 'admin@example.com', 'adminpassword')
         self.client.force_login(self.user)
 
-    def test_get_request(self):
+    def test_access_dbAdmin(self):
         url = reverse('dbAdmin')  # 'dbadmin' is the URL name associated with the 'dbAdmin' view
         response = self.client.get(url)
 
