@@ -16,7 +16,7 @@ from jobs.views import password_reset_request, home, register_request, download_
 from jobs.models import Configuration, Job, Task, Patient
 from jobs.forms import NewUserForm
 
-
+#To just run this test file, python manage.py test jobs.tests.Test_Unit_Views
 class UnitTestCases(TestCase):
     def setUp(self):
         # Set up the request factory
