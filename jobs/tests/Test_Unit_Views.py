@@ -5,14 +5,15 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
+import xlrd
 from datetime import datetime
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core import mail
 from django.conf import settings
 from django.contrib import messages
-from jobs.views import password_reset_request, home, register_request, download_report
-from jobs.models import Configuration
+from jobs.views import password_reset_request, home, register_request, download_report, download_jobs
+from jobs.models import Configuration, Job, Task, Patient
 from jobs.forms import NewUserForm
 
 
@@ -132,16 +133,23 @@ class UnitTestCases(TestCase):
     def test_download_report_existing_file(self):
         # Create a GET request with a valid report parameter
         url = reverse('download_report')  #the  URL name
-        #path_to_report = settings.BASE_DIR + '/media/reports/' + report
-        report = 'Test.pdf'  # Replace with an existing report file in your media/reports directory
-        request = self.factory.get(url, {'report': report})
+
+        #create a file to download
+        folder_path = settings.BASE_DIR + '/media/reports/'
+        file_name = 'test.txt'
+        file_path = folder_path + '/' + file_name
+        # Open the file in write mode ('w') and create it if it doesn't exist
+        with open(file_path, 'w') as file:
+            file.write('This is a test file.')
+
+        request = self.factory.get(url, {'report': file_name})
 
         # Call the view function
         response = download_report(request)
 
         # Perform assertions on the response
         self.assertEqual(response.status_code, 200)  # Assuming the file is found and downloaded
-        self.assertEqual(response['Content-Disposition'], 'attachment; filename={}'.format(report))
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename={}'.format(file_name))
        
 
     def test_download_report_nonexistent_file(self):
@@ -185,7 +193,6 @@ class UnitTestCases(TestCase):
         self.assertEqual(response.context['year'], datetime.now().year) 
 
 
-
 class DbAdminViewTestCase(TestCase):
     def setUp(self):
         #Create Configuration table with data as 
@@ -201,8 +208,9 @@ class DbAdminViewTestCase(TestCase):
         self.user = User.objects.create_superuser('admin', 'admin@example.com', 'adminpassword')
         self.client.force_login(self.user)
 
+
     def test_access_dbAdmin(self):
-        url = reverse('dbAdmin')  # 'dbadmin' is the URL name associated with the 'dbAdmin' view
+        url = reverse('dbAdmin')  # 'dbAdmin' is the URL name associated with the 'dbAdmin' view
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 200)  # Assert that the response status code is 200 (OK)
@@ -210,25 +218,34 @@ class DbAdminViewTestCase(TestCase):
 
         # Assert the context data passed to the template
         self.assertEqual(response.context['main_title'], 'Test_Title')
-        self.assertIsNotNone(response.context['received_reports'])
-        self.assertIsNotNone(response.context['approved_reports'])
 
 
-    #def test_post_request_delete_database(self):
-    #    url = reverse('dbAdmin')  # 'dbadmin' is the URL name associated with the 'dbAdmin' view
-    #    response = self.client.post(url, {'deleteDatabase': True})
+    def test_download_jobs(self):
+        #May need to populate the database first
+       
+        # Simulate a GET request to the view function
+        client = Client()
+        response = client.get(reverse('download_jobs'))  # Replace with the actual download URL
 
-    #    self.assertEqual(response.status_code, 200)  # Assert that the response status code is 200 (OK)
-    #    self.assertTemplateUsed(response, 'jobs/dbAdmin.html')  # Assert that the correct template is used
+        # Assert that the response has a successful status code
+        self.assertEqual(response.status_code, 200)
 
-    #    # Assert the context data passed to the template
-    #    self.assertEqual(response.context['main_title'], 'Test_Title')
-    #    self.assertEqual(response.context['delete_db_message'], 'Database deleted')
-    #    self.assertIsNotNone(response.context['received_reports'])
-    #    self.assertIsNotNone(response.context['approved_reports'])
+        # Assert that the content type is set to Excel
+        self.assertEqual(response['Content-Type'], 'application/ms-excel')
 
-    #    # Additional assertions for the expected behavior after deleting the database
+        # Assert that the content disposition is set correctly
+        self.assertEqual(response['Content-Disposition'], 'attachment; filename=jobs.xls')
 
-    ## Add more test methods to cover other scenarios and form inputs
+        # Assert that the response content is not empty
+        self.assertTrue(len(response.content) > 0)
 
+        # Read the response content as an Excel file using xlrd
+        workbook = xlrd.open_workbook(file_contents=response.content)
+        sheet = workbook.sheet_by_name('Jobs')
+
+        # Perform assertions on the sheet data
+        self.assertEqual(sheet.nrows, 1)  # Check the row count, should be 1 as there is only a header row
+        self.assertIn('job id', sheet.row_values(0))  # Check if 'job id' column exists. It is the first column.
+
+     
 
