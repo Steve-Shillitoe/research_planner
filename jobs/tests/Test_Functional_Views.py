@@ -12,6 +12,8 @@ import os
 
 #To just run this test file, python manage.py test jobs.tests.Test_Functional_Views
 
+#To get code coverage by tests, coverage run manage.py test
+
 class FunctionalTestsViews(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
