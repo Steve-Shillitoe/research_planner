@@ -117,7 +117,7 @@ class FunctionalTestsViews(LiveServerTestCase):
         #testing Jobs table is not empty
         self.assertTrue(Job.objects.exists())
         
-        #text download jobs spreadsheet link
+        #test download jobs spreadsheet link
         download_jobs_link = self.browser.find_element(By.LINK_TEXT, "Download Jobs Spreadsheet")
         download_jobs_link.click()
         time.sleep(5)
