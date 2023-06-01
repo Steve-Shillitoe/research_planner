@@ -48,7 +48,10 @@
     <Compile Include="jobs\tests\Test_Forms.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="jobs\tests\Test_Views.py">
+    <Compile Include="jobs\tests\Test_Functional_Views.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="jobs\tests\Test_Unit_Views.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="jobs\tests\Test_Models.py" />
