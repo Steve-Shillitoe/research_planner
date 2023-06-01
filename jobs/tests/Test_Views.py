@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
+from datetime import datetime
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.core import mail
@@ -90,7 +91,6 @@ class UnitTestCases(TestCase):
 
 
     def test_register_request_invalid_form(self):
-        #NEEDS MORE WORK
         #Create Configuration table with data as 
         #it will be needed to send an email
         Configuration.objects.create(
@@ -101,7 +101,7 @@ class UnitTestCases(TestCase):
             max_num_jobs=3
         )
         # Create a POST request with invalid form data
-        url = reverse('register')  # Replace 'register' with the actual URL name
+        url = reverse('register')  # 'register' is the  URL name
         form_data = {
             'username': 'testuser',
             'email': 'test@example.com',
@@ -110,32 +110,23 @@ class UnitTestCases(TestCase):
             'password1': 'testpassword1',
             'password2': 'testpassword2'
         }
-        #request = self.factory.post(url, form_data)
-
+        
         client = Client()
-        #request = self.factory.get(url, {'report': report})
-
-        # Call the view function
-        #response = download_report(request)
-        response = client.get(url, {'report': report})
-
-        # Call the view function
-        #response = register_request(request)
+        response = client.post(url, form_data)
 
         # Perform assertions on the response
-        self.assertEqual(response.status_code, 200)  # Assuming the form is redisplayed with validation errors
+        self.assertEqual(response.status_code, 200)  # The form is redisplayed with validation errors
 
         # Check if the form data is retained in the form
-        form = response.context['register_form']
-        self.assertEqual(form.initial['username'], 'testuser')
-        self.assertEqual(form.initial['email'], 'test@example.com')
-        self.assertEqual(form.initial['first_name'], 'Test')
-        self.assertEqual(form.initial['last_name'], 'User')
+        reg_form = response.content.decode('utf-8')
+        self.assertIn('name="username" value="testuser"', reg_form)
+        self.assertIn('name="email" value="test@example.com"', reg_form)
+        self.assertIn('name="first_name" value="Test"', reg_form)
+        self.assertIn('name="last_name" value="User"', reg_form)
 
         # Check if the error message is displayed
-        messages = list(response.context.get('warning'))
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), 'Unsuccessful registration. Invalid password.')
+        warning = response.context['warning']
+        self.assertEqual(warning, 'Unsuccessful registration. Invalid password.')
 
 
     def test_download_report_existing_file(self):
@@ -166,3 +157,78 @@ class UnitTestCases(TestCase):
         # Perform assertions on the response
         self.assertEqual(response.status_code, 200)  # Assuming the 'file_not_found.html' template is rendered
         self.assertTemplateUsed(response, 'jobs/file_not_found.html')
+
+
+    def test_about_view(self):
+        client = Client()
+        response = client.get('/about/')  # Replace '/about/' with the actual URL of the 'about' view
+        
+        self.assertEqual(response.status_code, 200)  # Assert that the response status code is 200 (OK)
+        self.assertTemplateUsed(response, 'jobs/about.html')  # Assert that the correct template is used
+        
+        # Assert the context data passed to the template
+        self.assertEqual(response.context['title'], 'About')
+        self.assertEqual(response.context['message'], 'Your application description page.')
+        self.assertEqual(response.context['year'], datetime.now().year) 
+
+
+    def test_contact_view(self):
+        client = Client()
+        response = client.get('/contact/')  # Replace '/contact/' with the actual URL of the 'contact' view
+        
+        self.assertEqual(response.status_code, 200)  # Assert that the response status code is 200 (OK)
+        self.assertTemplateUsed(response, 'jobs/contact.html')  # Assert that the correct template is used
+        
+        # Assert the context data passed to the template
+        self.assertEqual(response.context['title'], 'Contact')
+        self.assertEqual(response.context['message'], 'QIB Sheffield')
+        self.assertEqual(response.context['year'], datetime.now().year) 
+
+
+
+class DbAdminViewTestCase(TestCase):
+    def setUp(self):
+        #Create Configuration table with data as 
+        #it will be needed to send an email
+        Configuration.objects.create(
+            main_title="Test_Title",
+            main_intro="Test Main Intro",
+            indiv_intro="Test Individual Intro",
+            number_days_to_complete=5,
+            max_num_jobs=3
+        )
+        self.client = Client()
+        self.user = User.objects.create_superuser('admin', 'admin@example.com', 'adminpassword')
+        self.client.force_login(self.user)
+
+    def test_get_request(self):
+        url = reverse('dbAdmin')  # 'dbadmin' is the URL name associated with the 'dbAdmin' view
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)  # Assert that the response status code is 200 (OK)
+        self.assertTemplateUsed(response, 'jobs/dbAdmin.html')  # Assert that the correct template is used
+
+        # Assert the context data passed to the template
+        self.assertEqual(response.context['main_title'], 'Test_Title')
+        self.assertIsNotNone(response.context['received_reports'])
+        self.assertIsNotNone(response.context['approved_reports'])
+
+
+    #def test_post_request_delete_database(self):
+    #    url = reverse('dbAdmin')  # 'dbadmin' is the URL name associated with the 'dbAdmin' view
+    #    response = self.client.post(url, {'deleteDatabase': True})
+
+    #    self.assertEqual(response.status_code, 200)  # Assert that the response status code is 200 (OK)
+    #    self.assertTemplateUsed(response, 'jobs/dbAdmin.html')  # Assert that the correct template is used
+
+    #    # Assert the context data passed to the template
+    #    self.assertEqual(response.context['main_title'], 'Test_Title')
+    #    self.assertEqual(response.context['delete_db_message'], 'Database deleted')
+    #    self.assertIsNotNone(response.context['received_reports'])
+    #    self.assertIsNotNone(response.context['approved_reports'])
+
+    #    # Additional assertions for the expected behavior after deleting the database
+
+    ## Add more test methods to cover other scenarios and form inputs
+
+
