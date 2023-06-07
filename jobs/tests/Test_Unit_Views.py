@@ -42,7 +42,7 @@ class UnitTestCases(TestCase):
         self.assertEqual(mail.outbox[0].subject, 'Password Reset Requested')
         self.assertEqual(mail.outbox[0].to, ['user@example.com'])
 
-        ## Get the sent email object
+        # Get the sent email object
         #email = mail.outbox[0]
 
         ## Check email attributes such as subject, sender, recipient, etc.

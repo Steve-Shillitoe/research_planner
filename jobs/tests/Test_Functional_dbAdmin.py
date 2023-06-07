@@ -10,11 +10,11 @@ from django.conf import settings
 import time
 import os
 
-#To just run this test file, python manage.py test jobs.tests.Test_Functional_Views
+#To just run this test file, python manage.py test jobs.tests.Test_Functional_dbAdmin
 
 #To get code coverage by tests, coverage run manage.py test
 
-class FunctionalTestsViews(LiveServerTestCase):
+class FunctionalTestsdbAdmin(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
         #create a super user
@@ -53,7 +53,7 @@ class FunctionalTestsViews(LiveServerTestCase):
         # admin user clicks on the Database Administration link
         dbAdmin_link = self.browser.find_element(By.LINK_TEXT, "Database Administration")
         dbAdmin_link.click()
-        
+        time.sleep(1)
         # verify that Populate Database header is present.
         body = self.browser.find_element(By.TAG_NAME, 'body')
         self.assertIn('Populate Database', body.text)
@@ -61,6 +61,7 @@ class FunctionalTestsViews(LiveServerTestCase):
         #test delete database
         delete_database_button = self.browser.find_element(By.NAME, "deleteDatabase")
         delete_database_button.click()
+        time.sleep(1)
         #handle javascript confirm pop-up
         alert = self.browser.switch_to.alert
         self.assertEquals(alert.text, "Are you sure you want to delete all the data in the database?")
@@ -85,6 +86,7 @@ class FunctionalTestsViews(LiveServerTestCase):
         self.assertEquals(file_count, 1)
         delete_reports_button = self.browser.find_element(By.NAME, "deleteAllReports")
         delete_reports_button.click()
+        time.sleep(1)
         #handle javascript confirm pop-up
         alert = self.browser.switch_to.alert
         self.assertEquals(alert.text, "Are you sure you want to delete all the reports? You should only do this after you have deleted the database.")
@@ -101,10 +103,11 @@ class FunctionalTestsViews(LiveServerTestCase):
         #Upload excel spreadsheet to populate the database
         choose_file_button = self.browser.find_element(By.NAME, "excel_file")
         file_path = os.path.join(settings.BASE_DIR, 'researchPlannerData.xlsx')
+        time.sleep(1)
         choose_file_button.send_keys(file_path)
         submit_button = self.browser.find_element(By.NAME, "uploadFile")
         submit_button.click()
-       
+        time.sleep(1)
         #handle javascript confirm pop-up
         alert = self.browser.switch_to.alert
         self.assertEquals(alert.text, "This action will delete all the existing data in the database. Do you wish to continue?")
