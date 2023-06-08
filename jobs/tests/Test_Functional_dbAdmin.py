@@ -77,7 +77,7 @@ class FunctionalTestsdbAdmin(LiveServerTestCase):
         #first add a report to '/media/reports/'
         folder_path = settings.BASE_DIR + '/media/reports/'
         file_name = 'test.txt'
-        file_path = folder_path + '/' + file_name
+        file_path = folder_path  + file_name
         # Open the file in write mode ('w') and create it if it doesn't exist
         with open(file_path, 'w') as file:
             file.write('This is a test file.')

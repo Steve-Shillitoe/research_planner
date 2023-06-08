@@ -48,6 +48,12 @@
     <Compile Include="jobs\tests\Test_Functional_Forgotten_Password.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="jobs\tests\Test_Functional_Select_Job.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="jobs\tests\Test_Unit_db_Ops.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="jobs\tests\Test_Unit_Forms.py">
       <SubType>Code</SubType>
     </Compile>

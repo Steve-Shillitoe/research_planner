@@ -5,6 +5,7 @@ from datetime import date
 from django.conf import settings
 from django.db import connection
 from django.contrib import messages
+from django.core.files import File
 import openpyxl  #package to open an excel file
 import os
 
@@ -112,6 +113,22 @@ class DatabaseOperations:
                         job.save()
         except Exception as e:
             return HttpResponse("Error in DatabaseOperations.populate_job_table {}".format(e))
+
+
+    def populate_database_from_file(self):
+        """ This function populates the database from a local file.
+            It is used to populate a database for testing
+        """
+        file_path = settings.BASE_DIR + '/researchPlannerData.xlsx'
+        with open(file_path, 'rb') as file:
+            excel_file = File(file)
+            wb = openpyxl.load_workbook(excel_file)
+            self.clear_database()
+            self.populate_task_table(wb)
+            self.populate_patient_table(wb)
+            #create job table
+            self.populate_job_table()
+
 
 
     def populate_database(self, request):
