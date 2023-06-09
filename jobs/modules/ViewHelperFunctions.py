@@ -55,7 +55,7 @@ def buildMainJobsTable(request):
                         "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
                         "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + \
                         "value="  + chr(34) + str(job.id) + chr(34) +"/>" +\
-                        "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "select_job" + chr(34) +\
+                        "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "select_job_" + str(job.id) + chr(34) +\
                         " title=" + chr(34) + "Click to select this job" + chr(34) + \
                         " value="+ chr(34) + "AVAILABLE"+ chr(34) + "></form></td>" 
                 else:
@@ -196,9 +196,11 @@ def select_job(request, job_id, sendEmail):
     
     if same_patient_task_job.exists():
         sameJobWarning = "You may only select the same subject-task combination once."
+
     #check student does not already have the maximum number of jobs assigned to them
     max_num_jobs = Configuration.objects.first().max_num_jobs
-    if numJobs < max_num_jobs:
+
+    if numJobs < max_num_jobs and same_patient_task_job.exists() == False:
         deadline_date = date.today() + timedelta(Configuration.objects.first().number_days_to_complete)
         try:
             Job.objects.filter(id=job_id).update(status ='In Progress', 
@@ -293,3 +295,13 @@ def build_uploaded_report_table(request, status_type):
             return returnStr 
     except Exception as e:
         messages.error(request, 'Error {} building report table when status={}'.format(e, status_type))
+
+
+def find_string_in_request(request, str):
+    flag = False
+    for key in request.POST.keys():
+        # Check if the key contains "select_job"
+        if str in key:
+            flag = True
+
+    return flag

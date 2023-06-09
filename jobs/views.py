@@ -34,7 +34,7 @@ from django.db import connection
 from .modules.SendEmail import SendEmail
 from .modules.ViewHelperFunctions import buildMainJobsTable, buildUsersJobTable, \
             delete_report, process_uploaded_file, save_uploaded_file_to_disc, select_job, \
-            build_uploaded_report_table                                       
+            build_uploaded_report_table, find_string_in_request                                      
 import environ
 env = environ.Env()
 environ.Env.read_env()
@@ -145,7 +145,8 @@ def home(request):
     SameJobWarning = ""
     if request.method == 'POST':
         job_id = request.POST['jobId']
-        if "select_job" in request.POST:
+        
+        if find_string_in_request(request, "select_job"):  # in request.POST:
             #Update main jobs table. Available button clicked. Job assigned to a student
             #and status changed to 'In Progress'
             FourJobsWarning, SameJobWarning =  select_job(request, job_id, sendEmail)
