@@ -53,10 +53,17 @@ class FunctionalTestsSelectJob(LiveServerTestCase):
         password_field = self.browser.find_element(By.NAME,'password')
         password_field.send_keys('testpassword')
         password_field.send_keys(Keys.RETURN)
-        time.sleep(1)
+        #time.sleep(1)
 
         body = self.browser.find_element(By.TAG_NAME, 'body')
         self.assertIn('198 jobs', body.text)
-        time.sleep(1)
+        self.assertIn("You can have a maximum of 4 'In Progress' jobs at one time.", body.text)
+        self.assertIn("There are no jobs are assigned to you at the moment.", body.text)
+        self.assertEquals(Job.objects.count(), 198)
+        #time.sleep(1)
+
+        available_button = self.browser.find_element(By.NAME,'select_job')
+        available_button.click()
+
 
 
