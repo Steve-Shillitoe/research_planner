@@ -45,10 +45,13 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="jobs\modules\__init__.py" />
+    <Compile Include="jobs\tests\Test_Functional_User_Job_Table.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="jobs\tests\Test_Functional_Forgotten_Password.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="jobs\tests\Test_Functional_Select_Job.py">
+    <Compile Include="jobs\tests\Test_Functional_Main_Job_Table.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="jobs\tests\Test_Unit_db_Ops.py">

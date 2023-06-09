@@ -40,7 +40,7 @@ def buildMainJobsTable(request):
             strHeader += "<TH>" + str(task.task_id) + "</TH>"
         strHeader += "</TR>"
         for patient in patients:
-            strPatient = "\n<TR>\n<TD>" + str(patient.patient_id) + "</TD>"
+            strPatient = "<TR><TD>" + str(patient.patient_id) + "</TD>"
             strStatus = ""  
             try:
                 jobs = Job.objects.filter(patient_id=patient.patient_id).order_by('id')
@@ -50,7 +50,7 @@ def buildMainJobsTable(request):
                 if job.status == "Available":
                     csrf_token = get_token(request)
                     csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
-                    strStatus += "<td>" + \
+                    strStatus += "<td name=" + chr(34) + "td_" + str(job.id) + chr(34) +">" + \
                         "<form method="+ chr(34) +"post"+ chr(34) +">"  + csrf_token_html + \
                         "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
                         "jobId" + chr(34) + "name=" + chr(34) + "jobId" + chr(34) + \
@@ -59,10 +59,10 @@ def buildMainJobsTable(request):
                         " title=" + chr(34) + "Click to select this job" + chr(34) + \
                         " value="+ chr(34) + "AVAILABLE"+ chr(34) + "></form></td>" 
                 else:
-                    strStatus += "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</TD>"
+                    strStatus += "<td name=" + chr(34) + "td_" + str(job.id) + chr(34) + " bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + job.status + "</td>"
             strRow = strPatient + strStatus + "</TR>"
             strRows +=strRow 
-        returnString = strTable + "\n" + strColGroup + "\n" + strHeader + "\n" + strRows + "\n" + "</TABLE>"
+        returnString = strTable +  strColGroup +  strHeader +  strRows  + "</TABLE>"
     else:
         returnString = "<p>There is no data in the database"
     return returnString
@@ -93,8 +93,8 @@ def buildUsersJobTable(request):
                             strCancelButton = "<td>" + str(job.deadline_date) + "</td><td>" + \
                             "<form method="+ chr(34) +"post"+ chr(34) +">"  + \
                             strHiddenJobID + csrf_token_html + \
-                            "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel" + chr(34) + \
-                            "value="+ chr(34) + "Cancel"+ chr(34) + " title=" + chr(34) + "Click to make this job available again to other users" + chr(34) +  "></form></td><td>\n" + \
+                            "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel_" + str(job.id) + chr(34) + \
+                            "value="+ chr(34) + "Cancel"+ chr(34) + " title=" + chr(34) + "Click to make this job available again to other users" + chr(34) +  "></form></td><td>" + \
                             "<form method="+ chr(34) +"post"+ chr(34) + " enctype=" + chr(34) + "multipart/form-data" + chr(34)  + ">"  + \
                             strHiddenJobID + csrf_token_html +\
                             "<input type=" + chr(34) + "file" + chr(34) + "id=" + chr(34) + "upload_report_file" + chr(34) + "onChange=" + chr(34) + "return validateUploadedFile()" + chr(34) + \
@@ -104,7 +104,7 @@ def buildUsersJobTable(request):
                             "<input type="+ chr(34) + "submit"  + chr(34) + " name=" + chr(34) + "upload_report" + chr(34) + \
                             " title=" + chr(34) + "Click to upload your report" + chr(34) + \
                             " value="+ chr(34) + "Upload Report"+ chr(34) + "class=" + chr(34) + "btn" + chr(34) +\
-                            " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">\n" + \
+                            " title=" + chr(34) + "Click to upload your selected report" + chr(34) +  ">" + \
                             "</form></td>" 
                             
                             link_to_report ="<td>&nbsp;</td>"
@@ -112,7 +112,7 @@ def buildUsersJobTable(request):
                             report_href = chr(34) +  "/download_report/?report=" + str(job.report_name) + chr(34)
                             link_to_report = "<td><a href=" +  report_href +  " name=" + chr(39) + "download_report" + chr(39) + ">" + str(job.report_name) + "</a></td>"
                             strCancelButton = "<td>"+ str(job.deadline_date) +"</td><td>&nbsp;</td><td>&nbsp;</td><td>" + str(job.submission_date) + "</td>"
-                        strRow = "<TR>" + strSubject + strTask  + strStatus + strCancelButton + link_to_report + "</TR>\n"
+                        strRow = "<TR>" + strSubject + strTask  + strStatus + strCancelButton + link_to_report + "</TR>"
                         strRows += strRow
                 individualJobs = strTable + strRows + "</TABLE>"
             else:
@@ -224,15 +224,15 @@ def build_status_list(request, strJobID, strStatus, strHiddenJobID):
     csrf_token = get_token(request)
     csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
     status_list = ['Available', 'Not Available', 'In Progress', 'Received', 'Approved', 'Not Approved']
-    start = "<form id=" + chr(34) + strJobID + "form" + chr(34) + " method=" + chr(34) + "POST" + chr(34) + "> " + strHiddenJobID + " " + csrf_token_html + "\n" + \
-        " <select id=" + chr(34) + strJobID + "dropdown" + chr(34) + " name=" + chr(34) + "updateStatus" + chr(34) + ">\n" 
+    start = "<form id=" + chr(34) + strJobID + "form" + chr(34) + " method=" + chr(34) + "POST" + chr(34) + "> " + strHiddenJobID + " " + csrf_token_html +  \
+        " <select id=" + chr(34) + strJobID + "dropdown" + chr(34) + " name=" + chr(34) + "updateStatus" + chr(34) + ">" 
     options = ''
     for status in status_list:
         selected = ""
         if status == strStatus:
             selected = " selected "
-        options += "<option value="+ chr(34) + status +  chr(34) + selected + ">" + chr(34) + status +  chr(34) + "</option>\n"
-    end = "</select>\n  </form>\n"  
+        options += "<option value="+ chr(34) + status +  chr(34) + selected + ">" + chr(34) + status +  chr(34) + "</option>"
+    end = "</select>  </form>"  
     return start + options + end
  
 
@@ -290,7 +290,7 @@ def build_uploaded_report_table(request, status_type):
                 strRows += ("<tr><td>" + str(job[0]) + "</td><td>" + user_name + "</td><td>" + str(job[2]) +
                            "</td><td>" + task.task_name + "</td><td>" +  build_status_list(request,str(job[0]), str(job[4]), strHiddenJobID) + " " + build_submit_javascript(str(job[0])) +
                            "</td><td>" +  link_to_report + "</td><td>" + str(job[6]) + "</td>" +
-                             strDeleteButton + "</tr>\n")
+                             strDeleteButton + "</tr>")
                 returnStr = tableHeader + strRows + "</table>"
             return returnStr 
     except Exception as e:
