@@ -81,7 +81,7 @@ def buildUsersJobTable(request):
                 for job in jobs:
                         strSubject = "<td>" + str(job.patient_id) + "</td>"
                         strTask = "<td>" + str(job. task_id) + "</td>"
-                        strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + ">" + str(job.status) + "</TD>"
+                        strStatus = "<TD bgcolor=" + TYPE_OF_STATUS[job.status] + " name=" + chr(34) + "status_td_" + str(job.id) + chr(34) +">" + str(job.status) + "</TD>"
     
                         if job.status == "In Progress": 
                             strHiddenJobID = "<input type="+ chr(34) +"hidden" + chr(34) + "id=" + chr(34) + \
@@ -90,7 +90,7 @@ def buildUsersJobTable(request):
                             csrf_token = get_token(request)
                             csrf_token_html = '<input type="hidden" name="csrfmiddlewaretoken" value="{}" />'.format(csrf_token)
                             
-                            strCancelButton = "<td>" + str(job.deadline_date) + "</td><td>" + \
+                            strCancelButton = "<td" + " name=" + chr(34) + "date_td_" + str(job.id) + chr(34) +">" + str(job.deadline_date) + "</td><td>" + \
                             "<form method="+ chr(34) +"post"+ chr(34) +">"  + \
                             strHiddenJobID + csrf_token_html + \
                             "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "cancel_" + str(job.id) + chr(34) + \

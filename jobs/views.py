@@ -150,7 +150,7 @@ def home(request):
             #Update main jobs table. Available button clicked. Job assigned to a student
             #and status changed to 'In Progress'
             FourJobsWarning, SameJobWarning =  select_job(request, job_id, sendEmail)
-        elif  'cancel' in request.POST:
+        elif find_string_in_request(request, "cancel"): 
             #Update individual job table. Cancel button clicked. Setting dates=None, 
             #gives them the value of Null
             try:
@@ -159,7 +159,7 @@ def home(request):
             except Exception:
                 return HttpResponse("Exception in function views.select_job: " + \
                     "Error updating a job when a user cancels it.")
-        elif 'upload_report' in request.POST:
+        elif find_string_in_request(request, "upload_report"):
             try:
                 job = Job.objects.get(id=job_id)
             except ObjectDoesNotExist:

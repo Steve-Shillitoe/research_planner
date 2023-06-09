@@ -5,9 +5,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from django.contrib.auth.models import User
-from jobs.models import  Job
+from jobs.models import  Job, Configuration
 from django.conf import settings
 import time
+from datetime import date, timedelta
 import os
 from jobs.modules.DatabaseOperations import DatabaseOperations
 dbOps = DatabaseOperations()
@@ -65,3 +66,34 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')  #fully opaque yellow
         #check database
         self.assertEqual(Job.objects.filter(status='In Progress', id=1).count(), 1)
+        self.assertEqual(Job.objects.filter(status='Available').count(), 197)
+
+        #check user job table
+        table_cell = self.browser.find_element(By.NAME, 'status_td_1')
+        self.assertIn('In Progress', table_cell.text)
+        background_color = table_cell.value_of_css_property("background-color")
+        self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')  #fully opaque yellow
+        #check deadline date 
+        deadline_date = date.today() + timedelta(Configuration.objects.first().number_days_to_complete)
+        table_cell = self.browser.find_element(By.NAME, 'date_td_1')
+        self.assertIn(str(deadline_date), table_cell.text)
+
+        #check cancel job
+        cancel_button = self.browser.find_element(By.NAME,'cancel_1')
+        cancel_button.click()
+        #check database
+        self.assertEqual(Job.objects.filter(status='In Progress', id=1).count(), 0) #No In Progress job
+        self.assertEqual(Job.objects.filter(status='Available').count(), 198) #All jobs Available again
+        #In the main table, check that the job is now Available
+        available_button = self.browser.find_element(By.NAME,'select_job_1')
+        self.assertEqual(available_button.get_attribute('value'), 'AVAILABLE')
+
+        #Select the first job again
+        available_button = self.browser.find_element(By.NAME,'select_job_1')
+        available_button.click()
+        time.sleep(1)
+
+
+
+        
+
