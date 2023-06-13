@@ -2,16 +2,17 @@
 
 {% block content %}
 <script type="text/javascript">
-    function checkSize()
+    function checkSize(id)
         {
             const max_file_size = 200000; //200KB
-            var input = document.getElementById("upload_report_file");
+            var input = document.getElementById("upload_report_file_" + id);
             // check for browser support (may need to be modified)
             if(input.files && input.files.length == 1)
             {           
                 if (input.files[0].size > max_file_size) 
                 {
-                    alert("The file size must be less than " + (input.files[0].size) + "KB");
+                    var rounded_up = Math.ceil((input.files[0].size) / 1024);
+                    alert("The file size must be less than " + rounded_up + "KB");
                     input.value = "";
                     return false;
                 }
@@ -20,8 +21,8 @@
     }
 
 
-    function checkFileType() {
-      var input = document.getElementById("upload_report_file")
+    function checkFileType(id) {
+      var input = document.getElementById("upload_report_file_" + id)
       var ext = input.value.match(/\.([^\.]+)$/)[1];
       switch (ext) {
         //allowed file types, no action needs taking
@@ -38,10 +39,10 @@
       }
     };
 
-    function validateUploadedFile() {
-        file_Size_OK = checkSize();
+    function validateUploadedFile(id) {
+        file_Size_OK = checkSize(id);
         if (file_Size_OK) {
-         return checkFileType();
+         return checkFileType(id);
         } else {
             return false;
         }  
