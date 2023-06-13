@@ -12,30 +12,13 @@ from django.conf import settings
 import time
 from datetime import date, timedelta
 import os
+from .Helper_Functions import create_file_in_project_root
 from jobs.modules.DatabaseOperations import DatabaseOperations
 dbOps = DatabaseOperations()
 
 #To just run this test file, python manage.py test jobs.tests.Test_Functional_User_Job_Table
 
 #To get code coverage by tests, coverage run manage.py test
-
-
-def create_file_in_project_root(file_size_kb, file_name):
-    """
-    file_name =  file name + extension, e.g., large_file.txt
-    """
-    full_file_path = os.path.join(settings.BASE_DIR,file_name)
-
-    # Calculate the number of bytes needed for the desired file size
-    file_size_bytes = file_size_kb * 1024
-
-    # Create a file and write data to it until the desired file size is reached
-    with open(full_file_path, 'w') as file:
-        while os.path.getsize(full_file_path) < file_size_bytes:
-            file.write('test') 
-            
-    return full_file_path
-
 
 
 class FunctionalTestUserJobTable(LiveServerTestCase):
@@ -59,7 +42,7 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
 
         #create small & large files to try to upload
         self.large_file=create_file_in_project_root(201, 'large_file.txt')
-        self.small_file=create_file_in_project_root(199, 'small_file.txt')
+        self.small_file=create_file_in_project_root(190, 'small_file.txt')
 
         self.test_files = []
 
@@ -75,20 +58,27 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         if os.path.exists(self.large_file):
            # Delete the file
            os.remove(self.large_file)
+        for test_file in self.test_files:
+            folder_path = settings.BASE_DIR + '/media/reports/'
+            full_file_path = os.path.join(folder_path, test_file)
+            if os.path.exists(full_file_path):
+                os.remove(full_file_path)
 
+
+    def log_in(self, username, pwd):
+        username_field = self.browser.find_element(By.NAME,'username')
+        username_field.send_keys(username)
+        password_field = self.browser.find_element(By.NAME,'password')
+        password_field.send_keys(pwd)
+        password_field.send_keys(Keys.RETURN)
 
     def test_user_job_table(self):
         self.browser.get(self.live_server_url)
         body = self.browser.find_element(By.TAG_NAME, 'body')
         self.assertIn('Log in', body.text)
-        time.sleep(1)
 
         #log in as an ordinary user
-        username_field = self.browser.find_element(By.NAME,'username')
-        username_field.send_keys('testuser')
-        password_field = self.browser.find_element(By.NAME,'password')
-        password_field.send_keys('testpassword')
-        password_field.send_keys(Keys.RETURN)
+        self.log_in('testuser', 'testpassword')
         time.sleep(1)
 
         #check for text saying there are no jobs assigned to you at the moment.
@@ -147,12 +137,49 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         self.assertRaises(NoAlertPresentException)
         submit_button = self.browser.find_element(By.ID, 'upload_report_1')
         submit_button.click()
+        #check user job table
+        table_cell = self.browser.find_element(By.NAME, 'status_td_1')
+        self.assertIn('Received', table_cell.text)
+        background_color = table_cell.value_of_css_property("background-color")
+        self.assertEqual(background_color, 'rgba(255, 0, 255, 1)')  #magenta
+
+        #check main table
+        table_cell = self.browser.find_element(By.NAME, 'td_1')
+        self.assertIn('Received', table_cell.text)
+        #test table cell background colour is yellow
+        background_color = table_cell.value_of_css_property("background-color")
+        self.assertEqual(background_color, 'rgba(255, 0, 255, 1)')  #magenta
+
         #Do database checks
+        #check status
+        self.assertEqual(Job.objects.filter(status='Received', id=1).count(), 1) #One Received job
+        self.assertEqual(Job.objects.filter(status='Available').count(), 197) #197 jobs Available now
+        #Check submission date
+        submission_date = date.today()
+        job = Job.objects.get(id=1) 
+        self.assertEqual(job.submission_date, submission_date ) 
         #Check file name
-
+        report_name = "job_1"  + "_" + str(job.patient_id) + "_" + str(job.task_id) + ".txt"
+        report_name = report_name.replace(" ", "")
+        self.test_files.append(report_name)
+        self.assertEqual(job.report_name, report_name)
         #check file uploaded to media/reports
+        folder_path = settings.BASE_DIR + '/media/reports/'
+        full_file_path = os.path.join(folder_path, report_name)
+        self.assertTrue(os.path.exists(full_file_path))
 
-        #check file name
+        #Let's check the uploaded report on the Database Administration page
+        #Log off as an ordinary user 
+        log_off_link = self.browser.find_element(By.LINK_TEXT, "Log off")
+        log_off_link.click()
+        #Log in as a super user
+        self.log_in('admin', 'adminpassword')
+        time.sleep(1)
+        #go to 'Database Administration' page
+        db_admin_link = self.browser.find_element(By.LINK_TEXT, 'Database Administration')
+        db_admin_link.click()
+        time.sleep(3)
+
 
 
 
