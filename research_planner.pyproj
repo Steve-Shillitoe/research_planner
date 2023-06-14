@@ -177,7 +177,7 @@
     <Content Include="jobs\static\app\scripts\respond.js" />
     <Content Include="jobs\static\app\scripts\respond.min.js" />
     <Content Include="jobs\static\app\scripts\_references.js" />
-    <Content Include="researchPlannerData.xlsx" />
+    <Content Include="Test_Data_Do_Not_Delete.xlsx" />
     <Content Include="jobs\static\app\img\favicon.ico" />
     <Content Include="static\admin\css\autocomplete.4a81fc4242d0.css" />
     <Content Include="static\admin\css\autocomplete.css" />

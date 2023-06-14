@@ -119,7 +119,7 @@ class DatabaseOperations:
         """ This function populates the database from a local file.
             It is used to populate a database for testing
         """
-        file_path = settings.BASE_DIR + '/researchPlannerData.xlsx'
+        file_path = settings.BASE_DIR + '/Test_Data_Do_Not_Delete.xlsx'
         with open(file_path, 'rb') as file:
             excel_file = File(file)
             wb = openpyxl.load_workbook(excel_file)

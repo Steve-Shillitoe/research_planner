@@ -31,12 +31,18 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
             email='s.shillitoe@sheffield.ac.uk',
             password='adminpassword'
         )
-        #create an ordinary user
-        self.user = User.objects.create_user(
+        #create 2 ordinary users
+        self.user1 = User.objects.create_user(
             username='testuser',
             email='testuser@example.com',
             password='testpassword'
         )
+        self.user2 = User.objects.create_user(
+            username='testuser2',
+            email='testuser2@example.com',
+            password='testpassword2'
+        )
+
 
         #populate the database
         dbOps.populate_database_from_file()
@@ -72,6 +78,10 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         password_field = self.browser.find_element(By.NAME,'password')
         password_field.send_keys(pwd)
         password_field.send_keys(Keys.RETURN)
+
+    def log_off(self):
+        log_off_link = self.browser.find_element(By.LINK_TEXT, "Log off")
+        log_off_link.click()
 
     def test_user_job_table(self):
         self.browser.get(self.live_server_url)
@@ -171,8 +181,7 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
 
         #Let's check the uploaded report on the Database Administration page
         #Log off as an ordinary user 
-        log_off_link = self.browser.find_element(By.LINK_TEXT, "Log off")
-        log_off_link.click()
+        self.log_off()
         #Log in as a super user
         self.log_in('admin', 'adminpassword')
         time.sleep(1)
@@ -187,8 +196,79 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         dropdown = Select(dropdown_element)
          # Get the currently selected option
         selected_option = dropdown.first_selected_option
-        # Assert the selected option value or text
+        # Assert the selected option value 'Received'
         self.assertEqual(selected_option.get_attribute('value'), 'Received')
+        
+        #change status from Received to Approved
+        dropdown.select_by_value('Approved')
+        body = self.browser.find_element(By.TAG_NAME, 'body')
+        self.assertIn('There are no reports uploaded to the database with status Received.', body.text)
+        #check database
+        job = Job.objects.get(id=1)
+        self.assertEquals(job.status, 'Approved')
+
+        #Now click Delete (a report) button
+        delete_button = self.browser.find_element(By.ID, 'delete_1')
+        delete_button.click()
+        #click Cancel on the javascript alert
+        alert = self.browser.switch_to.alert
+        self.assertEquals(alert.text, "Are you sure you want to delete this report?")
+        alert.dismiss()
+        body = self.browser.find_element(By.TAG_NAME, 'body')
+        self.assertIn('There are no reports uploaded to the database with status Received.', body.text)
+        self.assertNotIn('There are no reports uploaded to the database with status Approved.', body.text)
+        #check database
+        job = Job.objects.get(id=1)
+        self.assertEquals(job.status, 'Approved')
+        time.sleep(1)
+        #Now click Delete (a report) button again
+        report_name = Job.objects.get(id=1).report_name
+        delete_button.click()
+        #click OK on the javascript alert
+        alert = self.browser.switch_to.alert
+        self.assertEquals(alert.text, "Are you sure you want to delete this report?")
+        alert.accept()
+        time.sleep(1)
+        body = self.browser.find_element(By.TAG_NAME, 'body')
+        self.assertIn('There are no reports uploaded to the database with status Received.', body.text)
+        self.assertIn('There are no reports uploaded to the database with status Approved.', body.text)
+        self.assertIn('Report ' + report_name + ' deleted', body.text)
+        #check database
+        job = Job.objects.get(id=1)
+        self.assertEquals(job.status, 'In Progress')
+        self.assertEquals(job.report_name, '') 
+        self.assertEquals(job.submission_date, None) 
+        self.assertNotEquals(job.start_date, None)
+        self.assertNotEquals(job.deadline_date, None)
+        self.assertEquals(Job.objects.filter(status='Available').count(), 197)
+
+        #Go to Home page
+        home_link = self.browser.find_element(By.LINK_TEXT, "Home")
+        home_link.click()
+        time.sleep(5)
+        #Check Home page appears OK to the super user
+        #main job table
+        table_cell = self.browser.find_element(By.NAME, 'td_1')
+        self.assertIn('In Progress', table_cell.text)
+        #test table cell background colour is yellow
+        background_color = table_cell.value_of_css_property("background-color")
+        self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')  #fully opaque yellow
+        body = self.browser.find_element(By.TAG_NAME, 'body')
+        self.assertIn('There are no jobs are assigned to you at the moment.', body.text)
+
+        #Log out as super user, log in as user1 to check their view of the Home page
+        self.log_off()
+
+        
+        
+
+
+
+                                              
+       
+
+
+
 
 
 

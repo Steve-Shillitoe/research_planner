@@ -102,7 +102,7 @@ class FunctionalTestsdbAdmin(LiveServerTestCase):
 
         #Upload excel spreadsheet to populate the database
         choose_file_button = self.browser.find_element(By.NAME, "excel_file")
-        file_path = os.path.join(settings.BASE_DIR, 'researchPlannerData.xlsx')
+        file_path = os.path.join(settings.BASE_DIR, 'Test_Data_Do_Not_Delete.xlsx')
         time.sleep(1)
         choose_file_button.send_keys(file_path)
         submit_button = self.browser.find_element(By.NAME, "uploadFile")

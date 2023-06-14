@@ -132,7 +132,9 @@ def delete_report(request):
         report_to_delete = settings.BASE_DIR + '/media/reports/' + str(job.report_name)
         if os.path.exists(report_to_delete):
             os.remove(report_to_delete)
-        Job.objects.filter(id=job_id).update(status = 'In Progress', report_name ='', submission_date = None)
+        Job.objects.filter(id=job_id).update(status = 'In Progress', 
+                                             report_name ='', 
+                                             submission_date = None)
         return job.report_name
     except Exception as e:
         messages.error(request, 'Error {} deleting report.'.format(e))
@@ -284,7 +286,7 @@ def build_uploaded_report_table(request, status_type):
                                 "jobId" + chr(34) + " name=" + chr(34) + "jobId" + chr(34) + " value="  + chr(34) + str(job[0]) + chr(34) +"/>"
 
                 strDeleteButton = "<td><form method="+ chr(34) +"post"+ chr(34) +">" +  strHiddenJobID  + csrf_token_html + \
-                                "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "delete" + chr(34) + " onclick="+ chr(34) + "return deleteReportCheck();" + chr(34) + \
+                                "<input type="+ chr(34) + "submit" + chr(34) + " name=" + chr(34) + "delete"  + chr(34) + " id=" + chr(34) + "delete_"  + str(job[0]) + chr(34) + " onclick="+ chr(34) + "return deleteReportCheck();" + chr(34) + \
                                 "value="+ chr(34) + "Delete Report"+ chr(34) + " title=" + chr(34) + "Click to delete this report and make this job available again" + chr(34) + ">" + \
                                 "</form></td>"
                 task = Task.objects.get(task_id=job[3])
