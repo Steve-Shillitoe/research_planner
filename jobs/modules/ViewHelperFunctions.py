@@ -264,7 +264,7 @@ def build_uploaded_report_table(request, status_type):
         jobs = Job.objects.filter(status = status_type).values_list(
             'id', 'user_id', 'patient_id', 'task_id', 'status', 'report_name', 'submission_date')
         if len(jobs) == 0:
-            returnStr =  "<p>There are no reports uploaded to the database with status " + status_type + "</p>"
+            returnStr =  "<p>There are no reports uploaded to the database with status " + status_type + ".</p>"
         else:
             #make table
             strRows = ""
@@ -292,8 +292,8 @@ def build_uploaded_report_table(request, status_type):
                            "</td><td>" + task.task_name + "</td><td>" +  build_status_list(request,str(job[0]), str(job[4]), strHiddenJobID) + " " + build_submit_javascript(str(job[0])) +
                            "</td><td>" +  link_to_report + "</td><td>" + str(job[6]) + "</td>" +
                              strDeleteButton + "</tr>")
-                returnStr = tableHeader + strRows + "</table>"
-            return returnStr 
+            returnStr = tableHeader + strRows + "</table>"
+        return returnStr 
     except Exception as e:
         messages.error(request, 'Error {} building report table when status={}'.format(e, status_type))
 

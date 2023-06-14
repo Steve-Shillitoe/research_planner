@@ -83,10 +83,10 @@ function deleteAllReportsCheck() {
 <a href="{% url 'download_jobs' %}" name="download_jobs" title="Click link to download job data in an Excel spreadsheet" class="buttonStyle" alt="link to download the jobs in the database">Download Jobs Spreadsheet</a>
 <hr class="solid">
 <strong>Uploaded Reports</strong>
-<p>Uploaded reports awaiting approval.</p>
+<p><u>Uploaded reports awaiting approval.</u></p>
 {% autoescape off %} {{ received_reports }} {% endautoescape %}
 <br />
-<p>Uploaded reports approved.</p>
+<p><u>Uploaded reports approved.</u></p>
 {% autoescape off %} {{ approved_reports }} {% endautoescape %}
 <p>{{ delete_message }}</p>
 

@@ -1,6 +1,7 @@
 import django
 from django.test import  LiveServerTestCase
 from selenium import webdriver
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.alert import Alert
 from selenium.common.exceptions import NoAlertPresentException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -178,7 +179,16 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         #go to 'Database Administration' page
         db_admin_link = self.browser.find_element(By.LINK_TEXT, 'Database Administration')
         db_admin_link.click()
-        time.sleep(3)
+        body = self.browser.find_element(By.TAG_NAME, 'body')
+        self.assertIn('There are no reports uploaded to the database with status Approved.', body.text)
+        
+        #check dropdown list displays the Received option
+        dropdown_element = self.browser.find_element(By.ID, '1dropdown')
+        dropdown = Select(dropdown_element)
+         # Get the currently selected option
+        selected_option = dropdown.first_selected_option
+        # Assert the selected option value or text
+        self.assertEqual(selected_option.get_attribute('value'), 'Received')
 
 
 
