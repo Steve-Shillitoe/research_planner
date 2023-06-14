@@ -83,6 +83,37 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         log_off_link = self.browser.find_element(By.LINK_TEXT, "Log off")
         log_off_link.click()
 
+    def check_main_job_table_In_Progress(self):
+        table_cell = self.browser.find_element(By.NAME, 'td_1')
+        self.assertIn('In Progress', table_cell.text)
+        #test table cell background colour is yellow
+        background_color = table_cell.value_of_css_property("background-color")
+        self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')
+
+    def check_user_job_table_In_Progress(self):
+        table_cell = self.browser.find_element(By.NAME, 'status_td_1')
+        self.assertIn('In Progress', table_cell.text)
+        background_color = table_cell.value_of_css_property("background-color")
+        self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')  #fully opaque yellow
+        #check deadline date 
+        deadline_date = date.today() + timedelta(Configuration.objects.first().number_days_to_complete)
+        table_cell = self.browser.find_element(By.NAME, 'date_td_1')
+        self.assertIn(str(deadline_date), table_cell.text)
+
+    def check_text_no_jobs_assigned_to_you(self):
+        body = self.browser.find_element(By.TAG_NAME, 'body')
+        self.assertIn('There are no jobs are assigned to you at the moment.', body.text)
+
+    def check_report_uploaded(self, report_name):
+        folder_path = settings.BASE_DIR + '/media/reports/'
+        full_file_path = os.path.join(folder_path, report_name)
+        self.assertTrue(os.path.exists(full_file_path))
+
+    def check_report_not_uploaded(self, report_name):
+        folder_path = settings.BASE_DIR + '/media/reports/'
+        full_file_path = os.path.join(folder_path, report_name)
+        self.assertFalse(os.path.exists(full_file_path))
+
     def test_user_job_table(self):
         self.browser.get(self.live_server_url)
         body = self.browser.find_element(By.TAG_NAME, 'body')
@@ -93,31 +124,19 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         time.sleep(1)
 
         #check for text saying there are no jobs assigned to you at the moment.
-        body = self.browser.find_element(By.TAG_NAME, 'body')
-        self.assertIn('There are no jobs are assigned to you at the moment.', body.text)
+        self.check_text_no_jobs_assigned_to_you()
 
         #select one job
         available_button = self.browser.find_element(By.NAME,'select_job_1')
         available_button.click()
         time.sleep(1)
-        table_cell = self.browser.find_element(By.NAME, 'td_1')
-        self.assertIn('In Progress', table_cell.text)
-        #test table cell background colour is yellow
-        background_color = table_cell.value_of_css_property("background-color")
-        self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')  #fully opaque yellow
+        self.check_main_job_table_In_Progress()
         #check database
         self.assertEqual(Job.objects.filter(status='In Progress', id=1).count(), 1)
         self.assertEqual(Job.objects.filter(status='Available').count(), 197)
 
         #check user job table
-        table_cell = self.browser.find_element(By.NAME, 'status_td_1')
-        self.assertIn('In Progress', table_cell.text)
-        background_color = table_cell.value_of_css_property("background-color")
-        self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')  #fully opaque yellow
-        #check deadline date 
-        deadline_date = date.today() + timedelta(Configuration.objects.first().number_days_to_complete)
-        table_cell = self.browser.find_element(By.NAME, 'date_td_1')
-        self.assertIn(str(deadline_date), table_cell.text)
+        self.check_user_job_table_In_Progress()
 
         #check cancel job
         cancel_button = self.browser.find_element(By.NAME,'cancel_1')
@@ -175,9 +194,7 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         self.test_files.append(report_name)
         self.assertEqual(job.report_name, report_name)
         #check file uploaded to media/reports
-        folder_path = settings.BASE_DIR + '/media/reports/'
-        full_file_path = os.path.join(folder_path, report_name)
-        self.assertTrue(os.path.exists(full_file_path))
+        self.check_report_uploaded(report_name)
 
         #Let's check the uploaded report on the Database Administration page
         #Log off as an ordinary user 
@@ -205,6 +222,7 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         self.assertIn('There are no reports uploaded to the database with status Received.', body.text)
         #check database
         job = Job.objects.get(id=1)
+        report_name = job.report_name
         self.assertEquals(job.status, 'Approved')
 
         #Now click Delete (a report) button
@@ -214,6 +232,7 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         alert = self.browser.switch_to.alert
         self.assertEquals(alert.text, "Are you sure you want to delete this report?")
         alert.dismiss()
+        self.check_report_uploaded(report_name)
         body = self.browser.find_element(By.TAG_NAME, 'body')
         self.assertIn('There are no reports uploaded to the database with status Received.', body.text)
         self.assertNotIn('There are no reports uploaded to the database with status Approved.', body.text)
@@ -229,6 +248,7 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         self.assertEquals(alert.text, "Are you sure you want to delete this report?")
         alert.accept()
         time.sleep(1)
+        self.check_report_not_uploaded(report_name)
         body = self.browser.find_element(By.TAG_NAME, 'body')
         self.assertIn('There are no reports uploaded to the database with status Received.', body.text)
         self.assertIn('There are no reports uploaded to the database with status Approved.', body.text)
@@ -238,8 +258,9 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         self.assertEquals(job.status, 'In Progress')
         self.assertEquals(job.report_name, '') 
         self.assertEquals(job.submission_date, None) 
-        self.assertNotEquals(job.start_date, None)
-        self.assertNotEquals(job.deadline_date, None)
+        self.assertEquals(job.start_date, date.today())
+        deadline_date = date.today() + timedelta(Configuration.objects.first().number_days_to_complete)
+        self.assertEquals(job.deadline_date,  deadline_date)
         self.assertEquals(Job.objects.filter(status='Available').count(), 197)
 
         #Go to Home page
@@ -248,16 +269,26 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
         time.sleep(5)
         #Check Home page appears OK to the super user
         #main job table
-        table_cell = self.browser.find_element(By.NAME, 'td_1')
-        self.assertIn('In Progress', table_cell.text)
-        #test table cell background colour is yellow
-        background_color = table_cell.value_of_css_property("background-color")
-        self.assertEqual(background_color, 'rgba(255, 255, 0, 1)')  #fully opaque yellow
-        body = self.browser.find_element(By.TAG_NAME, 'body')
-        self.assertIn('There are no jobs are assigned to you at the moment.', body.text)
+        self.check_main_job_table_In_Progress()  
+        self.check_text_no_jobs_assigned_to_you()
 
-        #Log out as super user, log in as user1 to check their view of the Home page
+        #Log out as super user
         self.log_off()
+        #log in as user1 to check their view of the Home page
+        self.log_in('testuser', 'testpassword')
+        #main job table
+        self.check_main_job_table_In_Progress() 
+        #Check user job table
+        self.check_user_job_table_In_Progress()
+
+        #Log out as user1
+        self.log_off()
+        #log in as user1 to check their view of the Home page
+        self.log_in('testuser2', 'testpassword2')
+        #main job table
+        self.check_main_job_table_In_Progress() 
+        self.check_text_no_jobs_assigned_to_you()
+
 
         
         
