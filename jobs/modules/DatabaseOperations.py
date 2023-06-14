@@ -123,7 +123,7 @@ class DatabaseOperations:
         with open(file_path, 'rb') as file:
             excel_file = File(file)
             wb = openpyxl.load_workbook(excel_file)
-            self.clear_database()
+            #self.clear_database()
             self.populate_task_table(wb)
             self.populate_patient_table(wb)
             #create job table
