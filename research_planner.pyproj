@@ -69,6 +69,9 @@
     <Compile Include="jobs\tests\Test_Unit_SendEmail.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="jobs\tests\Test_Unit_ViewHelperFunctions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="jobs\tests\Test_Unit_Views.py">
       <SubType>Code</SubType>
     </Compile>
