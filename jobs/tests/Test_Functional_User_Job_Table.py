@@ -13,7 +13,7 @@ from django.conf import settings
 import time
 from datetime import date, timedelta
 import os
-from .Helper_Functions import create_file_in_project_root
+from .Helper_Functions import create_file_in_project_root, flush_database
 from jobs.modules.DatabaseOperations import DatabaseOperations
 dbOps = DatabaseOperations()
 
@@ -24,6 +24,7 @@ dbOps = DatabaseOperations()
 
 class FunctionalTestUserJobTable(LiveServerTestCase):
     def setUp(self):
+        flush_database()
         self.browser = webdriver.Chrome()
         #create a super user
         self.superuser = User.objects.create_superuser(
@@ -125,7 +126,7 @@ class FunctionalTestUserJobTable(LiveServerTestCase):
 
         #check for text saying there are no jobs assigned to you at the moment.
         self.check_text_no_jobs_assigned_to_you()
-
+        time.sleep(1)
         #select one job
         available_button = self.browser.find_element(By.NAME,'select_job_1')
         available_button.click()

@@ -37,7 +37,7 @@ class TestViewHelperFunctions(TestCase):
         # Create a mock SendEmail instance
         send_email = SendEmail()
 
-        job = Job.objects.get(id=1)
+        #job = Job.objects.get(id=1)
 
         ###not working
         ## Call the function being tested

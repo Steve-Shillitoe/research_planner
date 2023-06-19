@@ -9,6 +9,7 @@ from jobs.models import Patient, Job, Configuration, Task
 from django.conf import settings
 import time
 import os
+from .Helper_Functions import delete_files_in_folder, flush_database
 
 #To just run this test file, python manage.py test jobs.tests.Test_Functional_dbAdmin
 
@@ -16,6 +17,7 @@ import os
 
 class FunctionalTestsdbAdmin(LiveServerTestCase):
     def setUp(self):
+        flush_database()
         self.browser = webdriver.Chrome()
         #create a super user
         self.superuser = User.objects.create_superuser(
@@ -24,9 +26,13 @@ class FunctionalTestsdbAdmin(LiveServerTestCase):
             password='adminpassword'
         )
 
+        #make sure the media/reports folder is empty
+        #folder_path = settings.BASE_DIR + '/media/reports/'
+        #delete_files_in_folder(folder_path)
 
     def tearDown(self):
         self.browser.quit()
+
 
 
     def return_num_files_in_folder(self, file, folder_path):
@@ -81,9 +87,8 @@ class FunctionalTestsdbAdmin(LiveServerTestCase):
         # Open the file in write mode ('w') and create it if it doesn't exist
         with open(file_path, 'w') as file:
             file.write('This is a test file.')
-        #check there is one file in this directory
-        file_count = self.return_num_files_in_folder(file, folder_path)
-        self.assertEquals(file_count, 1)
+        #check file added to this directory
+        self.assertTrue(os.path.isfile(file_path))
         delete_reports_button = self.browser.find_element(By.NAME, "deleteAllReports")
         delete_reports_button.click()
         time.sleep(1)
@@ -95,9 +100,8 @@ class FunctionalTestsdbAdmin(LiveServerTestCase):
         #test for data successful deletion of report
         body = self.browser.find_element(By.TAG_NAME, 'body')
         self.assertIn('All reports deleted', body.text)
-        #The reports folder should now contain zero reports
-        file_count = self.return_num_files_in_folder(file, folder_path)
-        self.assertEquals(file_count, 0)
+        #Check file removed
+        self.assertFalse(os.path.isfile(file_path))
 
 
         #Upload excel spreadsheet to populate the database

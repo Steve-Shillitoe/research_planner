@@ -4,18 +4,21 @@ from jobs.models import Job
 from django.contrib.auth.models import User
 from jobs.modules.DatabaseOperations import DatabaseOperations
 dbOps = DatabaseOperations()
-
+from .Helper_Functions import flush_database
 #To just run this test file, python manage.py test jobs.tests.Test_Unit_db_Ops
 
 #To get code coverage by tests, coverage run manage.py test
 class TestDBOperationsModule(TestCase):
     def test_deadline_passed_set_job_available(self):
-        
+        #start with an empty database, with id's reset to 1
+        flush_database()
+
         self.user = User.objects.create_user(
             username='testuser',
             email='testuser@example.com',
             password='testpassword'
         )
+
         #populate the database
         dbOps.populate_database_from_file()
 

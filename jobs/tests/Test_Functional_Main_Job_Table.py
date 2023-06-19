@@ -1,5 +1,6 @@
 import django
 from django.test import  LiveServerTestCase
+#from django.test import TransactionTestCase
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.keys import Keys
@@ -10,6 +11,7 @@ from django.conf import settings
 import time
 import os
 from jobs.modules.DatabaseOperations import DatabaseOperations
+from .Helper_Functions import flush_database
 dbOps = DatabaseOperations()
 
 #To just run this test file, python manage.py test jobs.tests.Test_Functional_Main_Job_Table
@@ -19,7 +21,8 @@ dbOps = DatabaseOperations()
 class FunctionalTestSelectJob(LiveServerTestCase):
     def setUp(self):
         self.browser = webdriver.Chrome()
-        
+        # Clear the database before each test
+        flush_database()
         #create an ordinary user
         self.user = User.objects.create_user(
             username='testuser',
@@ -54,9 +57,13 @@ class FunctionalTestSelectJob(LiveServerTestCase):
         self.assertIn("You can have a maximum of 4 'In Progress' jobs at one time.", body.text)
         self.assertIn("There are no jobs are assigned to you at the moment.", body.text)
         self.assertEquals(Job.objects.count(), 198)
-        #time.sleep(1)
+        time.sleep(5)
 
         #select one job
+        #page_source = self.browser.page_source  # Retrieve the page source
+        #print("***")
+        #print(page_source)  # Print the page source
+        #print("***")
         available_button = self.browser.find_element(By.NAME,'select_job_1')
         available_button.click()
         time.sleep(1)

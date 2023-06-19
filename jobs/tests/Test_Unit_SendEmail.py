@@ -7,11 +7,13 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from jobs.models import Job, Configuration
 from datetime import date, timedelta
+from .Helper_Functions import flush_database
 
 #To just run this test file, python manage.py test jobs.tests.Test_Unit_SendEmail
 
 class SendEmailTest(TestCase):
     def setUp(self):
+        flush_database()
         self.factory = RequestFactory()
         #populate the database
         dbOps.populate_database_from_file()
@@ -30,9 +32,15 @@ class SendEmailTest(TestCase):
     def test_deadline_reminder_email(self):
         # Create a test job with a deadline tomorrow
         tomorrow = date.today() + timedelta(days=1)
-        Job.objects.filter(id=1).update(deadline_date=tomorrow, user_id=self.user1, status ='In Progress')
-        job = Job.objects.get(id=1)
+        job = Job.objects.filter(id=1).first()  # Retrieve the first matching job object or None
+        
+        job.deadline_date = tomorrow
+        job.user_id = self.user1
+        job.status = 'In Progress'
+        job.save()  # Save the updated object to the database
+
         self.assertEqual(job.reminder_sent, 'no')
+        
 
         # Create a mock request
         request = self.factory.get('') #home url
@@ -53,15 +61,3 @@ class SendEmailTest(TestCase):
         # Assert that the reminder_sent field is updated
         job = Job.objects.get(id=1)
         self.assertEqual(job.reminder_sent, 'yes')
-
-
-    def test_deadline_reminder_emails(self):
-        # Create a test job with a deadline tomorrow
-        tomorrow = date.today() + timedelta(days=1)
-        print (Job.objects.count())
-        #Job.objects.filter(id=2).update(deadline_date=tomorrow, user_id=self.user1, status ='In Progress')
-        #job2 = Job.objects.get(id=2)
-        #self.assertEqual(job2.reminder_sent, 'no')
-        #Job.objects.filter(id=4).update(deadline_date=tomorrow, user_id=self.user2, status ='In Progress')
-        #job4 = Job.objects.get(id=4)
-        #self.assertEqual(job4.reminder_sent, 'no')
