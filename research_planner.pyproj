@@ -158,6 +158,7 @@
     <Content Include="jobs\tests\__pycache__\test_models.cpython-37.pyc" />
     <Content Include="jobs\tests\__pycache__\test_views.cpython-37.pyc" />
     <Content Include="jobs\tests\__pycache__\__init__.cpython-37.pyc" />
+    <Content Include="README.md" />
     <Content Include="research_planner\.env" />
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />
