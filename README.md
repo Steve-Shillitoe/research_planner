@@ -32,6 +32,7 @@ When a request is made to a Django web application, several steps are involved i
 6. Template Rendering:
    - If the view needs to render a template, it utilizes Django's template engine.
    - The template engine combines the view's data with the specified template, generating the final HTML content to be sent in the response.
+   - Templates are HTML files in which executable commands are enclosed in **{% %}** and context variables are enclosed in **{}**.  When a template is rendered into a web page, the context variables are replaced by a value or a string. 
    - 
 
 7. Response Generation:
