@@ -3,7 +3,7 @@ The Research Planner web application allows researchers to allocate data process
 
 A research study may have one or more datasets that require processing.  Typically a dataset will have several data processing tasks applied to it.  Each task must be preformed once or repeated several times.  When a task is repeated several times, each repetition of that task must be done by a different researcher. Consequently, a researcher is prevented from selecting the same dataset-task combination more than once. 
 
-The combination of a task applied to a dataset is called a **job**
+The combination of a task applied to a dataset is called a **job**.
 
 The Research Planner web application uses a Postgres database to store user and **job** data.
 
