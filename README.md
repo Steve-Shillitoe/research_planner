@@ -1,12 +1,5 @@
 <h2 align="center"><img src="Documents/images/uni-sheffield-logo.png" height="128"></h2>
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Software](https://img.shields.io/badge/Software-Quantitative%20Imaging%20Framework-green)
-![Status](https://img.shields.io/badge/Status-Prototype-orange)
-![Version](https://img.shields.io/badge/Version-0.2-blue)
-[![DOI](https://zenodo.org/badge/311635272.svg)](https://zenodo.org/badge/latestdoi/311635272)
-
-# [Weasel](https://weasel.pro/)
 
 Weasel is a Python environment for developing and deploying quantitative medical imaging applications.
 
