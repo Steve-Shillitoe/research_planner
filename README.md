@@ -1,4 +1,4 @@
-<h2 align="center"><img src="Documents/images/uni-sheffield-logo.png" height="128"></h2>
+# Research Planner Web Application.
 
 
 Weasel is a Python environment for developing and deploying quantitative medical imaging applications.
