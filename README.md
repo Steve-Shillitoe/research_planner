@@ -5,7 +5,7 @@ A research study may have one or more datasets that require processing.  Typical
 
 The combination of a task applied to a dataset is called a **job**.
 
-The Research Planner web application uses a Postgres database to store user and **job** data.
+The Research Planner web application uses a Postgres database to store user and **job** data.  This database is populated by uploading an Excel spreadsheet with a specific format to the web application. This Excel spreadsheet defines the dataset names and tasks.  An example of this spreadsheet called **Test_Data_Do_Not_Delete.xlsx** is contained in the root folder of the web application.  **Do not edit, remove, delete or rename this file** as it is used by the automated tests developed to test this application.  It is recommended that you make a copy of this file, give it a meaningful name and edit its contents to fit the requirements of your research project. 
 
 # Installation
 
