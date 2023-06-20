@@ -1,7 +1,11 @@
 # Research Planner Web Application.
 The Research Planner web application allows researchers to allocate data processing tasks to themselves and upload the resulting reports to a server.  Research administrators can then view the reports and approve them or not.  
 
-Typically a data set will have several data processing tasks applied to it.  Each task may be preformed only once or repeated several times.
+A research study may have one or more datasets that require processing.  Typically a dataset will have several data processing tasks applied to it.  Each task must be preformed once or repeated several times.  When a task is repeated several times, each repetition of that task must be done by a different researcher. Consequently, a researcher is prevented from selecting the same dataset-task combination more than once. 
+
+The combination of a task applied to a dataset is called a **job**
+
+The Research Planner web application uses a Postgres database to store user and **job** data.
 
 # Installation
 
