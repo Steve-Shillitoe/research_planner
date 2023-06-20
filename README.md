@@ -156,8 +156,11 @@ So it is necessary to create a GMail account that uses the GMail SMTP server to 
 The .env file should contain the following keyword-value pairs.  Note there should be no spaces either side of the ‘=’ sign; i.e., name=value not name = value.
 
   `EMAIL_HOST_USER=planner.research.2022@gmail.com
+  
    EMAIL_HOST_PASSWORD=16 digit app password
-   SECRET_KEY=0e417e5f-d7c7-4a20-a11f-43833a868776
+   
+   SECRET_KEY=code automatically generated in the settings.py file but moved here for security
+   
    DOMAIN=localhost`
 
 Note: In production, change the value of the DOMAIN keyword to the name of the server being used.
