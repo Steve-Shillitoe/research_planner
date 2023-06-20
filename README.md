@@ -128,7 +128,18 @@ To create a user, follow these steps:
        `python manage.py migrate`
 
 4. and to create a superuser, type the following command,
-      `python manage.py superuser`
+   
+      `python manage.py createsuperuser`
+
+5. You will be prompted to enter a username for the superuser. Type the desired username and press Enter.
+
+6. Next, you will be prompted to enter an email address for the superuser. Provide the email address and press Enter.
+
+7. Finally, you will be prompted to enter a password for the superuser. Type a secure password and press Enter. Note that the password will not be displayed as you type for security reasons.
+
+If the username, email, and password are valid, the superuser will be created, and you will see a success message.
+
+Once the superuser is created, you can use the above credentials to log in to the Django admin interface and access the administrative features of the web application.
          
 
 
