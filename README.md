@@ -47,6 +47,8 @@ When a request is made to a Django web application, several steps are involved i
 
 
 # Setting up a development environment
+As this web application uses a Postgres database, the first task is the installation of the Postgres database management system and the creation of the database and a database user.
+
 ## Installing the Postgres database
 1. Visit the official PostgreSQL downloads page at **https://www.postgresql.org/download/** and select the appropriate version for your operating system.
 
@@ -65,6 +67,7 @@ Verify the installation by opening a terminal or command prompt and running the 
 This command connects to the default PostgreSQL database as the "postgres" superuser.
 
 If the command is successful, you will see the PostgreSQL command prompt (postgres=#), indicating that you have successfully installed PostgreSQL.
+
 
 #### Option 1
 Download and install everything in one go by opening a Terminal (MacOS and Linux) or a CMD (Windows) and type in the following command:
