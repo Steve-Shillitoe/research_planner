@@ -62,7 +62,7 @@ As this web application uses a Postgres database, the first task is the installa
 
 Verify the installation by opening a terminal or command prompt and running the following command to access the PostgreSQL command-line interface:
 
-'psql -U postgres'
+      `psql -U postgres`
 
 This command connects to the default PostgreSQL database as the "postgres" superuser.
 
@@ -70,9 +70,17 @@ If the command is successful, you will see the PostgreSQL command prompt (postgr
 
 At this point, you could enter the following commands to create the database,
 1.  Create the database :
-   'postgres=# CREATE DATABASE plannerdb;'
+      `postgres=# CREATE DATABASE plannerdb;`
+    
+**Note: Every Postgres statement must end with a semi-colon, so make sure that your command ends with one if you are experiencing issues.**
 
-Note: Every Postgres statement must end with a semi-colon, so make sure that your command ends with one if you are experiencing issues.
+3.  Create a database user for our project. Make sure to select a secure password:
+      `postgres=# CREATE USER planneruser WITH PASSWORD 'planner1234';`
+
+
+
+
+
 
 
 
