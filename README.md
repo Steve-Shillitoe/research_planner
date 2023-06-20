@@ -155,13 +155,13 @@ So it is necessary to create a GMail account that uses the GMail SMTP server to 
 8.	In the .env file, EMAIL_HOST_PASSWORD holds the value of the 16 digit app password. The .env file is used to store environment variables that define various configuration settings for your Django project. It helps manage sensitive information and it is typically placed in the root directory of the Django project alongside the manage.py file. It should not be committed to version control systems like Git to protect sensitive information.
 The .env file should contain the following keyword-value pairs.  Note there should be no spaces either side of the ‘=’ sign; i.e., name=value not name = value.
 
-  `EMAIL_HOST_USER=planner.research.2022@gmail.com
+     `EMAIL_HOST_USER=planner.research.2022@gmail.com  `
   
-   EMAIL_HOST_PASSWORD=16 digit app password
+     `EMAIL_HOST_PASSWORD=16 digit app password  `
    
-   SECRET_KEY=code automatically generated in the settings.py file but moved here for security
+     `SECRET_KEY=code automatically generated in the settings.py file but moved here for security  `
    
-   DOMAIN=localhost`
+     `DOMAIN=localhost`
 
 Note: In production, change the value of the DOMAIN keyword to the name of the server being used.
 
