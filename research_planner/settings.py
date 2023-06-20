@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-#import posixpath
 #use .env file to hide email configuration details
 import environ
 env = environ.Env()
@@ -31,6 +30,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "qibsheffield.shef.ac.uk"]
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
