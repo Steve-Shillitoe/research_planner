@@ -141,6 +141,24 @@ If the username, email, and password are valid, the superuser will be created, a
 
 Once the superuser is created, you can use the above credentials to log in to the Django admin interface and access the administrative features of the web application.
          
+## How to create a GMail account to send emails from the Gmail SMTP server.
+The research planner web application sends emails to its users and superusers. 
+So it is necessary to create a GMail account that uses the GMail SMTP server to send these emails.
+
+1.	Create a Gmail account, called for the purposes of these instructions, planner.research.2022@gmail.com
+2.	Go into the Account (https://myaccount.google.com/) of this account.
+3.	Under Security, go to Signing in to Google and turn on 2-Step Verification
+4.	Complete all the steps to enable 2-Step Verification
+5.	The App Passwords link should now be visible below 2-Step Verification
+6.	Click the App Passwords link and follow the steps to create a 16-digit app password.
+7.	Two pieces of information are required for 6. The first is an option akin to Windows device. For the second, select 'Other' and type 'Django app'.
+8.	In the .env file, EMAIL_HOST_PASSWORD holds the value of the 16 digit app password.
+The .env file should contain the following keyword-value pairs.  Note there should be no spaces either side of the ‘=’ sign; i.e., name=value not name = value.
+EMAIL_HOST_USER=planner.research.2022@gmail.com
+EMAIL_HOST_PASSWORD=16 digit app password
+SECRET_KEY=0e417e5f-d7c7-4a20-a11f-43833a868776
+DOMAIN=localhost
+Note: In production, change the value of the DOMAIN keyword to the name of the server being used.
 
 
 
