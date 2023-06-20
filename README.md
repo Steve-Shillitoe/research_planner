@@ -77,6 +77,49 @@ At this point, you could enter the following commands to create the database and
 3.  Create a database user for our project:
       `postgres=# CREATE USER planneruser WITH PASSWORD 'planner1234';`
 
+Alternatively, you could use the GUI tool **pgAdmin4** to create the database and database user.
+
+To install pgAdmin4, you can follow these general steps:
+
+1. Visit the official pgAdmin4 website at https://www.pgadmin.org/ and navigate to the "Download" section.
+
+2. In the download section, select the appropriate version of pgAdmin4 for your operating system.
+
+3. Click on the download link for your chosen version to start the download.
+
+4. Once the download is complete, run the installer for pgAdmin4.
+
+5. Follow the installation wizard instructions, accepting the default settings unless you have specific requirements.
+
+6. During the installation process, you may be prompted to choose the installation directory and specify additional configuration options. Make any necessary selections based on your preferences and requirements.
+
+7. Complete the installation process by following the remaining steps in the wizard.
+
+8. Launch pgAdmin4 by locating its executable or by searching for it in the Start menu.
+
+When you open pgAdmin4 for the first time, you will be prompted to set up the initial configuration. Provide the necessary information, such as the server hostname, port, and login credentials, to connect to your PostgreSQL database.
+
+To create a database called "plannerdb" and user in pgAdmin4 for a PostgreSQL server, follow these steps:
+1. Launch pgAdmin4 and connect to your PostgreSQL server.
+
+2. Expand the server group in the Object browser on the left-hand side.
+
+3. Right-click on the "Databases" option and select "Create" from the context menu. This will open the "Create - Database" dialog.
+
+4. In the "General" tab, provide the name "**plannerdb**" in the "Database" field.
+
+5. Click the "Save" button to create the database.
+
+To create a user, follow these steps:
+1. Expand the server group in the Object browser on the left-hand side.
+2. Expand the server to which you want to create the user. This will be the server hosting the above database.
+3. Right-click on the "Login/Group Roles" option and select "Create" from the context menu. This will open the "Create - Login/Group Role" dialog.
+4. In the "General" tab, provide a name for the user in the "Name" field; i.e., **planneruser**.
+5. Switch to the "Definition" tab.
+   Enter the password, **planner1234**,  for the user in the "Password" field and confirm it in the "Password (again)" field. 
+6. In the "Privileges" tab, assign log on and superuser privileges to the user.
+7. Once you have filled in the required information, click the "Save" button to create the user.
+
 
 
 
