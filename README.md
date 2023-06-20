@@ -165,6 +165,8 @@ The .env file should contain the following keyword-value pairs.  Note there shou
 
 Note: In production, change the value of the DOMAIN keyword to the name of the server being used.
 
+# Setting up a production environment
+Refer to the separate PDF document that describes setting up an Ubuntu server on a TUoS virtual machine.
 
 
 
