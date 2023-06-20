@@ -123,8 +123,12 @@ To create a user, follow these steps:
 ## Installing the source code
 1. Download the source code from github to your computer.
 2. Open a command prompt in the root of the Django web application where the file **manage.py** is located and
-3. to build the tables in the plannerdb database, .type the following command,
-       python manage.py migrate`
+3. to build the tables in the plannerdb database, type the following command,
+   
+       `python manage.py migrate`
+
+4. and to create a superuser, type the following command,
+      `python manage.py superuser`
          
 
 
