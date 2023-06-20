@@ -68,13 +68,13 @@ This command connects to the default PostgreSQL database as the "postgres" super
 
 If the command is successful, you will see the PostgreSQL command prompt (postgres=#), indicating that you have successfully installed PostgreSQL.
 
-At this point, you could enter the following commands to create the database,
+At this point, you could enter the following commands to create the database and a user.  Use the given database name, username and password in order to match the database definition in the settings.py file in the web application source code,
 1.  Create the database :
       `postgres=# CREATE DATABASE plannerdb;`
     
 **Note: Every Postgres statement must end with a semi-colon, so make sure that your command ends with one if you are experiencing issues.**
 
-3.  Create a database user for our project. Make sure to select a secure password:
+3.  Create a database user for our project:
       `postgres=# CREATE USER planneruser WITH PASSWORD 'planner1234';`
 
 
