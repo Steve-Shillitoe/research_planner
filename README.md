@@ -14,13 +14,12 @@ When a request is made to a Django web application, several steps are involved i
    - The request is initially received by a web server, such as Nginx, which is responsible for handling incoming HTTP requests.
 
 2. URL Routing:
-   - The web server forwards the request to the appropriate Django application based on the configured URL mappings in the file.
-   - Django uses a URL dispatcher to match the requested URL to a specific view function or class.
+   - The web server forwards the request to the research planner web application, which matches the requested URL to a specific view function in the file **views.py** using the URL-view function mappings in the file **urls.py**.
 
-3. View Function/Class:
-   - Once the URL is matched, Django calls the associated view function or class.
-   - The view function or class is responsible for processing the request and generating a response.
-   - Views can perform various operations, such as fetching data from a database, rendering templates, or executing business logic.
+3. View Function:
+   - Once the URL is matched, Django calls the associated view function.
+   - The view function processes the request and generates a response.
+   - In this application, view functions typically save data to or fetch it from a database and render a template.
 
 4. Middleware:
    - Django's middleware components are invoked before and after the view is called.
@@ -33,6 +32,7 @@ When a request is made to a Django web application, several steps are involved i
 6. Template Rendering:
    - If the view needs to render a template, it utilizes Django's template engine.
    - The template engine combines the view's data with the specified template, generating the final HTML content to be sent in the response.
+   - 
 
 7. Response Generation:
    - The view returns an HTTP response object, which contains the response data, status code, headers, and other relevant information.
