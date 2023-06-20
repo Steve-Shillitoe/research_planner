@@ -85,28 +85,18 @@ WSGI_APPLICATION = 'research_planner.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-#Development only, comment out for production
+
+#Definition of Postgres database used by this application
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'research_planner_db',
-        'USER': 'postgres',
-        'PASSWORD':'_admin_',
-        'HOST':'localhost',
-        'PORT':'5432'
-    }
-}
-
-#uncomment for production
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#        'NAME': 'plannerdb',
-#        'USER': 'planneruser',
-#        'PASSWORD': 'planner1234',
-#        'HOST': 'localhost',
-#        'PORT': '5432',
-#    }
+        'NAME': 'plannerdb',
+        'USER': 'planneruser',
+        'PASSWORD': 'planner1234',
+        'HOST': 'localhost',
+        'PORT': '5432',
+               }
+           }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
