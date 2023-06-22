@@ -188,7 +188,7 @@ This command starts the development server, and by default, it listens on **http
 The Django development server will display log messages in the terminal, including any errors or warnings encountered while running the application. You can keep the terminal open to monitor the server's output as you interact with your app.
 
 # Setting up a production environment
-Refer to the separate PDF document that describes setting up an Ubuntu server on a TUoS virtual machine.
+Refer to the separate PDF document that describes setting up an Ubuntu server on a TUoS virtual machine that has been saved to this repository.
 
 
 
