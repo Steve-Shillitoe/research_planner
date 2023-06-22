@@ -78,7 +78,7 @@ class Job(models.Model):
 
     class Meta:
         ordering = ['patient_id', 'task_id']
-        verbose_name_plural = "Jobs"
+        verbose_name_plural = "Jobs"  #text forming link on the Admin page
 
 class Configuration(models.Model):
     """
