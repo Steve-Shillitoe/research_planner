@@ -174,8 +174,8 @@ To run the research planner web app in Visual Studio Code (VS Code), follow thes
 
 3. Activate the virtual environment: To activate the virtual environment, use the appropriate command based on your operating system:
 
-   -- Windows: venv\Scripts\activate
-   -- macOS/Linux: source venv/bin/activate
+   - Windows: venv\Scripts\activate
+   - macOS/Linux: source venv/bin/activate
    
 4. Run the Django development server: In the terminal, run the following command to start the Django development server:
    
