@@ -165,8 +165,30 @@ The .env file should contain the following keyword-value pairs.  Note there shou
 
 Note: In production, change the value of the DOMAIN keyword to the name of the server being used.
 
+# Running the research planner web app in a development environment such as VS Code.
+To run the research planner web app in Visual Studio Code (VS Code), follow these steps:
+
+1. Open the terminal in VS Code: Go to the "View" menu and select "Terminal". This will open a terminal panel at the bottom of the VS Code window.
+
+2. Navigate to the research planner  Django project: Use the cd command in the terminal to navigate to the root directory of the research planner web app project. 
+
+3. Activate the virtual environment: To activate the virtual environment, use the appropriate command based on your operating system:
+
+   - Windows: venv\Scripts\activate
+   - macOS/Linux: source venv/bin/activate
+   
+4. Run the Django development server: In the terminal, run the following command to start the Django development server:
+   
+      `python manage.py runserver`
+   
+This command starts the development server, and by default, it listens on **http://localhost:8000/**.
+
+5. To access the research planner web app,  open your web browser and navigate to **http://localhost:8000/** 
+
+The Django development server will display log messages in the terminal, including any errors or warnings encountered while running the application. You can keep the terminal open to monitor the server's output as you interact with your app.
+
 # Setting up a production environment
-Refer to the separate PDF document that describes setting up an Ubuntu server on a TUoS virtual machine.
+Refer to the separate PDF document that describes setting up an Ubuntu server on a TUoS virtual machine that has been saved to this repository.
 
 
 
