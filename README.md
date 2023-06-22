@@ -168,7 +168,7 @@ Note: In production, change the value of the DOMAIN keyword to the name of the s
 # Running the research planner web app in a development environment such as VS Code.
 To run the research planner web app in Visual Studio Code (VS Code), follow these steps:
 
-1. Open the terminal in VS Code: Go to the "View" menu and select "Terminal," or use the keyboard shortcut Ctrl+<code>`. This will open a terminal panel at the bottom of the VS Code window.
+1. Open the terminal in VS Code: Go to the "View" menu and select "Terminal". This will open a terminal panel at the bottom of the VS Code window.
 
 2. Navigate to the research planner  Django project: Use the cd command in the terminal to navigate to the root directory of the research planner web app project. 
 
