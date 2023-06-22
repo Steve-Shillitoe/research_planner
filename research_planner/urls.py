@@ -1,5 +1,7 @@
 """
-Definition of urls for iBeatStudyWebApp.
+To connect a view function to a specific URL, URL patterns are defined in the urls.py file. 
+This mapping connects the incoming URL to the corresponding view function, 
+allowing Django to route user requests to the appropriate view.
 """
 
 from datetime import datetime

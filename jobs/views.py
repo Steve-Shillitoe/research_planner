@@ -1,5 +1,16 @@
 """
-Definition of views.
+When a user interacts with a Django web application by submitting a form, clicking a link, 
+or accessing a specific URL, their request is sent to the server. 
+
+These requests are routed via the urls.py file to functions in the views.py file that processes them.
+
+Each view function represents a particular web page or a piece of functionality within 
+the application.
+
+View functions often involve rendering HTML templates using the data obtained from models. 
+Django's template engine allows you to create dynamic web pages by embedding variables 
+and control structures within the HTML templates. The view function can pass data to the template, 
+which is then rendered with the appropriate data values.
 """
 import mimetypes
 from datetime import date
@@ -55,9 +66,10 @@ def password_reset_request(request):
     otherwise an email is sent to the user. 
     """
     msg=""
-    password_reset_form = PasswordResetForm()
+    password_reset_form = PasswordResetForm() #a built-in form provided by Django
     if request.method == "POST":
         if request.POST['email']:
+            #The email textbox contains a valid email address
             email_address = request.POST['email'].strip()
             associated_users = User.objects.filter(Q(email=email_address))
             if associated_users.exists() == False:
@@ -130,7 +142,9 @@ def register_request(request):
 @csrf_protect #Require Cross Site Request Forgery protection
 @login_required   #If the user is not logged in, redirect to Login form
 def home(request):
-    """Renders the home page."""
+    """
+    This function renders the home page.  
+    """
     assert isinstance(request, HttpRequest)
     #If the database Configuration table has not been populated
     #yet, populate it with default initial values. 
@@ -144,15 +158,15 @@ def home(request):
     FourJobsWarning = ""
     SameJobWarning = ""
     if request.method == 'POST':
+        #A link or button has been clicked that causes a POST request to be sent to the web server.
         job_id = request.POST['jobId']
-        
-        if find_string_in_request(request, "select_job"):  # in request.POST:
-            #Update main jobs table. Available button clicked. Job assigned to a student
+        if find_string_in_request(request, "select_job"):
+            #Available button clicked, so a Job is assigned to a user if appropriate
             #and status changed to 'In Progress'
             FourJobsWarning, SameJobWarning =  select_job(request, job_id, sendEmail)
         elif find_string_in_request(request, "cancel"): 
-            #Update individual job table. Cancel button clicked. Setting dates=None, 
-            #gives them the value of Null
+            #Cancel button clicked in a user's individual jobs table. 
+            #Setting dates=None, gives them the value of Null
             try:
                 Job.objects.filter(id=job_id).update(status ='Available', 
                                user_id_id = "", start_date =None, deadline_date =None)
@@ -160,6 +174,7 @@ def home(request):
                 return HttpResponse("Exception in function views.select_job: " + \
                     "Error updating a job when a user cancels it.")
         elif find_string_in_request(request, "upload_report"):
+            #Upload Report button clicked in the user's individual jobs table
             try:
                 job = Job.objects.get(id=job_id)
             except ObjectDoesNotExist:
@@ -196,7 +211,11 @@ def home(request):
 
 
 def download_report(request):
-    """Prepares a report for download from a link"""
+    """
+    This function prepares a report for download from a link. 
+    It is executed when the report download link is clicked in the individual user jobs table
+    on the home page and in the uploaded reports tables on the Database Administration page. 
+    """
     try:
         report = request.GET.get('report')
         path_to_report = settings.BASE_DIR + '/media/reports/' + report
@@ -226,15 +245,18 @@ def superuser_required(view_func):
     decorated_view_func = user_passes_test(test_func)(view_func)
     return decorated_view_func
 
-@superuser_required #Only superusers may access this function
+#Only superusers may access this function. 
+#Prevents ordinary users from accessing the Database Administration page
+@superuser_required 
 @csrf_protect #Require Cross Site Request Forgery protection
 @login_required   #If the user is not logged in, redirect to Login form
 def dbAdmin(request):  
-    """View function linked to template dbAdmin.html"""
+    """View function rendering the  template dbAdmin.html"""
     assert isinstance(request, HttpRequest)
     if request.method == 'POST':
         if "deleteDatabase" in request.POST:
-            #clear data from the database but leave User data
+            #Delete Database button clicked
+            #Clear data from the database but leave User data
             dbOps.clear_database()
             return render(request,
                 template_name =  'jobs/dbAdmin.html',context={'main_title':Configuration.objects.first().main_title,
@@ -242,7 +264,8 @@ def dbAdmin(request):
                                                                 'received_reports':"<p>There are no reports uploaded to the database</p>",
                                                                 'approved_reports':"<p>There are no approved reports in the database</p>"})
         elif "deleteAllReports"  in request.POST:
-            #delete all the reports uploaded to the server
+            #Delete All Reports button clicked
+            #Delete all the reports uploaded to the server
             try:
                 [f.unlink() for f in Path(settings.MEDIA_ROOT + '/reports/').glob("*") if f.is_file()] 
             except Exception as e:
@@ -254,6 +277,7 @@ def dbAdmin(request):
                         'received_reports':"<p>There are no reports uploaded to the database</p>",
                         'approved_reports':"<p>There are no approved reports in the database</p>"})
         elif 'uploadFile' in request.POST:
+            #Populate Database button clicked
             #populate database from data in a spreadsheet
             dbOps.populate_database(request)
             received_reports = build_uploaded_report_table(request, 'Received')
@@ -265,7 +289,10 @@ def dbAdmin(request):
                             'received_reports':received_reports,
                             'approved_reports':approved_reports })
         elif 'delete' in request.POST:
-            #delete an uploaded report
+            #Delete Report button clicked in one of the uploaded reports tables.
+            #Deletes an uploaded report and displays the name of the delete report on the web page.
+            #The status of the task associated with the report is reset to 'In Progress' and returned
+            #to the user, so they can create another report.
             report_to_delete = delete_report(request)
             received_reports = build_uploaded_report_table(request, 'Received')
             approved_reports = build_uploaded_report_table(request, 'Approved')
@@ -277,13 +304,17 @@ def dbAdmin(request):
                             'approved_reports':approved_reports})
             
         elif 'updateStatus' in request.POST:
-                #update status of an uploaded report
+                #A new value is selected in the status dropdown list 
+                #in one of the uploaded reports tables.
+                #It updates the status of an uploaded report.
+                #Changing the status of an uploaded report to 'Not Approved' 
+                #is a special case, see below.
                 try:
                     job_id = request.POST['jobId']
                     new_status = request.POST['updateStatus']
                     job = Job.objects.get(id=job_id)
                     if new_status == 'Not Approved':
-                        #delete physical report
+                        #Delete physical report and make the job Available again in the main jobs table
                         report_to_delete = delete_report(request)
                         Job.objects.filter(id=job_id).update(status = 'Available', report_name ='', submission_date=None, start_date=None, deadline_date=None, user_id=None)
                     else:
