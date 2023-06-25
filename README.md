@@ -229,7 +229,7 @@ To just run just one test file, issue the following command
 
    `python manage.py test jobs.tests.<file name>`
 
-where <file name> is replaced by the name of a test file without its extension; e.g., to run just the test file Test_Functional_dbAdmin,
+where <file name> is replaced by the name of a test file without its extension; e.g., to run just the test file Test_Functional_dbAdmin.py,
 
    `python manage.py test jobs.tests.Test_Functional_dbAdmin`
 
