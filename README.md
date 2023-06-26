@@ -221,11 +221,11 @@ To run all the tests, open a command prompt in the root of the research planner 
 
    `python manage.py test`
 
-to get the code coverage by the tests, issue the following commands,
+To get the code coverage of the tests, issue the following command, which will run all the tests
 
    `coverage run manage.py test`
 
-To generate a coverage report, use the following command:
+Then to generate a coverage report, use the following command:
 
    `coverage report`
    
