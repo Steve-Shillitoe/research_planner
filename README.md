@@ -1,11 +1,11 @@
 # Research Planner Web Application.
-The Research Planner web application allows researchers to allocate data processing tasks to themselves and upload the resulting reports to a server.  Research administrators can then view the reports and approve them or not.  
+The Research Planner web application allows researchers to allocate data processing tasks to themselves and upload the reports they create to a server.  Research administrators can then view the reports and approve them or not.  
 
 A research study may have one or more datasets that require processing.  Typically a dataset will have several data processing tasks applied to it.  Each task must be preformed once or repeated several times.  When a task is repeated several times, each repetition of that task must be done by a different researcher. Consequently, a researcher is prevented from selecting the same dataset-task combination more than once. 
 
 The combination of a task applied to a dataset is called a **job**.
 
-The Research Planner web application uses a Postgres database to store user and **job** data.  This database is populated by uploading an Excel spreadsheet with a specific format to the web application. This Excel spreadsheet defines the dataset names and tasks.  An example of this spreadsheet called **Test_Data_Do_Not_Delete.xlsx** is contained in the root folder of the web application.  **Do not edit, remove, delete or rename this file** as it is used by the automated tests developed to test this application.  It is recommended that you make a copy of this file, give it a meaningful name and edit its contents to fit the requirements of your research project. 
+The Research Planner web application uses a Postgres database to store user and **job** data.  This database is populated by uploading an Excel spreadsheet with a specific format to the web application. This Excel spreadsheet defines the dataset names and tasks.  An example of this spreadsheet called **Test_Data_Do_Not_Delete.xlsx** is contained in the root folder of the web application.  **Do not edit, move, delete or rename this file** as it is used by the automated tests developed to test this application.  It is recommended that you make a copy of this file, give it a meaningful name and edit its contents to fit the requirements of your research project. 
 
 # Request and response generation in the Django Framework
 This web application was written in Python 3.9 and uses the Django framework. 
@@ -33,7 +33,7 @@ When a request is made to a Django web application, several steps are involved i
 6. Template Rendering:
    - If the view needs to render a template, it utilizes Django's template engine.
    - The template engine combines the view's data with the specified template, generating the final HTML content to be sent in the response.
-   - Templates are HTML files in which executable commands are enclosed in **{% %}** and context variables are enclosed in **{}**.  When a template is rendered into a web page, the context variables are replaced by a value or a string. 
+   - Templates are HTML files in which executable commands are enclosed in **{% %}** and context variables are enclosed in **{{}}**.  When a template is rendered into a web page, the context variables are replaced by a value or a string. 
 
 7. Response Generation:
    - The view returns an HTTP response object, which contains the response data, status code, headers, and other relevant information.
@@ -69,7 +69,7 @@ This folder represents a specific Django application within the project. It can 
   - tests/: Folder containing unit and functional test files.
 
 ## Folders in the project root
-- media/reports/: Stores user-uploaded reportfiles.
+- media/reports/: Stores user-uploaded report files.
 - static/: Automatically generated folder to collect static files for deployment.
 
 # Setting up a development environment
@@ -105,7 +105,7 @@ At this point, you could enter the following commands to create the database and
 
 Alternatively, you could use the GUI tool **pgAdmin4** to create the database and database user.
 
-To install pgAdmin4, you can follow these general steps:
+To install pgAdmin4, follow these general steps:
 
 1. Visit the official pgAdmin4 website at https://www.pgadmin.org/ and navigate to the "Download" section.
 
@@ -149,19 +149,19 @@ To create a user, follow these steps:
 ## Installing the source code
 1. Download the source code from github to your computer.
 2. Open a command prompt in the root of the Django web application where the file **manage.py** is located and
-3. to build the tables in the plannerdb database, type the following command,
+   to build the tables in the plannerdb database, type the following command,
    
        `python manage.py migrate`
 
-4. and to create a superuser, type the following command,
+3. and to create a superuser, type the following command,
    
       `python manage.py createsuperuser`
 
-5. You will be prompted to enter a username for the superuser. Type the desired username and press Enter.
+4. You will be prompted to enter a username for the superuser. Type the desired username and press Enter.
 
-6. Next, you will be prompted to enter an email address for the superuser. Provide the email address and press Enter.
+5. Next, you will be prompted to enter an email address for the superuser. Provide the email address and press Enter.
 
-7. Finally, you will be prompted to enter a password for the superuser. Type a secure password and press Enter. Note that the password will not be displayed as you type for security reasons.
+6. Finally, you will be prompted to enter a password for the superuser. Type a secure password and press Enter. Note that the password will not be displayed as you type for security reasons.
 
 If the username, email, and password are valid, the superuser will be created, and you will see a success message.
 
@@ -225,11 +225,23 @@ to get the code coverage by the tests, issue the following commands,
 
    `coverage run manage.py test`
 
+To generate a coverage report, use the following command:
+
+   `coverage report`
+   
+This command will display a summary of the code coverage, showing the percentage of code that is covered by your unit tests.
+
+Alternatively, if you want a more detailed coverage report, you can use the following command to generate an HTML report:
+
+   `coverage html`
+   
+This command will generate an HTML report in the htmlcov directory. You can open the generated HTML file in a web browser to view a detailed coverage report, including which parts of your code are covered and which parts are not.
+
 To just run just one test file, issue the following command
 
    `python manage.py test jobs.tests.<file name>`
 
-where <file name> is replaced by the name of a test file without its extension; e.g., to run just the test file Test_Functional_dbAdmin,
+where <file name> is replaced by the name of a test file without its extension; e.g., to run just the test file Test_Functional_dbAdmin.py,
 
    `python manage.py test jobs.tests.Test_Functional_dbAdmin`
 
