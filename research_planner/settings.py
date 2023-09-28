@@ -31,7 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "qibsheffield.shef.ac.uk"]
 
-CRISPY_TEMPLATE_PACK = 'bootstrap4'
+#CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
 INSTALLED_APPS = [
@@ -42,11 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'crispy_forms',
-    'crispy_bootstrap4' 
+    'django.contrib.staticfiles'
 ]
-    
+#,'crispy_forms',
+   # 'crispy_bootstrap4' 
 # Middleware framework
 # https://docs.djangoproject.com/en/2.1/topics/http/middleware/
 MIDDLEWARE = [

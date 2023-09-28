@@ -2,7 +2,6 @@
 
 {% block content %} 
 
-{% load crispy_forms_tags %}  
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,7 +25,7 @@
 	{{warning}}
 	<form method="POST">
 		{% csrf_token %}
-		{{ register_form|crispy }}                    
+		{{ register_form }}                    
 		<button class="btn btn-primary" type="submit">Register</button>
 	</form>
 	<p class="text-center">If you already have an account,  <a href="{% url 'login' %}">login</a> instead.</p>
