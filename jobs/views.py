@@ -12,6 +12,7 @@ Django's template engine allows you to create dynamic web pages by embedding var
 and control structures within the HTML templates. The view function can pass data to the template, 
 which is then rendered with the appropriate data values.
 """
+from smtplib import SMTPException
 import mimetypes
 from datetime import date
 from datetime import datetime
@@ -345,6 +346,7 @@ def download_jobs(dummy):
 
     This function is executed when the 'Download Jobs Spreadsheet' link is clicked. """
     try:
+        request = HttpRequest()
         response = HttpResponse(content_type='application/ms-excel')
         response['Content-Disposition'] = 'attachment; filename=jobs.xls'
         wb = Workbook(encoding='utf-8')
