@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.core.files import File
 import openpyxl  #package to open an excel file
 import os
+from django.http import HttpRequest, HttpResponse
 
 class DatabaseOperations:
     """Functions that directly operate on the database"""
@@ -104,7 +105,6 @@ class DatabaseOperations:
         try:
             patient_list = Patient.objects.all()
             task_list = Task.objects.all()
-            task_counter = 1
             for patient in patient_list:
                 for task in task_list:
                     num_repetions = task.repetitions
@@ -135,6 +135,7 @@ class DatabaseOperations:
         """Deletes the contents of the database and then repopulates it"""
         try:
             excel_file = request.FILES['excel_file']
+            print('excel_file =', excel_file)
             wb = openpyxl.load_workbook(excel_file)
             self.clear_database()
             self.populate_task_table(wb)

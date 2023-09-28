@@ -4,6 +4,7 @@ from django.middleware.csrf import get_token
 from django.contrib import messages
 from django.conf import settings
 from datetime import date, timedelta
+from django.http import HttpRequest, HttpResponse
 import os
 
 #Link job status to a colour. Used to set the background colour of table cells
