@@ -1,3 +1,4 @@
+from django.http import HttpRequest, HttpResponse
 from django.contrib import messages
 from django.core.mail import BadHeaderError, send_mail
 from django.conf import settings
