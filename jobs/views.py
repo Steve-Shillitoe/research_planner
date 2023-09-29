@@ -33,7 +33,7 @@ from django.contrib.auth.decorators import login_required
 from django.middleware.csrf import get_token 
 from django.views.decorators.csrf import csrf_protect 
 from django.conf import settings
-from .forms import NewUserForm
+from .forms import  CustomUserCreationForm
 from django.contrib.auth import login
 from django.contrib import messages
 from django.core.exceptions import *
@@ -104,6 +104,7 @@ def password_reset_request(request):
                            'email_not_found_db':msg,
                            'password_reset_form':password_reset_form})
 
+
 def register_request(request):
     """
     This function registers a new user in the database.
@@ -117,7 +118,7 @@ def register_request(request):
     """
     msg = ''
     if request.method == "POST":
-        form = NewUserForm(request.POST)  #See forms.py for the definition of this form class
+        form = CustomUserCreationForm(request.POST)  #See forms.py for the definition of this form class
         if form.is_valid():
             user = form.save()
             return redirect("login")
@@ -126,14 +127,14 @@ def register_request(request):
             #happens when the password is not valid, then the 
             #following code ensures that the other data entered is
             #retained in the form when it is redisplayed.
-            form = NewUserForm()
+            form = CustomUserCreationForm()
             form.fields['username'].initial = request.POST['username']
             form.fields['email'].initial = request.POST['email']
             form.fields['first_name'].initial = request.POST['first_name']
             form.fields['last_name'].initial = request.POST['last_name']
             msg = 'Unsuccessful registration. Invalid password.'
     else:
-        form = NewUserForm()
+        form = CustomUserCreationForm()
     return render (request=request, template_name="jobs/register.html",
                    context={'main_title':Configuration.objects.first().main_title,
                             'register_form':form,

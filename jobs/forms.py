@@ -28,24 +28,50 @@ class BootstrapAuthenticationForm(AuthenticationForm):
                                    'placeholder':'Password'}))
 
 
-#Form for user self-registration
-class NewUserForm(UserCreationForm):
-	#This class inherits from UserCreationForm, adds an email field and 
+
+class CustomUserCreationForm(UserCreationForm):
+    #This class inherits from UserCreationForm, adds an email field and 
 	#sends a welcome email to the new user when they are added to the database.
-	email = forms.EmailField(required=True)
+	
+    # Customize the username field
+    username = forms.CharField(
+        label="Username",
+        widget=forms.TextInput(attrs={'class': 'custom-class'})
+    )
 
-	class Meta:
-		model = User
-		fields = ("username", "email", "first_name", "last_name", "password1", "password2")
+    # Customize the email field
+    email = forms.EmailField(
+        label="Email",
+        widget=forms.EmailInput(attrs={'class': 'custom-class'})
+    )
+    first_name = forms.CharField(label="First Name",  
+			      widget=forms.TextInput(attrs={'class': 'custom-class'}))
+				       
+    last_name = forms.CharField(label="Last Name",  
+			      widget=forms.TextInput(attrs={'class': 'custom-class'}))
 
-	def save(self, commit=True):
-		user = super(NewUserForm, self).save(commit=False)
-		user.email = self.cleaned_data['email']
-		if commit:
-			user.save()
-			#send the new user a welcome email
-			sendEmail = SendEmail()
-			sendEmail.new_user_email(self.cleaned_data['first_name'], 
-							self.cleaned_data["username"], 
-							self.cleaned_data['email'])
-		return user
+    # Customize the password fields (password1 and password2)
+    password1 = forms.CharField(
+        label="Password",
+        widget=forms.PasswordInput(attrs={'class': 'custom-class'}),
+    )
+    password2 = forms.CharField(
+        label="Confirm Password",
+        widget=forms.PasswordInput(attrs={'class': 'custom-class'}),
+    )
+
+class Meta:
+	model = User
+	fields = ("username", "email", "first_name", "last_name", "password1", "password2")
+
+def save(self, commit=True):
+	user = super(NewUserForm, self).save(commit=False)
+	user.email = self.cleaned_data['email']
+	if commit:
+		user.save()
+		#send the new user a welcome email
+		sendEmail = SendEmail()
+		sendEmail.new_user_email(self.cleaned_data['first_name'], 
+						self.cleaned_data["username"], 
+						self.cleaned_data['email'])
+	return user
